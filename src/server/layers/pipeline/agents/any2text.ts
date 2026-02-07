@@ -94,14 +94,18 @@ export class Any2TextAgent extends ExportedAgent<any, Any2TextOutput> {
 	readonly pipelineInputs = ["any-data"];
 	readonly pipelineOutput = "formatted-text";
 
-	private openrouter: ReturnType<typeof createOpenRouter>;
+	private openrouter: ReturnType<typeof createOpenRouter> | null = null;
 
 	constructor() {
 		super();
 
 		const apiKey = process.env.OPENROUTER_API_KEY;
 		if (!apiKey) {
-			throw new Error("OPENROUTER_API_KEY is required for Any2TextAgent");
+			logger.warn(
+				{ agentId: this.agentManifest.id },
+				"OPENROUTER_API_KEY is missing; Any2TextAgent will run in local fallback mode",
+			);
+			return;
 		}
 
 		this.openrouter = createOpenRouter({
@@ -158,6 +162,19 @@ export class Any2TextAgent extends ExportedAgent<any, Any2TextOutput> {
 			// Serialize input to JSON for LLM
 			const inputStr =
 				typeof input === "string" ? input : JSON.stringify(input, null, 2);
+
+			// Fallback mode: keep the app alive even when OPENROUTER_API_KEY is not configured.
+			if (!this.openrouter) {
+				const plain = inputStr.trim();
+				const result =
+					plain.length > maxLength
+						? `${plain.slice(0, maxLength - 3)}...`
+						: plain;
+				return {
+					text: result,
+					timestamp: Date.now(),
+				};
+			}
 
 			// Build prompt
 			let prompt: string;
