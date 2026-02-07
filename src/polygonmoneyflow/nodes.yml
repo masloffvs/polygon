@@ -1,21 +1,21 @@
 solana:
   primary: https://api.mainnet-beta.solana.com
   fallbacks:
-    - https://rpc.ankr.com/solana
+    - https://api.mainnet-beta.solana.com
 eth:
   primary: https://cloudflare-eth.com
   fallbacks:
-    - https://rpc.ankr.com/eth
+    - https://ethereum-rpc.publicnode.com
   chainId: 1
 base:
   primary: https://mainnet.base.org
   fallbacks:
-    - https://rpc.ankr.com/base
+    - https://base-rpc.publicnode.com
   chainId: 8453
 polygon:
   primary: https://polygon-rpc.com
   fallbacks:
-    - https://rpc.ankr.com/polygon
+    - https://polygon-bor-rpc.publicnode.com
   chainId: 137
 trx:
   primary: https://api.trongrid.io
@@ -41,7 +41,7 @@ atom:
 link:
   primary: https://cloudflare-eth.com
   fallbacks:
-    - https://rpc.ankr.com/eth
+    - https://ethereum-rpc.publicnode.com
   chainId: 1
   tokenAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA"
 bitcoin:
