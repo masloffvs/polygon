@@ -14,9 +14,62 @@ import {
   registerWallet
 } from "../infra/wallet-registry";
 
+type CapabilityStatus = "full" | "partial" | "placeholder" | "not_implemented";
+type ChainImplementationMode = "full" | "partial" | "placeholder";
+type LiveStatus = "healthy" | "degraded" | "down" | "unknown";
+type ProbeCheck = "ok" | "failed" | "skipped";
+
+type ChainCapabilities = {
+  createWallet: CapabilityStatus;
+  getBalance: CapabilityStatus;
+  estimateFee: CapabilityStatus;
+  sendTransaction: CapabilityStatus;
+  getStatus: CapabilityStatus;
+  incomingMonitoring: CapabilityStatus;
+};
+
+type ChainLiveReport = {
+  status: LiveStatus;
+  latencyMs?: number;
+  checks: {
+    createWallet: ProbeCheck;
+    getBalance: ProbeCheck;
+    estimateFee: ProbeCheck;
+  };
+  error?: string;
+};
+
+export type ChainStatusReport = {
+  chain: ChainId;
+  mode: ChainImplementationMode;
+  institutionalEnabled: boolean;
+  rpc: {
+    primary: string;
+    fallbacks: number;
+    timeoutMs: number;
+  };
+  capabilities: ChainCapabilities;
+  limitations: string[];
+  live: ChainLiveReport;
+};
+
 export const createWalletService = (config: AppConfig) => {
   const router = createChainRouter(config.chains);
   const institutionalChains = new Set(config.institutional.chains);
+  const supportedChains = Object.keys(config.chains) as ChainId[];
+  const monitoredChains = new Set<ChainId>([
+    "eth",
+    "base",
+    "polygon",
+    "solana",
+    "trx",
+    "xrp",
+    "polkadot",
+    "bitcoin",
+    "atom",
+    "ada",
+    "link"
+  ]);
 
   const normalizeAssets = (assets?: string[]) => {
     if (!assets) return undefined;
@@ -65,6 +118,372 @@ export const createWalletService = (config: AppConfig) => {
     const assets = (wallet.meta as Record<string, unknown>).institutionalAssets;
     if (!Array.isArray(assets)) return undefined;
     return assets.filter((asset): asset is string => typeof asset === "string");
+  };
+
+  const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> => {
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        promise,
+        new Promise<T>((_, reject) => {
+          timeoutHandle = setTimeout(() => {
+            reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+          }, timeoutMs);
+        })
+      ]);
+    } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle);
+    }
+  };
+
+  const postJson = async (
+    endpoint: string,
+    body: Record<string, unknown>,
+    timeoutMs: number,
+    label: string,
+    headers?: Record<string, string>
+  ) => {
+    const res = await withTimeout(
+      fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(headers ?? {})
+        },
+        body: JSON.stringify(body)
+      }),
+      timeoutMs,
+      label
+    );
+
+    if (!res.ok) {
+      throw new Error(`${label} failed with ${res.status}: ${await res.text()}`);
+    }
+
+    return (await res.json()) as Record<string, unknown>;
+  };
+
+  const getJson = async (
+    endpoint: string,
+    timeoutMs: number,
+    label: string,
+    headers?: Record<string, string>
+  ) => {
+    const res = await withTimeout(
+      fetch(endpoint, {
+        headers: headers ?? {}
+      }),
+      timeoutMs,
+      label
+    );
+
+    if (!res.ok) {
+      throw new Error(`${label} failed with ${res.status}: ${await res.text()}`);
+    }
+
+    return (await res.json()) as Record<string, unknown>;
+  };
+
+  const probeWsJsonRpc = async (
+    endpoint: string,
+    payload: Record<string, unknown>,
+    timeoutMs: number,
+    label: string
+  ): Promise<void> =>
+    new Promise((resolve, reject) => {
+      let settled = false;
+      const socket = new WebSocket(endpoint);
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        try {
+          socket.close();
+        } catch {}
+        reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+
+      const finish = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try {
+          socket.close();
+        } catch {}
+        if (error) reject(error);
+        else resolve();
+      };
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify(payload));
+      };
+
+      socket.onmessage = (event) => {
+        const data = typeof event.data === "string" ? event.data : String(event.data ?? "");
+        if (data.includes('"error"')) {
+          finish(new Error(`${label} returned error payload: ${data.slice(0, 240)}`));
+          return;
+        }
+        finish();
+      };
+
+      socket.onerror = () => {
+        finish(new Error(`${label} failed`));
+      };
+    });
+
+  const probeEndpoint = async (chain: ChainId, endpoint: string, timeoutMs: number) => {
+    switch (chain) {
+      case "solana": {
+        const body = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getHealth",
+          params: []
+        };
+        await postJson(endpoint, body, timeoutMs, `${chain}.getHealth`);
+        return;
+      }
+      case "eth":
+      case "base":
+      case "polygon":
+      case "link": {
+        const body = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        };
+        await postJson(endpoint, body, timeoutMs, `${chain}.eth_blockNumber`);
+        return;
+      }
+      case "trx": {
+        await postJson(
+          endpoint.replace(/\/+$/, "") + "/wallet/getnowblock",
+          {},
+          timeoutMs,
+          `${chain}.getnowblock`
+        );
+        return;
+      }
+      case "xrp": {
+        const body = {
+          method: "server_info",
+          params: [{}]
+        };
+        await postJson(endpoint, body, timeoutMs, `${chain}.server_info`);
+        return;
+      }
+      case "polkadot": {
+        const body = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "system_health",
+          params: []
+        };
+        await probeWsJsonRpc(endpoint, body, timeoutMs, `${chain}.system_health`);
+        return;
+      }
+      case "ada": {
+        await getJson(endpoint.replace(/\/+$/, "") + "/tip", timeoutMs, `${chain}.tip`);
+        return;
+      }
+      case "atom": {
+        await getJson(
+          endpoint.replace(/\/+$/, "") + "/cosmos/base/tendermint/v1beta1/node_info",
+          timeoutMs,
+          `${chain}.node_info`
+        );
+        return;
+      }
+      case "bitcoin": {
+        const res = await withTimeout(
+          fetch(endpoint.replace(/\/+$/, "") + "/blocks/tip/height"),
+          timeoutMs,
+          `${chain}.tip_height`
+        );
+        if (!res.ok) {
+          throw new Error(`${chain}.tip_height failed with ${res.status}: ${await res.text()}`);
+        }
+        return;
+      }
+      case "lightning": {
+        const macaroon = process.env.LIGHTNING_MACAROON?.trim();
+        if (!macaroon) {
+          throw new Error("LIGHTNING_MACAROON is not set");
+        }
+        await getJson(
+          endpoint.replace(/\/+$/, "") + "/v1/getinfo",
+          timeoutMs,
+          `${chain}.getinfo`,
+          { "Grpc-Metadata-macaroon": macaroon }
+        );
+        return;
+      }
+      default:
+        throw new Error(`No probe configured for chain ${chain}`);
+    }
+  };
+
+  const probeRpcHealth = async (chain: ChainId, timeoutMs: number): Promise<{
+    status: "healthy" | "degraded" | "down";
+    error?: string;
+  }> => {
+    const rpcConfig = config.chains[chain].rpc;
+    const endpoints = [rpcConfig.primary, ...(rpcConfig.fallbacks ?? [])];
+    const errors: string[] = [];
+
+    for (let i = 0; i < endpoints.length; i += 1) {
+      const endpoint = endpoints[i];
+      try {
+        await probeEndpoint(chain, endpoint, timeoutMs);
+        if (i === 0) {
+          return { status: "healthy" };
+        }
+        return {
+          status: "degraded",
+          error: `Primary endpoint failed, fallback endpoint #${i} succeeded.`
+        };
+      } catch (err) {
+        errors.push((err as Error).message);
+      }
+    }
+
+    return {
+      status: "down",
+      error: errors.join("; ")
+    };
+  };
+
+  const buildCapabilities = (chain: ChainId): {
+    mode: ChainImplementationMode;
+    capabilities: ChainCapabilities;
+    limitations: string[];
+  } => {
+    const capabilities: ChainCapabilities = {
+      createWallet: "full",
+      getBalance: "full",
+      estimateFee: "full",
+      sendTransaction: "full",
+      getStatus: "full",
+      incomingMonitoring: monitoredChains.has(chain) ? "full" : "not_implemented"
+    };
+
+    const limitations: string[] = [];
+    let mode: ChainImplementationMode = "full";
+
+    if (chain === "lightning" && !process.env.LIGHTNING_MACAROON?.trim()) {
+      mode = "placeholder";
+      capabilities.createWallet = "placeholder";
+      capabilities.getBalance = "placeholder";
+      capabilities.estimateFee = "placeholder";
+      capabilities.sendTransaction = "placeholder";
+      capabilities.getStatus = "placeholder";
+      limitations.push(
+        "LIGHTNING_MACAROON is not set; adapter works in placeholder mode."
+      );
+    }
+
+    if (chain === "ada") {
+      if (mode === "full") mode = "partial";
+      capabilities.sendTransaction = mode === "placeholder" ? "placeholder" : "partial";
+      limitations.push(
+        "sendTransaction requires signed rawTx (CBOR hex) in request body."
+      );
+    }
+
+    if (chain === "atom") {
+      if (mode === "full") mode = "partial";
+      capabilities.sendTransaction = mode === "placeholder" ? "placeholder" : "partial";
+      limitations.push(
+        "Native send requires ATOM_TENDERMINT_RPC_URL (or ATOM_SIGNER_RPC_URL); otherwise use rawTx."
+      );
+    }
+
+    if (chain === "link") {
+      if (mode === "full") mode = "partial";
+      capabilities.getBalance = "partial";
+      capabilities.estimateFee = "partial";
+      capabilities.sendTransaction = "partial";
+      limitations.push("LINK adapter supports LINK token operations only.");
+    }
+
+    if (!monitoredChains.has(chain)) {
+      limitations.push("Incoming transaction monitoring is not implemented for this chain.");
+    }
+
+    return { mode, capabilities, limitations };
+  };
+
+  const probeChain = async (
+    chain: ChainId,
+    includeLive: boolean,
+    timeoutMs: number,
+    mode: ChainImplementationMode
+  ): Promise<ChainLiveReport> => {
+    const checks: ChainLiveReport["checks"] = {
+      createWallet: "skipped",
+      getBalance: "skipped",
+      estimateFee: "skipped"
+    };
+
+    if (!includeLive) {
+      return { status: "unknown", checks };
+    }
+
+    const startedAt = Date.now();
+    checks.createWallet = mode === "placeholder" ? "skipped" : "ok";
+
+    const rpcHealth = await probeRpcHealth(chain, timeoutMs);
+    checks.getBalance = rpcHealth.status === "down" ? "failed" : "ok";
+    checks.estimateFee = rpcHealth.status === "down" ? "failed" : "ok";
+
+    const status =
+      mode === "placeholder"
+        ? "degraded"
+        : rpcHealth.status;
+
+    return {
+      status,
+      latencyMs: Date.now() - startedAt,
+      checks,
+      error:
+        mode === "placeholder"
+          ? rpcHealth.error
+            ? `Adapter runs in placeholder mode. ${rpcHealth.error}`
+            : "Adapter runs in placeholder mode."
+          : rpcHealth.error
+    };
+  };
+
+  const getChainsStatus = async (opts?: {
+    includeLive?: boolean;
+    timeoutMs?: number;
+  }): Promise<ChainStatusReport[]> => {
+    const includeLive = opts?.includeLive ?? true;
+    const timeoutMs = Math.min(Math.max(opts?.timeoutMs ?? 6_000, 500), 20_000);
+
+    const reports = await Promise.all(
+      supportedChains.map(async (chain) => {
+        const implementation = buildCapabilities(chain);
+        const chainConfig = config.chains[chain];
+        const live = await probeChain(chain, includeLive, timeoutMs, implementation.mode);
+        return {
+          chain,
+          mode: implementation.mode,
+          institutionalEnabled: institutionalChains.has(chain),
+          rpc: {
+            primary: chainConfig.rpc.primary,
+            fallbacks: chainConfig.rpc.fallbacks?.length ?? 0,
+            timeoutMs: chainConfig.rpc.timeoutMs ?? 8_000
+          },
+          capabilities: implementation.capabilities,
+          limitations: implementation.limitations,
+          live
+        } satisfies ChainStatusReport;
+      })
+    );
+
+    return reports;
   };
 
   const createWallet = async (chain: ChainId, label?: string) => {
@@ -294,6 +713,7 @@ export const createWalletService = (config: AppConfig) => {
     createInstitutionalWallet,
     createVirtualOwnedWallets,
     listWallets,
-    listInstitutionalWallets: listInstitutional
+    listInstitutionalWallets: listInstitutional,
+    getChainsStatus
   };
 };

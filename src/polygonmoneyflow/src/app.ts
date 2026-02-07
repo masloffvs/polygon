@@ -112,6 +112,51 @@ const virtualOwnedWalletSchema = t.Object({
   meta: t.Optional(t.Record(t.String(), t.Unknown())),
   created: t.Boolean(),
 });
+const capabilityStatusSchema = t.Union([
+  t.Literal("full"),
+  t.Literal("partial"),
+  t.Literal("placeholder"),
+  t.Literal("not_implemented"),
+]);
+const probeCheckSchema = t.Union([
+  t.Literal("ok"),
+  t.Literal("failed"),
+  t.Literal("skipped"),
+]);
+const chainStatusSchema = t.Object({
+  chain: chainSchema,
+  mode: t.Union([t.Literal("full"), t.Literal("partial"), t.Literal("placeholder")]),
+  institutionalEnabled: t.Boolean(),
+  rpc: t.Object({
+    primary: t.String(),
+    fallbacks: t.Number(),
+    timeoutMs: t.Number(),
+  }),
+  capabilities: t.Object({
+    createWallet: capabilityStatusSchema,
+    getBalance: capabilityStatusSchema,
+    estimateFee: capabilityStatusSchema,
+    sendTransaction: capabilityStatusSchema,
+    getStatus: capabilityStatusSchema,
+    incomingMonitoring: capabilityStatusSchema,
+  }),
+  limitations: t.Array(t.String()),
+  live: t.Object({
+    status: t.Union([
+      t.Literal("healthy"),
+      t.Literal("degraded"),
+      t.Literal("down"),
+      t.Literal("unknown"),
+    ]),
+    latencyMs: t.Optional(t.Number()),
+    checks: t.Object({
+      createWallet: probeCheckSchema,
+      getBalance: probeCheckSchema,
+      estimateFee: probeCheckSchema,
+    }),
+    error: t.Optional(t.String()),
+  }),
+});
 
 const parseChain = (chain?: string): ChainId => {
   if (!chain || !supportedChains.includes(chain as ChainId)) {
@@ -154,6 +199,40 @@ const app = new Elysia({ serve: { reusePort: true } })
       tags: ["System"],
     },
   })
+  .get(
+    "/chains/status",
+    async ({ query }) => {
+      const { live, timeoutMs } = query as {
+        live?: string;
+        timeoutMs?: string | number;
+      };
+      const includeLive = (live ?? "true").toLowerCase() !== "false";
+      const parsedTimeout =
+        timeoutMs !== undefined && timeoutMs !== null && timeoutMs !== ""
+          ? Number(timeoutMs)
+          : undefined;
+
+      return walletService.getChainsStatus({
+        includeLive,
+        timeoutMs: Number.isNaN(parsedTimeout) ? undefined : parsedTimeout,
+      });
+    },
+    {
+      query: t.Object({
+        live: t.Optional(t.String()),
+        timeoutMs: t.Optional(t.String()),
+      }),
+      response: {
+        200: t.Array(chainStatusSchema),
+        400: errorResponseSchema,
+        500: errorResponseSchema,
+      },
+      detail: {
+        summary: "List chain statuses and implemented capabilities",
+        tags: ["System"],
+      },
+    },
+  )
   .post(
     "/wallets",
     async ({ body }) => {
