@@ -3,6 +3,7 @@ services:
     build: null
     image: ${APP_IMAGE:?APP_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
     pull_policy: always
+    entrypoint: ["bun", "src/index.ts"]
     environment:
       CLICKHOUSE_URL: ${CLICKHOUSE_URL:-http://clickhouse:8123}
       CLICKHOUSE_DB: ${CLICKHOUSE_DB:-default}
