@@ -131,12 +131,29 @@ export const createSolanaAdapter = (_config: SolanaConfig): ChainAdapter => {
       if (!secret) throw new Error("secretKey is required to sign Solana transactions");
       const keypair = Keypair.fromSecretKey(Buffer.from(secret, "base64"));
       return withConnection(rpc, async (conn) => {
+        const lamports = parseLamports(draft.amount);
+        if (lamports <= 0n) {
+          throw new Error("amount must be greater than 0");
+        }
+        const toPubkey = new PublicKey(draft.to);
+        const [destinationAccount, rentExemptLamports] = await Promise.all([
+          conn.getAccountInfo(toPubkey),
+          conn.getMinimumBalanceForRentExemption(0),
+        ]);
+        if (!destinationAccount && lamports < BigInt(rentExemptLamports)) {
+          throw new Error(
+            `Destination account ${draft.to} is not initialized. Minimum first transfer is ${formatLamports(
+              rentExemptLamports,
+            )} SOL to satisfy rent-exempt balance. Requested ${draft.amount} SOL.`,
+          );
+        }
+
         const tx = new Transaction();
         tx.add(
           SystemProgram.transfer({
             fromPubkey: keypair.publicKey,
-            toPubkey: new PublicKey(draft.to),
-            lamports: parseLamports(draft.amount)
+            toPubkey: toPubkey,
+            lamports: lamports
           })
         );
         const { blockhash, lastValidBlockHeight } = await conn.getLatestBlockhash();

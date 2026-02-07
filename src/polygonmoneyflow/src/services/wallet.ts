@@ -694,7 +694,20 @@ export const createWalletService = (config: AppConfig) => {
       clientTxnId: params.clientTxnId,
       secrets: params.secrets ?? from.secrets
     };
-    return router.get(chain).sendTransaction(draft);
+    try {
+      return await router.get(chain).sendTransaction(draft);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (
+        chain === "solana" &&
+        /insufficient funds for rent|minimum first transfer is/i.test(message)
+      ) {
+        throw new BadRequestError(
+          "Solana destination is unfunded and requires a higher first transfer (rent-exempt minimum is about 0.00089 SOL). Increase amount or fund recipient first.",
+        );
+      }
+      throw err;
+    }
   };
 
   const refinanceTransfer = async (
