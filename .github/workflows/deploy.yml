@@ -41,6 +41,12 @@ jobs:
       WALLET_ENV_FILE_SECRET: ${{ secrets.WALLET_ENV_FILE }}
       GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      NGINX_HOST_PORT: ${{ secrets.NGINX_HOST_PORT }}
+      EMUFETCH_HOST_PORT: ${{ secrets.EMUFETCH_HOST_PORT }}
+      YTDLP_HOST_PORT: ${{ secrets.YTDLP_HOST_PORT }}
+      XSCRAPER_HOST_PORT: ${{ secrets.XSCRAPER_HOST_PORT }}
+      XSCRAPER_VNC_HOST_PORT: ${{ secrets.XSCRAPER_VNC_HOST_PORT }}
+      WALLET_API_HOST_PORT: ${{ secrets.WALLET_API_HOST_PORT }}
 
     steps:
       - name: Checkout infrastructure files
@@ -147,9 +153,32 @@ jobs:
           set -euo pipefail
           port="${DEPLOY_PORT:-22}"
 
+          nginx_host_port="${NGINX_HOST_PORT:-}"
+          emufetch_host_port="${EMUFETCH_HOST_PORT:-}"
+          ytdlp_host_port="${YTDLP_HOST_PORT:-}"
+          xscraper_host_port="${XSCRAPER_HOST_PORT:-}"
+          xscraper_vnc_host_port="${XSCRAPER_VNC_HOST_PORT:-}"
+          wallet_api_host_port="${WALLET_API_HOST_PORT:-}"
+
+          if [[ "${DEPLOY_TARGET_DIR}" == *"polygon-extra"* ]]; then
+            : "${nginx_host_port:=82}"
+            : "${emufetch_host_port:=18916}"
+            : "${ytdlp_host_port:=18917}"
+            : "${xscraper_host_port:=18918}"
+            : "${xscraper_vnc_host_port:=15901}"
+            : "${wallet_api_host_port:=35960}"
+          else
+            : "${nginx_host_port:=81}"
+            : "${emufetch_host_port:=8916}"
+            : "${ytdlp_host_port:=8917}"
+            : "${xscraper_host_port:=8918}"
+            : "${xscraper_vnc_host_port:=5901}"
+            : "${wallet_api_host_port:=25960}"
+          fi
+
           printf -v remote_env \
-            "IMAGE_TAG=%q APP_IMAGE=%q EMUFETCH_IMAGE=%q YTDLP_IMAGE=%q XSCRAPER_IMAGE=%q ARBSCANNER_IMAGE=%q WALLET_IMAGE=%q WALLET_ENV_FILE=%q DEPLOY_TARGET_DIR=%q" \
-            "${IMAGE_TAG}" "${APP_IMAGE}" "${EMUFETCH_IMAGE}" "${YTDLP_IMAGE}" "${XSCRAPER_IMAGE}" "${ARBSCANNER_IMAGE}" "${WALLET_IMAGE}" "${WALLET_ENV_FILE}" "${DEPLOY_TARGET_DIR}"
+            "IMAGE_TAG=%q APP_IMAGE=%q EMUFETCH_IMAGE=%q YTDLP_IMAGE=%q XSCRAPER_IMAGE=%q ARBSCANNER_IMAGE=%q WALLET_IMAGE=%q WALLET_ENV_FILE=%q DEPLOY_TARGET_DIR=%q NGINX_HOST_PORT=%q EMUFETCH_HOST_PORT=%q YTDLP_HOST_PORT=%q XSCRAPER_HOST_PORT=%q XSCRAPER_VNC_HOST_PORT=%q WALLET_API_HOST_PORT=%q" \
+            "${IMAGE_TAG}" "${APP_IMAGE}" "${EMUFETCH_IMAGE}" "${YTDLP_IMAGE}" "${XSCRAPER_IMAGE}" "${ARBSCANNER_IMAGE}" "${WALLET_IMAGE}" "${WALLET_ENV_FILE}" "${DEPLOY_TARGET_DIR}" "${nginx_host_port}" "${emufetch_host_port}" "${ytdlp_host_port}" "${xscraper_host_port}" "${xscraper_vnc_host_port}" "${wallet_api_host_port}"
 
           ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "${remote_env} bash -lc 'set -euo pipefail; cd \"${DEPLOY_TARGET_DIR}\"; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml pull; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build --remove-orphans; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml ps'"

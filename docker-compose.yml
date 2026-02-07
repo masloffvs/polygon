@@ -2,7 +2,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "81:80"
+      - "${NGINX_HOST_PORT:-81}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/public:/usr/share/nginx/html:ro
@@ -100,7 +100,7 @@ services:
       context: .
       dockerfile: src/emufetch/Dockerfile
     ports:
-      - "8916:8916"
+      - "${EMUFETCH_HOST_PORT:-8916}:8916"
     env_file:
       - .env
     restart: unless-stopped
@@ -110,7 +110,7 @@ services:
       context: .
       dockerfile: src/ytdlp/Dockerfile
     ports:
-      - "8917:8917"
+      - "${YTDLP_HOST_PORT:-8917}:8917"
     volumes:
       - ytdlp_downloads:/app/downloads
       - ytdlp_cookies:/app/cookies
@@ -121,8 +121,8 @@ services:
       context: .
       dockerfile: src/xscraper/Dockerfile
     ports:
-      - "8918:8918"
-      - "5901:5901"
+      - "${XSCRAPER_HOST_PORT:-8918}:8918"
+      - "${XSCRAPER_VNC_HOST_PORT:-5901}:5901"
     env_file:
       - .env
     volumes:
@@ -150,7 +150,7 @@ services:
       - POSTGRES_HOST=wallet-postgres
       - REDIS_HOST=wallet-redis
     ports:
-      - "25960:3000"
+      - "${WALLET_API_HOST_PORT:-25960}:3000"
     depends_on:
       wallet-postgres:
         condition: service_started
