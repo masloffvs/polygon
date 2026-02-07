@@ -10,6 +10,53 @@ import { TakerClient } from "./client";
 import { logger } from "./logger";
 import { getSupportedNetworks, initWalletApi } from "./wallet-api";
 
+const DEFAULT_DEPOSIT_NETWORKS = [
+  "erc20",
+  "trc20",
+  "bep20",
+  "solana",
+  "bitcoin",
+  "xrp",
+  "doge",
+  "ltc",
+  "polygon",
+  "arbitrum",
+];
+
+const DEFAULT_TAKER_FEES: Record<string, string> = {
+  btc: "0.0001",
+  erc20: "0.0005",
+  trc20: "1",
+  bep20: "0.5",
+  solana: "0.01",
+  xrp: "0.1",
+  doge: "1",
+  ltc: "0.001",
+  polygon: "0.1",
+  arbitrum: "0.0003",
+};
+
+const parseListEnv = (value: string | undefined, fallback: string[]): string[] => {
+  if (!value || !value.trim()) return fallback;
+  return value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+};
+
+const parseJsonEnv = <T>(value: string | undefined, fallback: T): T => {
+  if (!value || !value.trim()) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch (error) {
+    logger.warn(
+      { value, error: error instanceof Error ? error.message : String(error) },
+      "Invalid JSON in env var, using fallback",
+    );
+    return fallback;
+  }
+};
+
 // Load environment variables
 const config = {
   wsUrl:
@@ -18,6 +65,28 @@ const config = {
   reconnectDelay: parseInt(process.env.RECONNECT_DELAY || "1000"),
   maxReconnectDelay: parseInt(process.env.MAX_RECONNECT_DELAY || "30000"),
   heartbeatInterval: parseInt(process.env.HEARTBEAT_INTERVAL || "10000"),
+  balanceReportIntervalMs: parseInt(
+    process.env.BALANCE_REPORT_INTERVAL_MS || "30000",
+  ),
+  depositNetworks: parseListEnv(
+    process.env.TAKER_DEPOSIT_NETWORKS,
+    DEFAULT_DEPOSIT_NETWORKS,
+  ),
+  withdrawNetworks: parseListEnv(
+    process.env.TAKER_WITHDRAW_NETWORKS,
+    DEFAULT_DEPOSIT_NETWORKS,
+  ),
+  takerFees: parseJsonEnv<Record<string, string>>(
+    process.env.TAKER_FEES_JSON,
+    DEFAULT_TAKER_FEES,
+  ),
+  balanceTargets: parseJsonEnv<
+    Array<{ chain: string; idOrAddress: string; symbol?: string; asset?: string }>
+  >(process.env.TAKER_BALANCE_TARGETS_JSON, []),
+  usdPriceOverrides: parseJsonEnv<Record<string, number>>(
+    process.env.TAKER_USD_PRICE_OVERRIDES_JSON,
+    {},
+  ),
 };
 
 // Validate config

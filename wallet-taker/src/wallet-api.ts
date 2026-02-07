@@ -54,6 +54,12 @@ export interface WalletApiConfig {
   timeoutMs?: number;
 }
 
+export interface WalletBalance {
+  amount: string;
+  decimals: number;
+  symbol: string;
+}
+
 /**
  * Network name mapping from exchange format to our chain IDs
  * Exchange might use different names like "ERC20", "TRC20", etc.
@@ -288,6 +294,31 @@ export class WalletApiClient {
       items: WalletResponse[];
       total: number;
     };
+  }
+
+  /**
+   * Get wallet balance by chain and wallet id/address
+   */
+  async getBalance(
+    chain: string,
+    idOrAddress: string,
+    asset?: string,
+  ): Promise<WalletBalance> {
+    const searchParams = new URLSearchParams();
+    if (asset) searchParams.set("asset", asset);
+    const query = searchParams.toString();
+    const url = `${this.config.baseUrl}/wallets/${encodeURIComponent(chain)}/${encodeURIComponent(idOrAddress)}/balance${query ? `?${query}` : ""}`;
+
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(this.config.timeoutMs!),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Wallet API error: ${response.status} - ${error}`);
+    }
+
+    return (await response.json()) as WalletBalance;
   }
 
   /**

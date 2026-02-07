@@ -13,7 +13,14 @@ import WebSocket from "ws";
 import { type DepositMonitor, getDepositMonitor } from "./deposit-monitor";
 import { handleDepositRequest } from "./handlers";
 import { logger } from "./logger";
-import type { ChainId } from "./wallet-api";
+import { getWalletApi, type ChainId } from "./wallet-api";
+
+export interface BalanceTarget {
+  chain: string;
+  idOrAddress: string;
+  symbol?: string;
+  asset?: string;
+}
 
 export interface TakerConfig {
   wsUrl: string;
@@ -21,6 +28,12 @@ export interface TakerConfig {
   reconnectDelay: number;
   maxReconnectDelay: number;
   heartbeatInterval: number;
+  balanceReportIntervalMs: number;
+  depositNetworks: string[];
+  withdrawNetworks: string[];
+  takerFees: Record<string, string>;
+  balanceTargets: BalanceTarget[];
+  usdPriceOverrides: Record<string, number>;
 }
 
 export interface TakerMessage {
@@ -28,16 +41,49 @@ export interface TakerMessage {
   [key: string]: unknown;
 }
 
+const DEFAULT_DEPOSIT_NETWORKS = [
+  "erc20",
+  "trc20",
+  "bep20",
+  "solana",
+  "bitcoin",
+  "xrp",
+  "doge",
+  "ltc",
+  "polygon",
+  "arbitrum",
+];
+
+const DEFAULT_WITHDRAW_NETWORKS = [...DEFAULT_DEPOSIT_NETWORKS];
+
+const DEFAULT_TAKER_FEES: Record<string, string> = {
+  btc: "0.0001",
+  erc20: "0.0005",
+  trc20: "1",
+  bep20: "0.5",
+  solana: "0.01",
+  xrp: "0.1",
+  doge: "1",
+  ltc: "0.001",
+  polygon: "0.1",
+  arbitrum: "0.0003",
+};
+
+const STABLE_USD_SYMBOLS = new Set(["USD", "USDT", "USDC", "BUSD", "TUSD", "DAI"]);
+
 export class TakerClient {
   private config: TakerConfig;
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private balanceReportTimer: ReturnType<typeof setInterval> | null = null;
+  private balanceReportInFlight = false;
   private isConnected = false;
   private isAuthenticated = false;
   private shouldReconnect = true;
   private depositMonitor: DepositMonitor | null = null;
+  private usdPriceCache = new Map<string, { price: number; expiresAt: number }>();
 
   constructor(config: TakerConfig) {
     this.config = config;
@@ -156,6 +202,8 @@ export class TakerClient {
       this.heartbeatTimer = null;
     }
 
+    this.stopBalanceReporting();
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
@@ -249,6 +297,22 @@ export class TakerClient {
 
         case "heartbeat_ack":
           logger.debug("Heartbeat acknowledged");
+          break;
+
+        case "capabilities_ack":
+          if (message.success === false) {
+            logger.warn({ message }, "Capabilities rejected by server");
+          } else {
+            logger.info("Capabilities acknowledged by server");
+          }
+          break;
+
+        case "balance_report_ack":
+          if (message.success === false) {
+            logger.warn({ message }, "Balance report rejected by server");
+          } else {
+            logger.debug("Balance report acknowledged");
+          }
           break;
 
         case "deposit_request":
@@ -372,6 +436,12 @@ export class TakerClient {
 
     // Start heartbeat
     this.startHeartbeat();
+
+    // Share supported networks/fees right after handshake
+    this.sendCapabilitiesReport();
+
+    // Start periodic balance reporting
+    this.startBalanceReporting();
 
     // Start deposit monitoring
     this.startDepositMonitoring();
@@ -704,6 +774,190 @@ export class TakerClient {
     return Number((min + Math.random() * (max - min)).toFixed(6));
   }
 
+  private sendCapabilitiesReport(): void {
+    const depositNetworks =
+      this.config.depositNetworks.length > 0
+        ? this.config.depositNetworks
+        : DEFAULT_DEPOSIT_NETWORKS;
+    const withdrawNetworks =
+      this.config.withdrawNetworks.length > 0
+        ? this.config.withdrawNetworks
+        : DEFAULT_WITHDRAW_NETWORKS;
+    const takerFees =
+      Object.keys(this.config.takerFees).length > 0
+        ? this.config.takerFees
+        : DEFAULT_TAKER_FEES;
+
+    const sent = this.send({
+      type: "capabilities",
+      deposit_networks: depositNetworks,
+      withdraw_networks: withdrawNetworks,
+      taker_fees: takerFees,
+    });
+
+    if (sent) {
+      logger.info(
+        {
+          depositNetworks: depositNetworks.length,
+          withdrawNetworks: withdrawNetworks.length,
+          feeEntries: Object.keys(takerFees).length,
+        },
+        "Capabilities sent",
+      );
+    }
+  }
+
+  private startBalanceReporting(): void {
+    this.stopBalanceReporting();
+
+    // Send first report immediately after handshake
+    this.sendBalanceReport().catch((error) => {
+      logger.error({ error }, "Initial balance report failed");
+    });
+
+    this.balanceReportTimer = setInterval(() => {
+      this.sendBalanceReport().catch((error) => {
+        logger.error({ error }, "Balance report failed");
+      });
+    }, this.config.balanceReportIntervalMs);
+
+    logger.info(
+      { intervalMs: this.config.balanceReportIntervalMs },
+      "Balance reporting started",
+    );
+  }
+
+  private stopBalanceReporting(): void {
+    if (this.balanceReportTimer) {
+      clearInterval(this.balanceReportTimer);
+      this.balanceReportTimer = null;
+    }
+    this.balanceReportInFlight = false;
+  }
+
+  private async sendBalanceReport(): Promise<void> {
+    if (!this.isReady()) return;
+    if (this.balanceReportInFlight) return;
+
+    this.balanceReportInFlight = true;
+    try {
+      const balances = await this.collectBalances();
+      const sent = this.send({
+        type: "balance_report",
+        balances,
+      });
+
+      if (sent) {
+        logger.debug({ assets: balances.length }, "Balance report sent");
+      }
+    } finally {
+      this.balanceReportInFlight = false;
+    }
+  }
+
+  private async collectBalances(): Promise<
+    Array<{ symbol: string; amount: number; usd_value: number }>
+  > {
+    if (this.config.balanceTargets.length === 0) {
+      logger.debug("No balance targets configured, sending empty balance report");
+      return [];
+    }
+
+    const walletApi = getWalletApi();
+    const aggregated = new Map<string, { amount: number; usdValue: number }>();
+
+    for (const target of this.config.balanceTargets) {
+      try {
+        const balance = await walletApi.getBalance(
+          target.chain,
+          target.idOrAddress,
+          target.asset,
+        );
+
+        const amount = Number.parseFloat(balance.amount);
+        if (!Number.isFinite(amount)) {
+          logger.warn(
+            { target, rawAmount: balance.amount },
+            "Skipping invalid balance amount",
+          );
+          continue;
+        }
+
+        const symbol = (
+          target.symbol ||
+          balance.symbol ||
+          target.chain
+        ).toUpperCase();
+        const usdPrice = await this.resolveUsdPrice(symbol);
+        const usdValue = usdPrice !== null ? amount * usdPrice : 0;
+
+        const prev = aggregated.get(symbol) ?? { amount: 0, usdValue: 0 };
+        aggregated.set(symbol, {
+          amount: prev.amount + amount,
+          usdValue: prev.usdValue + usdValue,
+        });
+      } catch (error) {
+        logger.warn(
+          {
+            chain: target.chain,
+            idOrAddress: target.idOrAddress,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          "Failed to fetch balance target",
+        );
+      }
+    }
+
+    return Array.from(aggregated.entries())
+      .map(([symbol, value]) => ({
+        symbol,
+        amount: Number(value.amount.toFixed(8)),
+        usd_value: Number(value.usdValue.toFixed(2)),
+      }))
+      .sort((a, b) => b.usd_value - a.usd_value);
+  }
+
+  private async resolveUsdPrice(symbol: string): Promise<number | null> {
+    const normalized = symbol.toUpperCase();
+
+    const override = this.config.usdPriceOverrides[normalized];
+    if (Number.isFinite(override)) {
+      return override;
+    }
+
+    if (STABLE_USD_SYMBOLS.has(normalized)) {
+      return 1;
+    }
+
+    const cached = this.usdPriceCache.get(normalized);
+    const now = Date.now();
+    if (cached && cached.expiresAt > now) {
+      return cached.price;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(normalized)}USDT`,
+        { signal: AbortSignal.timeout(5000) },
+      );
+      if (!response.ok) {
+        return null;
+      }
+      const payload = (await response.json()) as { price?: string };
+      const price = Number.parseFloat(payload.price ?? "");
+      if (!Number.isFinite(price) || price <= 0) {
+        return null;
+      }
+      this.usdPriceCache.set(normalized, {
+        price,
+        expiresAt: now + 60_000,
+      });
+      return price;
+    } catch {
+      return null;
+    }
+  }
+
   private startHeartbeat(): void {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
@@ -730,6 +984,8 @@ export class TakerClient {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
     }
+
+    this.stopBalanceReporting();
 
     if (this.shouldReconnect) {
       this.scheduleReconnect();

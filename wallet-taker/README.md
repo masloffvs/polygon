@@ -42,6 +42,12 @@ bun run start
 | `RECONNECT_DELAY`     | Initial reconnect delay (ms)        | `1000`                                        |
 | `MAX_RECONNECT_DELAY` | Maximum reconnect delay (ms)        | `30000`                                       |
 | `HEARTBEAT_INTERVAL`  | Heartbeat interval (ms)             | `10000`                                       |
+| `BALANCE_REPORT_INTERVAL_MS` | Balance report interval (ms) | `30000` |
+| `TAKER_DEPOSIT_NETWORKS` | Comma-separated deposit networks | `erc20,trc20,bep20,...` |
+| `TAKER_WITHDRAW_NETWORKS` | Comma-separated withdraw networks | `erc20,trc20,bep20,...` |
+| `TAKER_FEES_JSON` | JSON fees map by network/symbol | See `.env.example` |
+| `TAKER_BALANCE_TARGETS_JSON` | JSON array of balance targets (`chain`, `idOrAddress`, optional `symbol`, `asset`) | `[]` |
+| `TAKER_USD_PRICE_OVERRIDES_JSON` | Optional USD price overrides JSON | `{}` |
 
 ## Protocol
 
@@ -51,7 +57,9 @@ bun run start
 2. Server sends `handshake_init`
 3. Client sends `{ type: "handshake", token: "your_token" }`
 4. Server validates and sends `handshake_complete`
-5. Maintain connection with heartbeats
+5. Client sends `capabilities`
+6. Client sends `balance_report` every 30s
+7. Maintain connection with heartbeats
 
 ### Message Types
 
@@ -63,12 +71,16 @@ bun run start
 - `ping` - Health check
 - `deposit_request` - New deposit to process
 - `withdrawal_request` - Withdrawal to process
+- `capabilities_ack` - Capabilities accepted/rejected
+- `balance_report_ack` - Balance report accepted/rejected
 
 **To Server:**
 
 - `handshake` - Send validator token
 - `pong` - Response to ping
 - `heartbeat` - Active health check
+- `capabilities` - Supported networks and taker fees
+- `balance_report` - Periodic balances with USD estimates
 - `deposit_confirmed` - Deposit processed
 - `withdrawal_processed` - Withdrawal completed
 
