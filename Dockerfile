@@ -90,4 +90,5 @@ RUN mkdir -p user_files && chown -R bun:bun /usr/src/app && chown -R bun:bun /ho
 USER bun
 EXPOSE 3000/tcp
 EXPOSE 3001/tcp
-ENTRYPOINT [ "bun", "run", "start" ]
+ENV NODE_ENV=production
+ENTRYPOINT [ "bun", "src/index.ts" ]
