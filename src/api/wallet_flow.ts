@@ -130,6 +130,28 @@ export const getWalletFlowRoutes = () => ({
 		},
 	},
 
+	"/api/wallet-flow/transactions/refinance": {
+		async POST(req: Request) {
+			const body = await req.json();
+			return proxyRequest(req, "/transactions/refinance", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+		},
+	},
+
+	"/api/wallet-flow/transactions/refinanceTransfer": {
+		async POST(req: Request) {
+			const body = await req.json();
+			return proxyRequest(req, "/transactions/refinanceTransfer", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+		},
+	},
+
 	"/api/wallet-flow/transactions/:chain/:txnId": {
 		async GET(req: Request) {
 			const url = new URL(req.url);
