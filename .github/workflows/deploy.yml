@@ -99,12 +99,13 @@ jobs:
           ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "mkdir -p ${DEPLOY_TARGET_DIR} ${DEPLOY_TARGET_DIR}/secrets"
 
-          rsync -az -e "ssh -p ${port}" \
+          tar -czf - \
             docker-compose.yml \
             docker-compose.prod.yml \
             nginx \
             clickhouse \
-            "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_TARGET_DIR}/"
+            | ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              "tar -xzf - -C ${DEPLOY_TARGET_DIR}"
 
           ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "touch ${DEPLOY_TARGET_DIR}/secrets/app.env ${DEPLOY_TARGET_DIR}/secrets/wallet.env"
