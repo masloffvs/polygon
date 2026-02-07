@@ -1,0 +1,8 @@
+node_modules
+.git
+.DS_Store
+dist
+dump.rdb
+DOCKER_TROUBLESHOOTING.md
+test-build.sh
+Dockerfile.fast

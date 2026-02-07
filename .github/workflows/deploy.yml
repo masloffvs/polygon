@@ -1,0 +1,157 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment name
+        required: true
+        type: string
+        default: production
+      image_tag:
+        description: Docker image tag to deploy (usually commit SHA)
+        required: true
+        type: string
+      ref:
+        description: Git ref to sync infra files from
+        required: true
+        type: string
+        default: master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+
+    steps:
+      - name: Checkout infrastructure files
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Validate required deploy secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in DEPLOY_HOST DEPLOY_USER DEPLOY_TARGET_DIR DEPLOY_SSH_KEY; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Secret ${key} is required."
+              missing=1
+            fi
+          done
+          if [[ "${missing}" -ne 0 ]]; then
+            exit 1
+          fi
+
+      - name: Compute image names
+        shell: bash
+        run: |
+          set -euo pipefail
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          repo="$(echo "${GITHUB_REPOSITORY#*/}" | tr '[:upper:]' '[:lower:]')"
+          base="ghcr.io/${owner}/${repo}"
+
+          echo "IMAGE_TAG=${{ inputs.image_tag }}" >> "${GITHUB_ENV}"
+          echo "APP_IMAGE=${base}/app" >> "${GITHUB_ENV}"
+          echo "EMUFETCH_IMAGE=${base}/emufetch" >> "${GITHUB_ENV}"
+          echo "YTDLP_IMAGE=${base}/ytdlp" >> "${GITHUB_ENV}"
+          echo "XSCRAPER_IMAGE=${base}/xscraper" >> "${GITHUB_ENV}"
+          echo "ARBSCANNER_IMAGE=${base}/arbscanner" >> "${GITHUB_ENV}"
+          echo "WALLET_IMAGE=${base}/wallet" >> "${GITHUB_ENV}"
+          echo "WALLET_ENV_FILE=./secrets/wallet.env" >> "${GITHUB_ENV}"
+
+      - name: Configure SSH client
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${DEPLOY_SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -p "${port}" "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Sync compose and infra files
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+
+          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "mkdir -p ${DEPLOY_TARGET_DIR} ${DEPLOY_TARGET_DIR}/secrets"
+
+          rsync -az -e "ssh -p ${port}" \
+            docker-compose.yml \
+            docker-compose.prod.yml \
+            nginx \
+            clickhouse \
+            "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_TARGET_DIR}/"
+
+          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "touch ${DEPLOY_TARGET_DIR}/secrets/app.env ${DEPLOY_TARGET_DIR}/secrets/wallet.env"
+
+      - name: Upload app env file (optional)
+        if: ${{ secrets.APP_ENV_FILE != '' }}
+        env:
+          APP_ENV_FILE: ${{ secrets.APP_ENV_FILE }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          app_env_b64="$(printf '%s' "${APP_ENV_FILE}" | base64 -w0)"
+
+          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "printf '%s' '${app_env_b64}' | base64 -d > ${DEPLOY_TARGET_DIR}/secrets/app.env && chmod 600 ${DEPLOY_TARGET_DIR}/secrets/app.env"
+
+      - name: Upload wallet env file (optional)
+        if: ${{ secrets.WALLET_ENV_FILE != '' }}
+        env:
+          WALLET_ENV_FILE_SECRET: ${{ secrets.WALLET_ENV_FILE }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          wallet_env_b64="$(printf '%s' "${WALLET_ENV_FILE_SECRET}" | base64 -w0)"
+
+          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "printf '%s' '${wallet_env_b64}' | base64 -d > ${DEPLOY_TARGET_DIR}/secrets/wallet.env && chmod 600 ${DEPLOY_TARGET_DIR}/secrets/wallet.env"
+
+      - name: Login remote host to GHCR (optional)
+        if: ${{ secrets.GHCR_USERNAME != '' && secrets.GHCR_TOKEN != '' }}
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          printf '%s' "${GHCR_TOKEN}" | ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "docker login ghcr.io -u ${GHCR_USERNAME} --password-stdin"
+
+      - name: Deploy with docker compose
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+
+          printf -v remote_env \
+            "IMAGE_TAG=%q APP_IMAGE=%q EMUFETCH_IMAGE=%q YTDLP_IMAGE=%q XSCRAPER_IMAGE=%q ARBSCANNER_IMAGE=%q WALLET_IMAGE=%q WALLET_ENV_FILE=%q DEPLOY_TARGET_DIR=%q" \
+            "${IMAGE_TAG}" "${APP_IMAGE}" "${EMUFETCH_IMAGE}" "${YTDLP_IMAGE}" "${XSCRAPER_IMAGE}" "${ARBSCANNER_IMAGE}" "${WALLET_IMAGE}" "${WALLET_ENV_FILE}" "${DEPLOY_TARGET_DIR}"
+
+          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "${remote_env} bash -lc 'set -euo pipefail; cd \"${DEPLOY_TARGET_DIR}\"; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml pull; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build --remove-orphans; docker compose --env-file ./secrets/app.env -f docker-compose.yml -f docker-compose.prod.yml ps'"

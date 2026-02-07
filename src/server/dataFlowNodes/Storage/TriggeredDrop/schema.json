@@ -1,0 +1,55 @@
+{
+	"id": "triggered-drop",
+	"version": "1.0.0",
+	"name": "Triggered Drop",
+	"category": "Storage",
+	"description": "Collects incoming data until triggered. When triggered, sends all collected data downstream and clears the buffer.",
+	"ui": {
+		"color": "#f59e0b",
+		"icon": "zap"
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"required": false,
+				"description": "Data to collect"
+			},
+			{
+				"name": "trigger",
+				"type": "any",
+				"required": false,
+				"description": "When data arrives here, flush all collected data"
+			}
+		],
+		"outputs": [
+			{
+				"name": "batch",
+				"type": "array",
+				"description": "All collected data as an array"
+			},
+			{
+				"name": "trigger",
+				"type": "any",
+				"description": "Pass-through of the trigger data"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "maxBufferSize",
+			"type": "number",
+			"label": "Max Buffer Size",
+			"defaultValue": 1000,
+			"description": "Maximum number of items to keep in buffer (oldest dropped first)"
+		},
+		{
+			"name": "passEmptyOnTrigger",
+			"type": "boolean",
+			"label": "Pass Empty Arrays",
+			"defaultValue": false,
+			"description": "Whether to emit an empty array if triggered with no data"
+		}
+	]
+}

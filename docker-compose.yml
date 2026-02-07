@@ -1,0 +1,218 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "81:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/public:/usr/share/nginx/html:ro
+    depends_on:
+      - app
+    restart: always
+
+  app:
+    build: .
+    image: polygon-web
+    env_file:
+      - .env
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      emufetch:
+        condition: service_started
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+      wallet-api:
+        condition: service_started
+    volumes:
+      - ./user_files:/usr/src/app/user_files
+    restart: always
+
+  redis:
+    image: redis:alpine
+    expose:
+      - "6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  mongo:
+    image: mongo:7
+    expose:
+      - "27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    expose:
+      - "8123"
+      - "9000"
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - ALLOW_EMPTY_PASSWORD=yes
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8123/ping",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse/config.d:/etc/clickhouse-server/config.d
+    restart: always
+
+  qdrant:
+    image: qdrant/qdrant
+    # ports:
+    #   - "6333:6333"
+    expose:
+      - "6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: always
+
+  emufetch:
+    build:
+      context: .
+      dockerfile: src/emufetch/Dockerfile
+    container_name: emufetch
+    ports:
+      - "8916:8916"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  ytdlp:
+    build:
+      context: .
+      dockerfile: src/ytdlp/Dockerfile
+    container_name: ytdlp
+    ports:
+      - "8917:8917"
+    volumes:
+      - ytdlp_downloads:/app/downloads
+      - ytdlp_cookies:/app/cookies
+    restart: unless-stopped
+
+  xscraper:
+    build:
+      context: .
+      dockerfile: src/xscraper/Dockerfile
+    container_name: xscraper
+    ports:
+      - "8918:8918"
+      - "5901:5901"
+    env_file:
+      - .env
+    volumes:
+      - xscraper_cookies:/app/cookies
+    restart: unless-stopped
+
+  arbscanner:
+    build:
+      context: ./src/arbscanner
+      dockerfile: Dockerfile
+    container_name: arbscanner
+    env_file:
+      - .env
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  wallet-api:
+    build:
+      context: ./src/polygonmoneyflow
+      dockerfile: Dockerfile
+    command: ["bun", "run", "src/app.ts"]
+    env_file:
+      - ${WALLET_ENV_FILE:-./src/polygonmoneyflow/.env}
+    environment:
+      - POSTGRES_HOST=wallet-postgres
+      - REDIS_HOST=wallet-redis
+    ports:
+      - "25960:3000"
+    depends_on:
+      wallet-postgres:
+        condition: service_started
+      wallet-redis:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wallet-worker:
+    build:
+      context: ./src/polygonmoneyflow
+      dockerfile: Dockerfile
+    command: ["bun", "run", "src/worker.ts"]
+    env_file:
+      - ${WALLET_ENV_FILE:-./src/polygonmoneyflow/.env}
+    environment:
+      - POSTGRES_HOST=wallet-postgres
+      - REDIS_HOST=wallet-redis
+    depends_on:
+      wallet-redis:
+        condition: service_healthy
+      wallet-postgres:
+        condition: service_started
+    restart: always
+    deploy:
+      replicas: 2
+
+  wallet-postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    volumes:
+      - wallet_pgdata:/var/lib/postgresql/data
+    restart: always
+
+  wallet-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - wallet_redisdata:/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  clickhouse_data:
+  qdrant_data:
+  redis_data:
+  mongo_data:
+  ytdlp_downloads:
+  ytdlp_cookies:
+  xscraper_cookies:
+  wallet_pgdata:
+  wallet_redisdata:

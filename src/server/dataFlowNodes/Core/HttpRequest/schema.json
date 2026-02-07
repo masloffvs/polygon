@@ -1,0 +1,66 @@
+{
+  "id": "http-request",
+  "version": "1.0.0",
+  "name": "HTTP Request",
+  "category": "Core",
+  "description": "Send HTTP requests with dynamic URL templating. Use (path.to.key || 'default') syntax in URL.",
+  "ui": {
+    "color": "#f59e0b",
+    "icon": "globe"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "object",
+        "description": "Input object for URL templating and POST body"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "response",
+        "type": "any",
+        "description": "Response body (parsed JSON or text)"
+      },
+      {
+        "name": "status_code",
+        "type": "number",
+        "description": "HTTP status code"
+      },
+      {
+        "name": "error",
+        "type": "string",
+        "description": "Error message if request failed"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "url",
+      "type": "text",
+      "label": "URL Template",
+      "defaultValue": "https://api.example.com/(id || '0')",
+      "required": true
+    },
+    {
+      "name": "method",
+      "type": "select",
+      "label": "HTTP Method",
+      "defaultValue": "GET",
+      "options": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    },
+    {
+      "name": "authHeader",
+      "type": "string",
+      "label": "Authorization Header (optional)",
+      "defaultValue": "",
+      "required": false
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "label": "Timeout (ms)",
+      "defaultValue": 30000
+    }
+  ]
+}

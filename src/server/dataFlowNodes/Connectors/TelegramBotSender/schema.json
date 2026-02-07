@@ -1,0 +1,68 @@
+{
+  "id": "telegram-bot-sender",
+  "version": "1.0.0",
+  "name": "Telegram Bot Sender",
+  "category": "Connectors",
+  "description": "Universal Telegram message sender. Accepts typed message requests (text, photo, document, etc.) and sends via Bot API.",
+  "ui": {
+    "color": "#0088cc",
+    "icon": "send"
+  },
+  "execution": {
+    "timeoutMs": 30000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "message",
+        "type": "typed:telegram/message-request",
+        "description": "Telegram message request object (text, photo, document, etc.)",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "typed:telegram/send-result",
+        "description": "Send result with message_id and status"
+      },
+      {
+        "name": "error",
+        "type": "object",
+        "description": "Error details if send failed"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "botToken",
+      "type": "string",
+      "label": "Bot Token",
+      "defaultValue": "",
+      "description": "Bot token from @BotFather (e.g., 123456789:ABCdef...)",
+      "required": true
+    },
+    {
+      "name": "defaultChatId",
+      "type": "string",
+      "label": "Default Chat ID",
+      "defaultValue": "",
+      "description": "Default chat ID (can be overridden by message.chatId)"
+    },
+    {
+      "name": "retryOnError",
+      "type": "boolean",
+      "label": "Retry on Error",
+      "defaultValue": true,
+      "description": "Retry failed requests (rate limits, network errors)"
+    },
+    {
+      "name": "maxRetries",
+      "type": "number",
+      "label": "Max Retries",
+      "defaultValue": 3,
+      "description": "Maximum number of retry attempts"
+    }
+  ]
+}

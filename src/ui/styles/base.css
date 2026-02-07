@@ -1,0 +1,40 @@
+@layer utilities {
+	.yellowtail-regular {
+		font-family: var(--font-decorative);
+		font-weight: 400;
+	}
+
+	.pixelify-sans-bold {
+		font-family: var(--font-pixel);
+		font-weight: 700;
+	}
+
+	.bbh-sans-bartle-regular {
+		font-family: var(--font-retro);
+		font-weight: 400;
+	}
+}
+
+/* Scrollbars */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.4);
+}
+
+/* Firefox */
+[data-theme="dark"] * {
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Auto-hide scrollbar */
+.scrollbar-auto-hide::-webkit-scrollbar {
+	width: 0px;
+	transition: width 0.2s ease;
+}
+
+.scrollbar-auto-hide:hover::-webkit-scrollbar {
+	width: 6px;
+}

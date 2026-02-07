@@ -1,0 +1,45 @@
+{
+  "id": "imagen",
+  "version": "1.0.0",
+  "name": "Imagen",
+  "category": "Integrations",
+  "description": "Generates images from templates using Satori/Resvg. Select a template and pass data as input.",
+  "ui": {
+    "color": "#ec4899",
+    "icon": "image"
+  },
+  "execution": {
+    "timeoutMs": 30000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "object",
+        "description": "Data object with properties matching template schema"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "image",
+        "type": "typed:image",
+        "description": "Generated image as TypedImage (base64 PNG with metadata)"
+      },
+      {
+        "name": "error",
+        "type": "object",
+        "description": "Error info if generation failed"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "template",
+      "type": "imagen-template-selector",
+      "label": "Template",
+      "defaultValue": "",
+      "description": "Select image template to use"
+    }
+  ]
+}

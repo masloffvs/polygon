@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build TSX validator
+        run: make -C ./build-tools -s
+
+      - name: Validate TSX
+        run: find ./src -name "*.tsx" -type f -print0 | xargs -0 ./build-tools/tsx_validator -q
+
+      - name: Frontend build check
+        run: |
+          NODE_ENV=production bun build src/frontend.tsx --outdir=/tmp/polygon-build-check
+          rm -rf /tmp/polygon-build-check

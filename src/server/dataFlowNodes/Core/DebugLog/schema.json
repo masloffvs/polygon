@@ -1,0 +1,48 @@
+{
+  "id": "debug-log",
+  "version": "1.0.0",
+  "category": "Core",
+  "name": "Debug Log",
+  "description": "Prints packet value to the server console.",
+  "ui": {
+    "color": "#6b7280",
+    "icon": "terminal",
+    "resizable": false
+  },
+  "execution": {
+    "timeoutMs": 1000,
+    "recoverable": true
+  },
+  "view": {
+    "id": "TestView",
+    "args": {
+      "title": "Debug Log Viewer"
+    }
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "input",
+        "type": "any",
+        "required": true,
+        "description": "Any data to log"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "type": "any",
+        "description": "Passthrough of the input"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "prefix",
+      "type": "string",
+      "label": "Log Prefix",
+      "defaultValue": "[DEBUG]",
+      "required": false
+    }
+  ]
+}

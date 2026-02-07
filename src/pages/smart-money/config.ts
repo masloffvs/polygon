@@ -1,0 +1,51 @@
+export const SIGNAL_CONFIGS = {
+	lsRatio: {
+		label: "L/S",
+		fullName: "Long/Short Ratio (Binance)",
+		maxAge: 120,
+		weight: 0.2,
+		phaseMultipliers: { 1: 1.2, 2: 1.0, 3: 0.9 },
+	},
+	orderBook: {
+		label: "OB",
+		fullName: "Order Book Imbalance",
+		maxAge: 5,
+		weight: 0.15,
+		phaseMultipliers: { 1: 0.8, 2: 1.1, 3: 1.3 },
+	},
+	tvTech: {
+		label: "TV",
+		fullName: "TradingView Technical Rating",
+		maxAge: 900,
+		weight: 0.2,
+		phaseMultipliers: { 1: 1.0, 2: 1.1, 3: 1.0 },
+	},
+	tradersUnion: {
+		label: "TU",
+		fullName: "Traders Union Sentiment",
+		maxAge: 900,
+		weight: 0.15,
+		phaseMultipliers: { 1: 1.0, 2: 1.0, 3: 0.9 },
+	},
+	tradeFlow: {
+		label: "CVD",
+		fullName: "Cumulative Volume Delta",
+		maxAge: 5,
+		weight: 0.3,
+		phaseMultipliers: { 1: 1.3, 2: 1.2, 3: 1.1 },
+	},
+	whaleLeaders: {
+		label: "🐋",
+		fullName: "Whale Leaders (Polymarket Top Traders)",
+		maxAge: 30,
+		weight: 0.35,
+		phaseMultipliers: { 1: 1.5, 2: 1.4, 3: 1.0 },
+	},
+	liquidations: {
+		label: "💀",
+		fullName: "Liquidations (Binance/Bybit/OKX/Deribit/BitMEX)",
+		maxAge: 60,
+		weight: 0.25,
+		phaseMultipliers: { 1: 1.4, 2: 1.2, 3: 1.0 },
+	},
+} as const;

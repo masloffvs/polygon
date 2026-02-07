@@ -1,0 +1,13 @@
+# TSX Validator Ignore Patterns
+
+# One pattern per line, supports glob patterns (fnmatch)
+
+# Lines starting with # are comments
+
+# Complex React Flow components with edge cases
+
+OklinkTransactions.tsx
+./src/ui/components/ErrorBoundary/index.tsx
+./src/components/embedCardStructure/NewsImpactWidget.tsx
+./src/server/dataviews/RichStringView/index.tsx
+./src/pages/CronTab.tsx

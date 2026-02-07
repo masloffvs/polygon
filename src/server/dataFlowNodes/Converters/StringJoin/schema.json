@@ -1,0 +1,47 @@
+{
+  "id": "string-join",
+  "version": "1.0.0",
+  "name": "String Join",
+  "category": "Converters",
+  "description": "Joins an array into a string with delimiter.",
+  "ui": {
+    "color": "#10b981",
+    "icon": "link"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "array",
+        "description": "Array to join"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "string",
+        "description": "Joined string"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "delimiter",
+      "type": "string",
+      "label": "Delimiter",
+      "defaultValue": ", "
+    },
+    {
+      "name": "prefix",
+      "type": "string",
+      "label": "Prefix",
+      "defaultValue": ""
+    },
+    {
+      "name": "suffix",
+      "type": "string",
+      "label": "Suffix",
+      "defaultValue": ""
+    }
+  ]
+}

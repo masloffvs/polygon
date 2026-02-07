@@ -1,0 +1,82 @@
+{
+  "id": "telegram-image-message-builder",
+  "version": "1.0.0",
+  "name": "Telegram Image Message",
+  "category": "Builders",
+  "description": "Builds a Telegram photo message from text caption and image. Waits for both inputs before emitting (configurable TTL).",
+  "ui": {
+    "color": "#0088cc",
+    "icon": "image-plus"
+  },
+  "execution": {
+    "timeoutMs": 64000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "image",
+        "type": "typed:image",
+        "description": "Image to send (TypedImage object)",
+        "required": false
+      },
+      {
+        "name": "caption",
+        "type": "string",
+        "description": "Caption text for the image (optional)",
+        "required": false
+      }
+    ],
+    "outputs": [
+      {
+        "name": "message",
+        "type": "typed:telegram/image-message",
+        "description": "Complete Telegram image message request"
+      },
+      {
+        "name": "timeout",
+        "type": "object",
+        "description": "Emitted if TTL expires before all required inputs arrive"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "waitPolicy",
+      "type": "string",
+      "label": "Wait Policy",
+      "defaultValue": "WAIT_ONLY_IMAGE",
+      "options": ["WAIT_BOTH", "WAIT_ONLY_IMAGE", "WAIT_ONLY_TEXT"],
+      "description": "WAIT_BOTH: wait for image AND caption. WAIT_ONLY_IMAGE: emit when image arrives (caption optional). WAIT_ONLY_TEXT: emit when caption arrives (image optional)."
+    },
+    {
+      "name": "ttlSeconds",
+      "type": "number",
+      "label": "Input TTL (seconds)",
+      "defaultValue": 64,
+      "description": "How long to wait for all inputs before timing out (1-300s)"
+    },
+    {
+      "name": "parseMode",
+      "type": "string",
+      "label": "Parse Mode",
+      "defaultValue": "HTML",
+      "options": ["HTML", "Markdown", "MarkdownV2", ""],
+      "description": "Caption formatting mode"
+    },
+    {
+      "name": "hasSpoiler",
+      "type": "boolean",
+      "label": "Spoiler",
+      "defaultValue": false,
+      "description": "Hide image behind spoiler blur"
+    },
+    {
+      "name": "silent",
+      "type": "boolean",
+      "label": "Silent",
+      "defaultValue": false,
+      "description": "Send without notification sound"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+	"id": "timed-collector",
+	"version": "1.0.0",
+	"name": "Timed Collector",
+	"category": "Storage",
+	"description": "Collects data from multiple sources and flushes downstream on a schedule (1-24 hour intervals). Data is stored in MongoDB with timestamps.",
+	"ui": {
+		"color": "#8b5cf6",
+		"icon": "timer"
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Data from any source to collect"
+			}
+		],
+		"outputs": [
+			{
+				"name": "batch",
+				"type": "array",
+				"description": "Batched data array on flush"
+			},
+			{
+				"name": "stats",
+				"type": "object",
+				"description": "Collection statistics after flush"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "dropInterval",
+			"type": "number",
+			"label": "Drop Interval (hours)",
+			"defaultValue": 1,
+			"description": "How often to flush data (1-24). Value of 1 = every hour (12:00, 13:00...), 24 = once per day at 00:00 UTC"
+		},
+		{
+			"name": "collectionName",
+			"type": "string",
+			"label": "Collection Suffix",
+			"defaultValue": "",
+			"description": "Optional suffix for MongoDB collection name"
+		},
+		{
+			"name": "sourceLabel",
+			"type": "string",
+			"label": "Source Label",
+			"defaultValue": "default",
+			"description": "Label to identify the source of incoming data"
+		}
+	]
+}

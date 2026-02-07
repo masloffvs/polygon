@@ -1,0 +1,14 @@
+{
+	"name": "emufetch",
+	"version": "1.0.0",
+	"description": "Browser emulation fetch service - executes HTTP requests in real browser context",
+	"scripts": {
+		"start": "bun run src/emufetch/index.ts",
+		"dev": "bun run --watch src/emufetch/index.ts",
+		"docker:build": "docker build -t emufetch -f src/emufetch/Dockerfile .",
+		"docker:run": "docker run -d --name emufetch -p 8916:8916 -p 5900:5900 -e ENABLE_VNC=true emufetch"
+	},
+	"dependencies": {
+		"puppeteer": "^21.0.0"
+	}
+}

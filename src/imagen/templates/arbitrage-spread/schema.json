@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "pair": {
+      "type": "string",
+      "default": "BTC/USDT",
+      "description": "Trading pair name"
+    },
+    "exchangeBuy": {
+      "type": "string",
+      "default": "Binance",
+      "description": "Exchange to buy from (lower price)"
+    },
+    "exchangeSell": {
+      "type": "string",
+      "default": "Bybit",
+      "description": "Exchange to sell on (higher price)"
+    },
+    "priceBuy": {
+      "type": "number",
+      "default": 67420.5,
+      "description": "Buy price on the first exchange"
+    },
+    "priceSell": {
+      "type": "number",
+      "default": 67892.3,
+      "description": "Sell price on the second exchange"
+    },
+    "spreadPercent": {
+      "type": "number",
+      "default": 0.7,
+      "description": "Spread percentage between exchanges"
+    },
+    "spreadUsd": {
+      "type": "number",
+      "default": 471.8,
+      "description": "Absolute spread in USD"
+    },
+    "timestamp": {
+      "type": "string",
+      "default": "",
+      "description": "Timestamp (auto-generated if empty)"
+    }
+  },
+  "required": [
+    "pair",
+    "exchangeBuy",
+    "exchangeSell",
+    "priceBuy",
+    "priceSell",
+    "spreadPercent"
+  ]
+}

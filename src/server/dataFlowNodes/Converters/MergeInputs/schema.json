@@ -1,0 +1,72 @@
+{
+  "id": "merge-inputs",
+  "version": "1.0.0",
+  "name": "Merge Inputs",
+  "category": "Converters",
+  "description": "Merges two async inputs into one object or array. Waits for both inputs with configurable TTL.",
+  "ui": {
+    "color": "#8b5cf6",
+    "icon": "merge"
+  },
+  "execution": {
+    "timeoutMs": 600000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "input1",
+        "type": "any",
+        "description": "First data input"
+      },
+      {
+        "name": "input2",
+        "type": "any",
+        "description": "Second data input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "any",
+        "description": "Merged output (object or array)"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "ttlSeconds",
+      "type": "number",
+      "label": "TTL (seconds)",
+      "defaultValue": 60,
+      "required": true,
+      "min": 1,
+      "max": 500
+    },
+    {
+      "name": "outputFormat",
+      "type": "select",
+      "label": "Output Format",
+      "defaultValue": "object",
+      "required": true,
+      "options": [
+        { "value": "object", "label": "Object { input1, input2 }" },
+        { "value": "array", "label": "Array [input1, input2]" }
+      ]
+    },
+    {
+      "name": "key1",
+      "type": "string",
+      "label": "Key for Input 1",
+      "defaultValue": "input1",
+      "required": false
+    },
+    {
+      "name": "key2",
+      "type": "string",
+      "label": "Key for Input 2",
+      "defaultValue": "input2",
+      "required": false
+    }
+  ]
+}

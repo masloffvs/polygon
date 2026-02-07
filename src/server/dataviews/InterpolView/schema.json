@@ -1,0 +1,18 @@
+{
+  "name": "InterpolView",
+  "type": "dataview",
+  "colors": {
+    "primary": "#ef4444",
+    "secondary": "#f97316"
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "View title",
+        "default": "Interpol & FBI Database"
+      }
+    }
+  }
+}

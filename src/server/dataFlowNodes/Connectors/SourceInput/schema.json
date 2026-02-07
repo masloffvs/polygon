@@ -1,0 +1,34 @@
+{
+  "id": "source-input",
+  "version": "1.0.0",
+  "name": "Source Input",
+  "category": "Connectors",
+  "description": "Connects to a data source from the pipeline layer. Select a source and receive real-time data in DataStudio.",
+  "ui": {
+    "color": "#22c55e",
+    "icon": "plug"
+  },
+  "execution": {
+    "timeoutMs": 0,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "data",
+        "type": "any",
+        "description": "Data emitted from the selected source"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "sourceId",
+      "type": "source-selector",
+      "label": "Data Source",
+      "defaultValue": "",
+      "description": "Select the data source to connect to"
+    }
+  ]
+}

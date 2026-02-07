@@ -1,0 +1,64 @@
+{
+	"id": "object-get-key",
+	"version": "1.0.0",
+	"name": "Object Get Key",
+	"category": "Converters",
+	"description": "Extracts value from object by key path. Supports nested paths like 'user.name' or 'items[0].title'",
+	"ui": {
+		"color": "#f97316",
+		"icon": "key"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Object to extract value from"
+			}
+		],
+		"outputs": [
+			{
+				"name": "value",
+				"type": "any",
+				"description": "Extracted value"
+			},
+			{
+				"name": "original",
+				"type": "any",
+				"description": "Original input (passthrough)"
+			},
+			{
+				"name": "error",
+				"type": "object",
+				"description": "Error if key not found and no default"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "path",
+			"type": "string",
+			"label": "Key Path",
+			"defaultValue": "",
+			"description": "Path to value: 'name', 'user.email', 'items[0].title', 'data.users[2].name'"
+		},
+		{
+			"name": "defaultValue",
+			"type": "string",
+			"label": "Default Value",
+			"defaultValue": "",
+			"description": "Value to return if path not found (leave empty to emit error)"
+		},
+		{
+			"name": "useDefault",
+			"type": "boolean",
+			"label": "Use Default",
+			"defaultValue": false,
+			"description": "Return default value instead of error when path not found"
+		}
+	]
+}

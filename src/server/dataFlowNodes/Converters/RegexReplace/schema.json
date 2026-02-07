@@ -1,0 +1,53 @@
+{
+  "id": "regex-replace",
+  "version": "1.0.0",
+  "name": "Regex Replace",
+  "category": "Converters",
+  "description": "Replace text in string using regular expression.",
+  "ui": {
+    "color": "#f59e0b",
+    "icon": "replace"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "string",
+        "description": "String to process"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "string",
+        "description": "String with replacements"
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "description": "Number of replacements made"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "pattern",
+      "type": "string",
+      "label": "Regex Pattern",
+      "defaultValue": "(\\w+)",
+      "required": true
+    },
+    {
+      "name": "replacement",
+      "type": "string",
+      "label": "Replacement (use $1, $2 for groups)",
+      "defaultValue": "[$1]"
+    },
+    {
+      "name": "flags",
+      "type": "string",
+      "label": "Flags (g, i, m)",
+      "defaultValue": "g"
+    }
+  ]
+}

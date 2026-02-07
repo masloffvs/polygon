@@ -1,0 +1,17 @@
+{
+  "name": "TestView",
+  "type": "dataview",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the view"
+      }
+    }
+  },
+  "colors": {
+    "primary": "#4A90E2",
+    "secondary": "#50E3C2"
+  }
+}

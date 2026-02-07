@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "headline": {
+      "type": "string",
+      "default": "BREAKING NEWS"
+    },
+    "subheadline": {
+      "type": "string",
+      "default": "Markets React to Major Economic Announcement"
+    },
+    "date": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": ["headline"]
+}

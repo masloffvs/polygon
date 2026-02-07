@@ -1,0 +1,60 @@
+{
+  "id": "cooldown",
+  "version": "1.0.0",
+  "category": "Core",
+  "name": "Cooldown",
+  "description": "Пропускает данные через основной output, затем блокируется на указанное время. Во время кулдауна данные идут в blocked output.",
+  "ui": {
+    "color": "#f59e0b",
+    "icon": "clock",
+    "resizable": false
+  },
+  "execution": {
+    "timeoutMs": 1000,
+    "recoverable": true
+  },
+  "view": {
+    "id": "CooldownView",
+    "args": {
+      "title": "Cooldown Status"
+    }
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "input",
+        "type": "any",
+        "required": true,
+        "description": "Входящие данные"
+      },
+      {
+        "name": "reset",
+        "type": "signal",
+        "required": false,
+        "description": "Сигнал для сброса кулдауна"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "type": "any",
+        "description": "Данные проходят, когда кулдаун неактивен"
+      },
+      {
+        "name": "blocked",
+        "type": "any",
+        "description": "Данные перенаправляются сюда во время кулдауна"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "cooldownMs",
+      "type": "number",
+      "label": "Cooldown Duration (ms)",
+      "defaultValue": 5000,
+      "required": true,
+      "description": "Длительность кулдауна в миллисекундах"
+    }
+  ]
+}

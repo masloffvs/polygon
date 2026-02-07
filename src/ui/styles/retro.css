@@ -1,0 +1,49 @@
+@layer utilities {
+	.retro-card {
+		border-style: dashed;
+		border-color: rgba(255, 255, 255, 0.12);
+		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+	}
+
+	.retro-title {
+		letter-spacing: 0.4px;
+		text-shadow: 0 0 6px rgba(59, 130, 246, 0.25);
+	}
+
+	.retro-scan {
+		position: relative;
+	}
+
+	.retro-scan::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		background: repeating-linear-gradient(
+			to bottom,
+			rgba(255, 255, 255, 0.03),
+			rgba(255, 255, 255, 0.03) 1px,
+			transparent 1px,
+			transparent 3px
+		);
+	}
+
+	.glass-board {
+		background: linear-gradient(
+			to bottom right,
+			rgba(20, 20, 25, 0.55),
+			rgba(20, 20, 25, 0.35)
+		);
+		backdrop-filter: blur(16px) saturate(140%);
+		border-left: 1px solid rgba(20, 20, 25, 0.45);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+	}
+
+	.glass-btn {
+		background: rgba(20, 20, 25, 0.25);
+		backdrop-filter: blur(8px) saturate(140%);
+	}
+}

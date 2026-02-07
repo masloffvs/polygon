@@ -1,0 +1,64 @@
+{
+	"id": "to-number",
+	"version": "1.0.0",
+	"name": "To Number",
+	"category": "Converters",
+	"description": "Converts input to a number. Strings are parsed, booleans become 0/1.",
+	"ui": {
+		"color": "#8b5cf6",
+		"icon": "hash"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Data to convert"
+			}
+		],
+		"outputs": [
+			{
+				"name": "result",
+				"type": "number",
+				"description": "Converted number value"
+			},
+			{
+				"name": "original",
+				"type": "any",
+				"description": "Original input (passthrough)"
+			},
+			{
+				"name": "errored",
+				"type": "any",
+				"description": "Input data if conversion failed (NaN, invalid)"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "parseFloat",
+			"type": "boolean",
+			"label": "Parse as Float",
+			"defaultValue": true,
+			"description": "Parse decimals (true) or integers only (false)"
+		},
+		{
+			"name": "defaultValue",
+			"type": "number",
+			"label": "Default on Error",
+			"defaultValue": 0,
+			"description": "Value to use if conversion fails (set to emit on errored instead)"
+		},
+		{
+			"name": "useDefault",
+			"type": "boolean",
+			"label": "Use Default on Error",
+			"defaultValue": false,
+			"description": "Use default value instead of routing to errored port"
+		}
+	]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "news-associated",
+  "version": "1.0.0",
+  "name": "News Associated",
+  "category": "Integrations",
+  "description": "Find news articles semantically related to input text",
+  "view": {
+    "id": "NewsView",
+    "args": {
+      "title": "News Feed"
+    }
+  },
+  "ui": {
+    "color": "#10B981",
+    "icon": "newspaper"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "text",
+        "type": "string",
+        "description": "Text to find related news for"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "news",
+        "type": "array",
+        "description": "Array of related news articles"
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "description": "Number of matching articles"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "limit",
+      "type": "number",
+      "label": "Max Results",
+      "defaultValue": 10
+    },
+    {
+      "name": "timeRange",
+      "type": "select",
+      "label": "Time Range",
+      "defaultValue": "24h",
+      "options": ["1h", "6h", "24h", "7d", "30d", "all"]
+    }
+  ]
+}

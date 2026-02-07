@@ -1,0 +1,24 @@
+{
+	"id": "table-viz",
+	"version": "1.0.0",
+	"name": "Table Visualization",
+	"category": "Visualization",
+	"description": "Displays data in a table. Persists last state in Redis.",
+	"ui": {
+		"color": "#84cc16",
+		"icon": "table-01"
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Array of objects or Object"
+			}
+		],
+		"outputs": [
+			{ "name": "data", "type": "object", "description": "Pass through data" }
+		]
+	},
+	"settings": []
+}

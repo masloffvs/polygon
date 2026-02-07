@@ -1,0 +1,58 @@
+{
+  "id": "arbitrage-receiver",
+  "version": "1.0.0",
+  "name": "Arbitrage Receiver",
+  "category": "Connectors",
+  "description": "Receives arbitrage opportunities from pipeline with configurable threshold filtering. Connect to Imagen or Telegram nodes to send alerts.",
+  "ui": {
+    "color": "#c6ff4e",
+    "icon": "trending-up"
+  },
+  "ports": {
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "opportunity",
+        "type": "object",
+        "description": "Arbitrage opportunity data (pair, exchanges, prices, spread)"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "minSpreadPercent",
+      "type": "number",
+      "label": "Min Spread %",
+      "defaultValue": 0.3,
+      "description": "Minimum spread percentage to trigger (e.g., 0.5 = 0.5%)"
+    },
+    {
+      "name": "maxSpreadPercent",
+      "type": "number",
+      "label": "Max Spread %",
+      "defaultValue": 10,
+      "description": "Maximum spread percentage (filter out anomalies)"
+    },
+    {
+      "name": "cooldownSeconds",
+      "type": "number",
+      "label": "Cooldown (seconds)",
+      "defaultValue": 60,
+      "description": "Minimum seconds between alerts for the same pair"
+    },
+    {
+      "name": "filterPairs",
+      "type": "string",
+      "label": "Filter Pairs (comma-separated)",
+      "defaultValue": "",
+      "description": "Only alert for these pairs (e.g., BTC,ETH,SOL). Empty = all pairs"
+    },
+    {
+      "name": "filterExchanges",
+      "type": "string",
+      "label": "Filter Exchanges (comma-separated)",
+      "defaultValue": "",
+      "description": "Only alert for these exchanges (e.g., Binance,Bybit). Empty = all"
+    }
+  ]
+}

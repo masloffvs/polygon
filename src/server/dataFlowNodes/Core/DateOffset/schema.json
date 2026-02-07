@@ -1,0 +1,44 @@
+{
+  "id": "date-offset",
+  "version": "1.0.0",
+  "name": "Date Offset",
+  "category": "Core",
+  "description": "Converts a number offset to a date. 0=today, -1=yesterday, +1=tomorrow, etc.",
+  "ui": {
+    "color": "#8b5cf6",
+    "icon": "calendar"
+  },
+  "execution": {
+    "timeoutMs": 1000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "offset",
+        "type": "number",
+        "description": "Days offset from today (negative=past, positive=future, 0=today)"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "date",
+        "type": "string",
+        "description": "Date in YYYY-MM-DD format"
+      },
+      {
+        "name": "timestamp",
+        "type": "number",
+        "description": "Unix timestamp in milliseconds"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "defaultOffset",
+      "type": "number",
+      "label": "Default Offset",
+      "defaultValue": 0
+    }
+  ]
+}

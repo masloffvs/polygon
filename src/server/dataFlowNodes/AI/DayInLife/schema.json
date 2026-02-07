@@ -1,0 +1,45 @@
+{
+  "id": "day-in-life",
+  "version": "1.0.0",
+  "name": "Day In Life",
+  "category": "AI",
+  "description": "Summarizes all news for a specific day using multiple AI models",
+  "ui": {
+    "color": "#f59e0b",
+    "icon": "calendar"
+  },
+  "execution": {
+    "timeoutMs": 120000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "date",
+        "type": "string",
+        "description": "Date in YYYY-MM-DD format"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "object",
+        "description": "Multi-model summarization result"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "models",
+      "type": "text",
+      "label": "Models (comma-separated)",
+      "defaultValue": "gemini,claude,gpt4,llama"
+    }
+  ],
+  "view": {
+    "id": "DayInLifeView",
+    "args": {
+      "title": "News Feed"
+    }
+  }
+}

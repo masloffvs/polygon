@@ -1,0 +1,64 @@
+{
+	"id": "to-bool",
+	"version": "1.0.0",
+	"name": "To Boolean",
+	"category": "Converters",
+	"description": "Converts input to boolean. Truthy/falsy logic with customizable rules.",
+	"ui": {
+		"color": "#10b981",
+		"icon": "toggle-left"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Data to convert"
+			}
+		],
+		"outputs": [
+			{
+				"name": "result",
+				"type": "boolean",
+				"description": "Converted boolean value"
+			},
+			{
+				"name": "original",
+				"type": "any",
+				"description": "Original input (passthrough)"
+			},
+			{
+				"name": "errored",
+				"type": "any",
+				"description": "Input data if conversion is ambiguous"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "strictMode",
+			"type": "boolean",
+			"label": "Strict Mode",
+			"defaultValue": false,
+			"description": "Only accept true/false, 1/0, 'true'/'false'. Other values go to errored."
+		},
+		{
+			"name": "emptyArrayIsFalse",
+			"type": "boolean",
+			"label": "Empty Array = False",
+			"defaultValue": true,
+			"description": "Treat [] as false (otherwise true because it's an object)"
+		},
+		{
+			"name": "zeroIsFalse",
+			"type": "boolean",
+			"label": "Zero = False",
+			"defaultValue": true,
+			"description": "Treat 0 as false"
+		}
+	]
+}

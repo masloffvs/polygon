@@ -1,0 +1,56 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+user_files/graph.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+.env.extracted
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# deploy secrets
+secrets
+
+# local training folders
+mltarin/
+mltrain/
+
+# python build/cache artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# rust build artifacts
+target/
+src/arbscanner/target/
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+*storybook.log
+storybook-static

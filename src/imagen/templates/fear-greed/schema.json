@@ -1,0 +1,24 @@
+{
+	"type": "object",
+	"properties": {
+		"score": {
+			"type": "number",
+			"minimum": 0,
+			"maximum": 100,
+			"default": 88
+		},
+		"date": {
+			"type": "string",
+			"default": "November 2024"
+		},
+		"title": {
+			"type": "string",
+			"default": "Crypto Fear &"
+		},
+		"subtitle": {
+			"type": "string",
+			"default": "Greed Index"
+		}
+	},
+	"required": ["score"]
+}

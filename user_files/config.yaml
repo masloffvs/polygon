@@ -1,0 +1,22 @@
+polymarket:
+  enabled: true
+  monitored_users: []
+  whale_threshold_shares: 1000
+  whale_threshold_usdc: 500
+pizza_radar:
+  enabled: true
+  places_of_interest: []
+oklink:
+  enabled: true
+  api_key: alwert1234
+  interval_ms: 5000
+  addresses: []
+solana:
+  enabled: true
+  rpc_url: https://api.mainnet-beta.solana.com
+  commitment: confirmed
+  watchdog:
+    - name: Binance
+      address: 5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9
+      description: ''
+globals: {}

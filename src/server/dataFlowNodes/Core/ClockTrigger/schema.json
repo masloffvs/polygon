@@ -1,0 +1,61 @@
+{
+	"id": "scheduled-trigger",
+	"version": "1.0.0",
+	"name": "Scheduled Trigger",
+	"category": "Core",
+	"description": "Triggers at specified times. Supports patterns like '10:00 AM', '23:00', '10:0* PM' (wildcard).",
+	"ui": {
+		"color": "#8b5cf6",
+		"icon": "clock"
+	},
+	"ports": {
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "trigger",
+				"type": "object",
+				"description": "Trigger data with timestamp info"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "pattern",
+			"type": "string",
+			"label": "Time Pattern",
+			"defaultValue": "10:00 AM",
+			"description": "Time pattern: '10:00 AM', '23:00', '10:0*' (wildcard for 10:00-10:09)"
+		},
+		{
+			"name": "timezone",
+			"type": "select",
+			"label": "Timezone",
+			"defaultValue": "UTC",
+			"options": [
+				{ "value": "UTC", "label": "UTC" },
+				{ "value": "Europe/Moscow", "label": "Moscow (UTC+3)" },
+				{ "value": "Europe/London", "label": "London (UTC+0/+1)" },
+				{ "value": "Europe/Paris", "label": "Paris (UTC+1/+2)" },
+				{ "value": "Europe/Berlin", "label": "Berlin (UTC+1/+2)" },
+				{ "value": "America/New_York", "label": "New York (UTC-5/-4)" },
+				{ "value": "America/Los_Angeles", "label": "Los Angeles (UTC-8/-7)" },
+				{ "value": "America/Chicago", "label": "Chicago (UTC-6/-5)" },
+				{ "value": "Asia/Tokyo", "label": "Tokyo (UTC+9)" },
+				{ "value": "Asia/Shanghai", "label": "Shanghai (UTC+8)" },
+				{ "value": "Asia/Singapore", "label": "Singapore (UTC+8)" },
+				{ "value": "Asia/Dubai", "label": "Dubai (UTC+4)" },
+				{ "value": "Asia/Kolkata", "label": "India (UTC+5:30)" },
+				{ "value": "Australia/Sydney", "label": "Sydney (UTC+10/+11)" },
+				{ "value": "Pacific/Auckland", "label": "Auckland (UTC+12/+13)" }
+			],
+			"description": "Timezone for time matching"
+		},
+		{
+			"name": "enabled",
+			"type": "boolean",
+			"label": "Enabled",
+			"defaultValue": true,
+			"description": "Enable/disable the trigger"
+		}
+	]
+}

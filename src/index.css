@@ -1,0 +1,49 @@
+@import "./ui/styles/app.css";
+@import "./ui/styles/typography.css";
+
+html,
+body {
+	color: #fff;
+	font-optical-sizing: auto;
+	background: #070707;
+	margin: 0;
+	padding: 0;
+	font-family:
+		Google Sans,
+		Work Sans,
+		Helvetica Neue,
+		Roboto,
+		sans-serif;
+	font-style: normal;
+	font-weight: 400;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--cw-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--cw-border);
+	border: 1px solid var(--cw-bg-primary);
+	border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--cw-border-light);
+}
+
+::-webkit-scrollbar-corner {
+	background: var(--cw-bg-primary);
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--cw-border) var(--cw-bg-primary);
+}

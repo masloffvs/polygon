@@ -1,0 +1,36 @@
+{
+  "id": "string-template",
+  "version": "1.0.0",
+  "name": "String Template",
+  "category": "Converters",
+  "description": "Template string with variable substitution. Use (path.to.key || 'default') syntax.",
+  "ui": {
+    "color": "#3b82f6",
+    "icon": "file-text"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "object",
+        "description": "Object with values for substitution"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "string",
+        "description": "Formatted string"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "template",
+      "type": "text",
+      "label": "Template",
+      "defaultValue": "Hello, (name || 'World')!",
+      "required": true
+    }
+  ]
+}

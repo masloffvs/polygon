@@ -1,0 +1,30 @@
+{
+	"id": "export-receiver",
+	"version": "1.0.0",
+	"name": "Exported Data Receiver",
+	"category": "Connectors",
+	"description": "Receives data exported from the main server pipeline via ExportData nodes.",
+	"ui": {
+		"color": "#f43f5e",
+		"icon": "download"
+	},
+	"ports": {
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "data",
+				"type": "json",
+				"description": "The data received from the export channel"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "channelId",
+			"type": "export-channel-selector",
+			"label": "Export Channel ID",
+			"defaultValue": "",
+			"description": "The ID of the ExportData node in the server pipeline to listen to."
+		}
+	]
+}

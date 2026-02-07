@@ -1,0 +1,50 @@
+{
+  "id": "rich-string",
+  "version": "1.0.0",
+  "name": "Rich String",
+  "category": "Builders",
+  "description": "Handlebars template editor with syntax highlighting. Build complex strings from objects/arrays.",
+  "ui": {
+    "color": "#f59e0b",
+    "icon": "code"
+  },
+  "execution": {
+    "timeoutMs": 5000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "object",
+        "description": "Data object/array for template substitution"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "string",
+        "description": "Rendered template string"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "template",
+      "type": "text",
+      "label": "Template",
+      "defaultValue": "Hello, {{name}}!",
+      "required": true
+    },
+    {
+      "name": "sampleJson",
+      "type": "text",
+      "label": "Sample JSON",
+      "defaultValue": "{\"name\": \"World\", \"count\": 42}",
+      "required": false
+    }
+  ],
+  "view": {
+    "id": "RichStringView"
+  }
+}

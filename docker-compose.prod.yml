@@ -1,0 +1,51 @@
+services:
+  app:
+    build: null
+    image: ${APP_IMAGE:?APP_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+    environment:
+      CLICKHOUSE_URL: ${CLICKHOUSE_URL:-http://clickhouse:8123}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-default}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      NODE_ENV: ${NODE_ENV:-production}
+      CBS_SPORTS_ACCESS_TOKEN: ${CBS_SPORTS_ACCESS_TOKEN:-}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MASSIVE_API_KEY: ${MASSIVE_API_KEY:-}
+      NEWS_API_KEYS: ${NEWS_API_KEYS:-}
+      EMUFETCH_URL: ${EMUFETCH_URL:-http://emufetch:8916}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      MONGODB_URL: ${MONGODB_URL:-mongodb://mongo:27017/polygon}
+      WALLET_GATEWAY_URL: ${WALLET_GATEWAY_URL:-http://wallet-api:3000}
+
+  emufetch:
+    build: null
+    image: ${EMUFETCH_IMAGE:?EMUFETCH_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+
+  ytdlp:
+    build: null
+    image: ${YTDLP_IMAGE:?YTDLP_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+
+  xscraper:
+    build: null
+    image: ${XSCRAPER_IMAGE:?XSCRAPER_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+
+  arbscanner:
+    build: null
+    image: ${ARBSCANNER_IMAGE:?ARBSCANNER_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+
+  wallet-api:
+    build: null
+    image: ${WALLET_IMAGE:?WALLET_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always
+
+  wallet-worker:
+    build: null
+    image: ${WALLET_IMAGE:?WALLET_IMAGE is required}:${IMAGE_TAG:?IMAGE_TAG is required}
+    pull_policy: always

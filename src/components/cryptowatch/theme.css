@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* Cryptowatch Theme Variables */
+@layer base {
+  :root {
+    /* Background colors */
+    --cw-bg-primary: #050505;
+    --cw-bg-secondary: #0a0a0a;
+    --cw-bg-tertiary: #111111;
+    --cw-bg-hover: #1a1a1a;
+    --cw-bg-active: #1e1e1e;
+
+    /* Text colors */
+    --cw-text-primary: #ececec;
+    --cw-text-secondary: #888888;
+    --cw-text-muted: #555555;
+
+    /* Accent colors */
+    --cw-green: #00c853;
+    --cw-green-dark: #00a844;
+    --cw-red: #ff3d3d;
+    --cw-red-dark: #cc3030;
+    --cw-blue: #2196f3;
+    --cw-yellow: #ffc107;
+    --cw-purple: #9c27b0;
+
+    /* Border colors */
+    --cw-border: #2a2a2d;
+    --cw-border-light: #3a3a3d;
+
+    /* Chart colors */
+    --cw-candle-up: #00c853;
+    --cw-candle-down: #ff3d3d;
+    --cw-volume-up: rgba(0, 200, 83, 0.4);
+    --cw-volume-down: rgba(255, 61, 61, 0.4);
+  }
+}
+
+/* Cryptowatch Base Styles */
+@layer components {
+  .cw-container {
+    @apply bg-[var(--cw-bg-primary)] text-[var(--cw-text-primary)] font-sans antialiased;
+  }
+
+  .cw-card {
+    @apply bg-[var(--cw-bg-secondary)] border border-[var(--cw-border)] rounded-sm;
+  }
+
+  .cw-input {
+    @apply bg-[var(--cw-bg-tertiary)] border border-[var(--cw-border)] text-[var(--cw-text-primary)] 
+           px-3 py-2 rounded-sm text-sm focus:outline-none focus:border-[var(--cw-blue)];
+  }
+
+  /* Scrollbar styling */
+  .cw-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .cw-scrollbar::-webkit-scrollbar-track {
+    background: var(--cw-bg-secondary);
+  }
+
+  .cw-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--cw-border-light);
+    border-radius: 3px;
+  }
+
+  .cw-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--cw-text-muted);
+  }
+}

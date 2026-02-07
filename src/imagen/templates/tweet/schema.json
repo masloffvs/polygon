@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "text": {
+      "type": "string",
+      "default": "The future belongs to those who believe in the beauty of their dreams."
+    },
+    "author": {
+      "type": "string",
+      "default": "@elonmusk"
+    },
+    "accent": {
+      "type": "string",
+      "enum": ["blue", "green", "purple", "orange"],
+      "default": "blue"
+    }
+  },
+  "required": ["text", "author"]
+}

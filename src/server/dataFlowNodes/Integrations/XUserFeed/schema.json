@@ -1,0 +1,54 @@
+{
+	"id": "x-user-feed",
+	"version": "1.0.0",
+	"name": "X User Feed",
+	"category": "Integrations",
+	"description": "Scrapes tweets from a Twitter/X user timeline. Triggers scraping on input signal.",
+	"ui": {
+		"color": "#1d9bf0",
+		"icon": "twitter"
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "trigger",
+				"type": "any",
+				"required": false,
+				"description": "Trigger to start scraping"
+			}
+		],
+		"outputs": [
+			{
+				"name": "tweets",
+				"type": "array",
+				"description": "Array of parsed tweets"
+			},
+			{
+				"name": "user",
+				"type": "object",
+				"description": "User profile info"
+			},
+			{
+				"name": "error",
+				"type": "object",
+				"description": "Error info if scraping failed"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "username",
+			"type": "string",
+			"label": "Username",
+			"defaultValue": "",
+			"description": "Twitter/X username (without @)"
+		},
+		{
+			"name": "scrollCount",
+			"type": "number",
+			"label": "Scroll Count",
+			"defaultValue": 3,
+			"description": "Number of page scrolls (more = more tweets, but slower)"
+		}
+	]
+}

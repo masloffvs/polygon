@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "./base.css";
+@import "./retro.css";
+
+@theme {
+  --color-dark-50: #3a3a3a;
+  --color-dark-100: #2e2e2e;
+  --color-dark-200: #242424;
+  --color-dark-300: #1b1b1b;
+  --color-dark-400: #141414;
+  --color-dark-500: #0f0f0f;
+  --color-dark-600: #0b0b0b;
+  --color-dark-700: #070707;
+  --color-dark-800: #040404;
+  --color-dark-900: #010101;
+  --color-dark: #0a0a0a;
+
+  --font-sans:
+    "Google Sans", "Work Sans", "Helvetica Neue", "Roboto", sans-serif;
+  --font-display:
+    "Google Sans", "Work Sans", "Helvetica Neue", "Roboto", sans-serif;
+  --font-decorative: "Yellowtail", cursive;
+  --font-pixel: "Pixelify Sans", sans-serif;
+  --font-retro: "BBH Sans Bartle", sans-serif;
+  --font-handwriting: "Playpen Sans", sans-serif;
+}

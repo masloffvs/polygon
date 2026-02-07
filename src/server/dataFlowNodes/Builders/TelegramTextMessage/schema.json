@@ -1,0 +1,70 @@
+{
+  "id": "telegram-text-message-builder",
+  "version": "1.0.0",
+  "name": "Telegram Text Message",
+  "category": "Builders",
+  "description": "Builds a Telegram text message from string input. Simple wrapper to create typed message request.",
+  "ui": {
+    "color": "#0088cc",
+    "icon": "message-square"
+  },
+  "execution": {
+    "timeoutMs": 5000,
+    "recoverable": true
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "text",
+        "type": "string",
+        "description": "Message text content",
+        "required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "message",
+        "type": "typed:telegram/text-message",
+        "description": "Complete Telegram text message request"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "parseMode",
+      "type": "string",
+      "label": "Parse Mode",
+      "defaultValue": "HTML",
+      "options": ["HTML", "Markdown", "MarkdownV2", ""],
+      "description": "Text formatting mode"
+    },
+    {
+      "name": "disableWebPagePreview",
+      "type": "boolean",
+      "label": "Disable Link Previews",
+      "defaultValue": false,
+      "description": "Don't show link previews in message"
+    },
+    {
+      "name": "silent",
+      "type": "boolean",
+      "label": "Silent",
+      "defaultValue": false,
+      "description": "Send without notification sound"
+    },
+    {
+      "name": "prefix",
+      "type": "string",
+      "label": "Text Prefix",
+      "defaultValue": "",
+      "description": "Text to prepend to every message"
+    },
+    {
+      "name": "suffix",
+      "type": "string",
+      "label": "Text Suffix",
+      "defaultValue": "",
+      "description": "Text to append to every message"
+    }
+  ]
+}

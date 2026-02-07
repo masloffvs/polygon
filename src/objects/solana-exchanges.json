@@ -1,0 +1,660 @@
+{
+	"FUKB7YPxP3vVQ4nry7LAzFcyUqPvswH6ciyRoReUYm7f": {
+		"account_address": "FUKB7YPxP3vVQ4nry7LAzFcyUqPvswH6ciyRoReUYm7f",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"FeNayVKekV9FJzhD7ycTd6sbKEyzt9CRCiqxw5nr41yR": {
+		"account_address": "FeNayVKekV9FJzhD7ycTd6sbKEyzt9CRCiqxw5nr41yR",
+		"account_label": "Bybit Wallet 3",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"AEZoku1fLfUz5JYJ3kJ5YVdf3QT1T4RwdggGbuR8Eakd": {
+		"account_address": "AEZoku1fLfUz5JYJ3kJ5YVdf3QT1T4RwdggGbuR8Eakd",
+		"account_label": "OKX: Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"5PAhQiYdLBd6SVdjzBQDxUAEFyDdF5ExNPQfcscnPRj5": {
+		"account_address": "5PAhQiYdLBd6SVdjzBQDxUAEFyDdF5ExNPQfcscnPRj5",
+		"account_label": "MEXC #2",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"AafGzY9eiC5Ud3YFZQwkaKApp48cVBAT2kksGvEjhUvH": {
+		"account_address": "AafGzY9eiC5Ud3YFZQwkaKApp48cVBAT2kksGvEjhUvH",
+		"account_label": "Coinbase Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"Gem2VAypSg7Ai7vjDKPTtqFahpoQWkfgVkyzx3rPoTka": {
+		"account_address": "Gem2VAypSg7Ai7vjDKPTtqFahpoQWkfgVkyzx3rPoTka",
+		"account_label": "Bybit Wallet 14",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"9un5wqE3q4oCjyrDkwsdD48KteCJitQX5978Vh7KKxHo": {
+		"account_address": "9un5wqE3q4oCjyrDkwsdD48KteCJitQX5978Vh7KKxHo",
+		"account_label": "OKX 2",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"AaFm2LPX8NUKXe64JaxcRNUc8QPGYCxrPG1HjHcTTGAK": {
+		"account_address": "AaFm2LPX8NUKXe64JaxcRNUc8QPGYCxrPG1HjHcTTGAK",
+		"account_label": "Bybit Wallet 7",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"AzAvbCQsXurd2PbGLYcB61tyvE8kLDaZShE1S5Bp3WeS": {
+		"account_address": "AzAvbCQsXurd2PbGLYcB61tyvE8kLDaZShE1S5Bp3WeS",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"GCRJD52pGwcCSs4oswYxTBCPatxY1P6WpxCC9R9zty6r": {
+		"account_address": "GCRJD52pGwcCSs4oswYxTBCPatxY1P6WpxCC9R9zty6r",
+		"account_label": "Coinbase Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"WR87TKyUfMDzGojFvRxq2f1xf7Jcgkvoc7Z2tDVLHdY": {
+		"account_address": "WR87TKyUfMDzGojFvRxq2f1xf7Jcgkvoc7Z2tDVLHdY",
+		"account_label": "Upbit Hot Wallet 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"G9X7F4JzLzbSGMCndiBdWNi5YzZZakmtkdwq7xS3Q3FE": {
+		"account_address": "G9X7F4JzLzbSGMCndiBdWNi5YzZZakmtkdwq7xS3Q3FE",
+		"account_label": "Stake.com Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"2qo8jvuc49pFmTjmUHLiARSV6ppPTaE7gw27ZJ6DnNZy": {
+		"account_address": "2qo8jvuc49pFmTjmUHLiARSV6ppPTaE7gw27ZJ6DnNZy",
+		"account_label": "Bybit Wallet 12",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"7ReR6syi6gr7qUrKCL1FB9VFzGhVgHwLJ8wtfNtH9Mv4": {
+		"account_address": "7ReR6syi6gr7qUrKCL1FB9VFzGhVgHwLJ8wtfNtH9Mv4",
+		"account_label": "Bybit Wallet 9",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"2E1UKoiiZPwsp4vn6tUh5k61kG2UqYpT7oBrFaJUJXXd": {
+		"account_address": "2E1UKoiiZPwsp4vn6tUh5k61kG2UqYpT7oBrFaJUJXXd",
+		"account_label": "SwissBorg Hot Wallet 1",
+		"account_icon": "https://statics.solscan.io/solscan-img/swissborg_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"ADqZYsW9SVZ6bCSGDqfBiPkfaZuQKGg79MA357otX8Ud": {
+		"account_address": "ADqZYsW9SVZ6bCSGDqfBiPkfaZuQKGg79MA357otX8Ud",
+		"account_label": "Crypto.com Hot Wallet 5",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR": {
+		"account_address": "A77HErqtfN1hLLpvZ9pCtu66FEtM8BveoaKbbMoZ4RiR",
+		"account_label": "Bitget Exchange",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitget_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"59L2oxymiQQ9Hvhh92nt8Y7nDYjsauFkdb3SybdnsG6h": {
+		"account_address": "59L2oxymiQQ9Hvhh92nt8Y7nDYjsauFkdb3SybdnsG6h",
+		"account_label": "Coinbase 5",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"eynpJ4nVgJnCPMzSgJ4c5AmwstAvQRn4QqdAhGBynf2": {
+		"account_address": "eynpJ4nVgJnCPMzSgJ4c5AmwstAvQRn4QqdAhGBynf2",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"6mearRPb9Bma9Ad9wCKnGtVbTeqDyZQ6PPxDRpBUNdJU": {
+		"account_address": "6mearRPb9Bma9Ad9wCKnGtVbTeqDyZQ6PPxDRpBUNdJU",
+		"account_label": "Upbit Hot Wallet 8",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"8s9j5qUtuE9PGA5s7QeAXEh5oc2UGr71pmJXgyiZMHkt": {
+		"account_address": "8s9j5qUtuE9PGA5s7QeAXEh5oc2UGr71pmJXgyiZMHkt",
+		"account_label": "LBank ",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"8JUEoHNMbWM4eegcMvx6ZQJt3V3fbo8JNjpWiCtJgxfF": {
+		"account_address": "8JUEoHNMbWM4eegcMvx6ZQJt3V3fbo8JNjpWiCtJgxfF",
+		"account_label": "Coinbase Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"CKy3KzEMSL1PQV6Wppggoqi2nGA7teE4L7JipEK89yqj": {
+		"account_address": "CKy3KzEMSL1PQV6Wppggoqi2nGA7teE4L7JipEK89yqj",
+		"account_label": "Coinbase Cold Wallet 1",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"i9XvhQqBCTQapqaFKPDuCbtPYMCwELmX8VTCsDhRG7d": {
+		"account_address": "i9XvhQqBCTQapqaFKPDuCbtPYMCwELmX8VTCsDhRG7d",
+		"account_label": "Bybit Wallet 8",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"6LzKPJ1Y6wdYTLfGDxe9WwoKpwAVMLHwXxmQpRgdD6ng": {
+		"account_address": "6LzKPJ1Y6wdYTLfGDxe9WwoKpwAVMLHwXxmQpRgdD6ng",
+		"account_label": "Coinbase Cold Wallet 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"3vxheE5C46XzK4XftziRhwAf8QAfipD7HXXWj25mgkom": {
+		"account_address": "3vxheE5C46XzK4XftziRhwAf8QAfipD7HXXWj25mgkom",
+		"account_label": "Coinbase Prime",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"Ahgd7ZczsP6XcWuhsF1Hn7i9W31uHMMPkmffrALL7ers": {
+		"account_address": "Ahgd7ZczsP6XcWuhsF1Hn7i9W31uHMMPkmffrALL7ers",
+		"account_label": "Upbit Hot Wallet 11",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"C68a6RCGLiPskbPYtAcsCjhG8tfTWYcoB4JjCrXFdqyo": {
+		"account_address": "C68a6RCGLiPskbPYtAcsCjhG8tfTWYcoB4JjCrXFdqyo",
+		"account_label": "OKX: Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9Z7S8vCj6nDbK9t4m4AU3vZpKm4UufHAwpmRYyKgZf7r": {
+		"account_address": "9Z7S8vCj6nDbK9t4m4AU3vZpKm4UufHAwpmRYyKgZf7r",
+		"account_label": "Bybit Wallet 5",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"G7vNg68KfbjVLCTc8Uw9JVmaC4ZajpX97ApkToBqvviy": {
+		"account_address": "G7vNg68KfbjVLCTc8Uw9JVmaC4ZajpX97ApkToBqvviy",
+		"account_label": "Binance Bidge",
+		"account_icon": "https://statics.solscan.io/solscan-img/binance.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9FtGm6hJULCpA8An4sFg5ysHUExDZBtMeDCxsYnTnWh5": {
+		"account_address": "9FtGm6hJULCpA8An4sFg5ysHUExDZBtMeDCxsYnTnWh5",
+		"account_label": "Robinhood Cold Wallet 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/robinhood_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"D5LmzoS7PXmT8oMVpSY1iSk1bZD2XLsc9nE5rSmwvyuQ": {
+		"account_address": "D5LmzoS7PXmT8oMVpSY1iSk1bZD2XLsc9nE5rSmwvyuQ",
+		"account_label": "Bithumb Hot Wallet 7",
+		"account_icon": "https://statics.solscan.io/solscan-img/bithumb_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"53unSgGWqEWANcPYRF35B2Bgf8BkszUtcccKiXwGGLyr": {
+		"account_address": "53unSgGWqEWANcPYRF35B2Bgf8BkszUtcccKiXwGGLyr",
+		"account_label": "Binance.us Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/binance-us_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9SLPTL41SPsYkgdsMzdfJsxymEANKr5bYoBsQzJyKpKS": {
+		"account_address": "9SLPTL41SPsYkgdsMzdfJsxymEANKr5bYoBsQzJyKpKS",
+		"account_label": "Hyperunit: Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/hyperunit_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"HBxZShcE86UMmF93KUM8eWJKqeEXi5cqWCLYLMMhqMYm": {
+		"account_address": "HBxZShcE86UMmF93KUM8eWJKqeEXi5cqWCLYLMMhqMYm",
+		"account_label": "Bitstamp Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitstamp_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"D89hHJT5Aqyx1trP6EnGY9jJUB3whgnq3aUvvCqedvzf": {
+		"account_address": "D89hHJT5Aqyx1trP6EnGY9jJUB3whgnq3aUvvCqedvzf",
+		"account_label": "Coinbase Hot Wallet 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6": {
+		"account_address": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6",
+		"account_label": "KuCoin 2",
+		"account_icon": "https://statics.solscan.io/solscan-img/kucoin_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"4pHKEisSmAr5CSump4dJnTJgG6eugmtieXcUxDBcQcG5": {
+		"account_address": "4pHKEisSmAr5CSump4dJnTJgG6eugmtieXcUxDBcQcG5",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"4xLpwxgYuPwPvtQjE94RLS4WZ4aD8NJYYKr2AJk99Qdg": {
+		"account_address": "4xLpwxgYuPwPvtQjE94RLS4WZ4aD8NJYYKr2AJk99Qdg",
+		"account_label": "Robinhood Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/robinhood_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"BbHG9GvPActFGogv3iNrpDAj4qpXr8t3jF16uGxXcKci": {
+		"account_address": "BbHG9GvPActFGogv3iNrpDAj4qpXr8t3jF16uGxXcKci",
+		"account_label": "Backpack Exchange 1",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"146yGthSmnTPuCo6Zfbmr56YbAyWZ3rzAhRcT7tTF5ha": {
+		"account_address": "146yGthSmnTPuCo6Zfbmr56YbAyWZ3rzAhRcT7tTF5ha",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"836euAuAeEWdjHFZ87vKhR6n4Vu1V22yMvj1MyzCdVU3": {
+		"account_address": "836euAuAeEWdjHFZ87vKhR6n4Vu1V22yMvj1MyzCdVU3",
+		"account_label": "Upbit Hot Wallet 9",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"CDhUgGEiUxx1aTbnoiSAKcmBhnGUFRQ6AMzuLQRD5VFZ": {
+		"account_address": "CDhUgGEiUxx1aTbnoiSAKcmBhnGUFRQ6AMzuLQRD5VFZ",
+		"account_label": "Kraken: Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/kraken.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo": {
+		"account_address": "DPqsobysNf5iA9w7zrQM8HLzCKZEDMkZsWbiidsAt1xo",
+		"account_label": "Coinbase Hot Wallet 4",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS": {
+		"account_address": "H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS",
+		"account_label": "Coinbase 1",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"FWznbcNXWQuHTawe9RxvQ2LdCENssh12dsznf4RiouN5": {
+		"account_address": "FWznbcNXWQuHTawe9RxvQ2LdCENssh12dsznf4RiouN5",
+		"account_label": "Kraken",
+		"account_icon": "https://statics.solscan.io/solscan-img/kraken.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"2PoMLnppbphUWkNReF15BJ4a6c4B348GnStSEv9tFsY1": {
+		"account_address": "2PoMLnppbphUWkNReF15BJ4a6c4B348GnStSEv9tFsY1",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"6QJzieMYfp7yr3EdrePaQoG3Ghxs2wM98xSLRu8Xh56U": {
+		"account_address": "6QJzieMYfp7yr3EdrePaQoG3Ghxs2wM98xSLRu8Xh56U",
+		"account_label": "Binance 11",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"9ZifroknFoYu4r6DUk6nYoJiUQnEyyoUyeAwjXbPoL2x": {
+		"account_address": "9ZifroknFoYu4r6DUk6nYoJiUQnEyyoUyeAwjXbPoL2x",
+		"account_label": "Bybit Wallet 11",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"i57ExrKB2i4mSgjSuq2xz617mQXmu33WG2WEYypmdvX": {
+		"account_address": "i57ExrKB2i4mSgjSuq2xz617mQXmu33WG2WEYypmdvX",
+		"account_label": "Bitstamp",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitstamp_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM": {
+		"account_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+		"account_label": "Binance 3",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"faczL4zr9Ss5U3sN829LgykeUZQ8BiNqkXPub6nUSHe": {
+		"account_address": "faczL4zr9Ss5U3sN829LgykeUZQ8BiNqkXPub6nUSHe",
+		"account_label": "Rapira",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"8mQnMuApYmNouGvj9wVL2Sh21DFsrzb3sbbFL3rUHXr5": {
+		"account_address": "8mQnMuApYmNouGvj9wVL2Sh21DFsrzb3sbbFL3rUHXr5",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"8jjpnSUhm5UYghznhcdkwwEUFyke6z5TchHEtUUgW8hX": {
+		"account_address": "8jjpnSUhm5UYghznhcdkwwEUFyke6z5TchHEtUUgW8hX",
+		"account_label": "Upbit Hot Wallet 4",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"bazxfWH6Vu2FncaSKc3kkgvyCuPwyFpx4ryZPcNiG7x": {
+		"account_address": "bazxfWH6Vu2FncaSKc3kkgvyCuPwyFpx4ryZPcNiG7x",
+		"account_label": "Gemini: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/gemini_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"Fi3kigPLsFtSvq7N1KBtz51C8Gc8XyMFWhYjbRkaFMxS": {
+		"account_address": "Fi3kigPLsFtSvq7N1KBtz51C8Gc8XyMFWhYjbRkaFMxS",
+		"account_label": "Bithumb Hot Wallet 9",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"FyJBKcfcEBzGN74uNxZ95GxnCxeuJJujQCELpPv14ZfN": {
+		"account_address": "FyJBKcfcEBzGN74uNxZ95GxnCxeuJJujQCELpPv14ZfN",
+		"account_label": "Bitfinex Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitfinex_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"GK35nWN6ZHSGZrRTf8kTQd8RkFCighChPEb41XwSFVAC": {
+		"account_address": "GK35nWN6ZHSGZrRTf8kTQd8RkFCighChPEb41XwSFVAC",
+		"account_label": "Binance Cold Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"AgsYPSd9jQZEpbTMsvBWKdiAux3eyghdSY355QVHH9Hs": {
+		"account_address": "AgsYPSd9jQZEpbTMsvBWKdiAux3eyghdSY355QVHH9Hs",
+		"account_label": "FalconX Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/falconx_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"RBHdGVfDfMjfU6iUfCb1LczMJcQLx7hGnxbzRsoDNvx": {
+		"account_address": "RBHdGVfDfMjfU6iUfCb1LczMJcQLx7hGnxbzRsoDNvx",
+		"account_label": "Rollbit Treasury",
+		"account_icon": "https://statics.solscan.io/solscan-img/rollbit_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"FpwQQhQQoEaVu3WU2qZMfF1hx48YyfwsLoRgXG83E99Q": {
+		"account_address": "FpwQQhQQoEaVu3WU2qZMfF1hx48YyfwsLoRgXG83E99Q",
+		"account_label": "Coinbase Hot Wallet 1",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"42brAgAVNzMBP7aaktPvAmBSPEkehnFQejiZc53EpJFd": {
+		"account_address": "42brAgAVNzMBP7aaktPvAmBSPEkehnFQejiZc53EpJFd",
+		"account_label": "Bybit Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/bybit_icon.png",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"3qP77PzrHxSrW1S8dH4Ss1dmpJDHpC6ATVgwy5FmXDEf": {
+		"account_address": "3qP77PzrHxSrW1S8dH4Ss1dmpJDHpC6ATVgwy5FmXDEf",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"5LZkATrLwHYCQj2YuVbjjgsDZzBk6YfL4pFQRJmtboT2": {
+		"account_address": "5LZkATrLwHYCQj2YuVbjjgsDZzBk6YfL4pFQRJmtboT2",
+		"account_label": "Bybit Wallet 15",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"22Wnk8PwyWZV7BfkZGJEKT9jGGdtvu7xY6EXeRh7zkBa": {
+		"account_address": "22Wnk8PwyWZV7BfkZGJEKT9jGGdtvu7xY6EXeRh7zkBa",
+		"account_label": "Crypto.com Hot Wallet 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/crypto-com_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"FxteHmLwG9nk1eL4pjNve3Eub2goGkkz6g6TbvdmW46a": {
+		"account_address": "FxteHmLwG9nk1eL4pjNve3Eub2goGkkz6g6TbvdmW46a",
+		"account_label": "Bitfinex Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitfinex_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"HVh6wHNBAsG3pq1Bj5oCzRjoWKVogEDHwUHkRz3ekFgt": {
+		"account_address": "HVh6wHNBAsG3pq1Bj5oCzRjoWKVogEDHwUHkRz3ekFgt",
+		"account_label": "KuCoin 3",
+		"account_icon": "https://statics.solscan.io/solscan-img/kucoin_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"F4C34HorTSr8C7Zmwj8Kdrbmq5XjV9d8iJywp74L8sZf": {
+		"account_address": "F4C34HorTSr8C7Zmwj8Kdrbmq5XjV9d8iJywp74L8sZf",
+		"account_label": "Coinbase Cold Wallet 2",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"4S8C1yrRZmJYPzCqzEVjZYf6qCYWFoF7hWLRzssTCotX": {
+		"account_address": "4S8C1yrRZmJYPzCqzEVjZYf6qCYWFoF7hWLRzssTCotX",
+		"account_label": "Bitget: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitget_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9VWD3xbXWtC2aGN1mQcVFwZMRPSjJfknNYq4DqGQ7B8B": {
+		"account_address": "9VWD3xbXWtC2aGN1mQcVFwZMRPSjJfknNYq4DqGQ7B8B",
+		"account_label": "Crypto.com Hot Wallet",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"HiRpdAZifEsZGdzQ5Xo5wcnaH3D2Jj9SoNsUzcYNK78J": {
+		"account_address": "HiRpdAZifEsZGdzQ5Xo5wcnaH3D2Jj9SoNsUzcYNK78J",
+		"account_label": "Gate.io 2",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"DLY8RdtrGELZh7Dnmf1tm99sfcXh6KdMtgjgRD1m1uQ7": {
+		"account_address": "DLY8RdtrGELZh7Dnmf1tm99sfcXh6KdMtgjgRD1m1uQ7",
+		"account_label": "Bitstamp Cold Wallet 1",
+		"account_icon": "https://statics.solscan.io/solscan-img/bitstamp_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"8Tp9fFkZ2KcRBLYDTUNXo98Ez6ojGb6MZEPXfGDdeBzG": {
+		"account_address": "8Tp9fFkZ2KcRBLYDTUNXo98Ez6ojGb6MZEPXfGDdeBzG",
+		"account_label": "Robinhood Cold Wallet 1",
+		"account_icon": "https://statics.solscan.io/solscan-img/robinhood_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"6FEVkH17P9y8Q9aCkDdPcMDjvj7SVxrTETaYEm8f51Jy": {
+		"account_address": "6FEVkH17P9y8Q9aCkDdPcMDjvj7SVxrTETaYEm8f51Jy",
+		"account_label": "Crypto.com Hot Wallet 1",
+		"account_icon": "https://statics.solscan.io/solscan-img/crypto-com_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"7mhcgF1DVsj5iv4CxZDgp51H6MBBwqamsH1KnqXhSRc5": {
+		"account_address": "7mhcgF1DVsj5iv4CxZDgp51H6MBBwqamsH1KnqXhSRc5",
+		"account_label": "Upbit Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S": {
+		"account_address": "2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S",
+		"account_label": "Binance 1",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"85cPov8nuRCkJ88VNMcHaHZ26Ux85PbSrHW4jg7izW4h": {
+		"account_address": "85cPov8nuRCkJ88VNMcHaHZ26Ux85PbSrHW4jg7izW4h",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"AeBwztwXScyNNuQCEdhS54wttRQrw3Nj1UtqddzB4C7b": {
+		"account_address": "AeBwztwXScyNNuQCEdhS54wttRQrw3Nj1UtqddzB4C7b",
+		"account_label": "Robinhood Cold Wallet 4",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"3yFwqXBfZY4jBVUafQ1YEXw189y2dN3V5KQq9uzBDy1E": {
+		"account_address": "3yFwqXBfZY4jBVUafQ1YEXw189y2dN3V5KQq9uzBDy1E",
+		"account_label": "Binance 8 ",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE": {
+		"account_address": "9obNtb5GyUegcs3a1CbBkLuc5hEWynWfJC6gjz5uWQkE",
+		"account_label": "Coinbase 4",
+		"account_tags": ["coinbase", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"BA7UdvSVywRisn8YLMpg6emrNNk3N3TFqSrKJXmTBKdt": {
+		"account_address": "BA7UdvSVywRisn8YLMpg6emrNNk3N3TFqSrKJXmTBKdt",
+		"account_label": "BtcTurk Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/btcturk_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"GBrURzmtWujJRTA3Bkvo7ZgWuZYLMMwPCwre7BejJXnK": {
+		"account_address": "GBrURzmtWujJRTA3Bkvo7ZgWuZYLMMwPCwre7BejJXnK",
+		"account_label": "Binance Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/binance.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"BESeJ71U2d6V1oUEXzLmWktHWwsgvFsevYjXtYicjLhp": {
+		"account_address": "BESeJ71U2d6V1oUEXzLmWktHWwsgvFsevYjXtYicjLhp",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS": {
+		"account_address": "AobVSwdW9BbpMdJvTqeCN4hPAmh4rHm7vwLnQ5ATSyrS",
+		"account_label": "Crypto.com Hot Wallet 2",
+		"account_icon": "https://statics.solscan.io/solscan-img/crypto-com_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"3gd3dqgtJ4jWfBfLYTX67DALFetjc5iS72sCgRhCkW2u": {
+		"account_address": "3gd3dqgtJ4jWfBfLYTX67DALFetjc5iS72sCgRhCkW2u",
+		"account_label": "Binance 10",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"28nYGHJyUVcVdxZtzKByBXEj127XnrUkrE3VaGuWj1ZU": {
+		"account_address": "28nYGHJyUVcVdxZtzKByBXEj127XnrUkrE3VaGuWj1ZU",
+		"account_label": "Ceffu Custody Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/ceffu_icon.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"2YERiDP8JqbmKDDUhPQtEfWozafQm1cdwi6KrmYo2app": {
+		"account_address": "2YERiDP8JqbmKDDUhPQtEfWozafQm1cdwi6KrmYo2app",
+		"account_label": "Upbit Hot Wallet 6",
+		"account_icon": "https://statics.solscan.io/solscan-img/upbit_exchange.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"9uyDy9VDBw4K7xoSkhmCAm8NAFCwu4pkF6JeHUCtVKcX": {
+		"account_address": "9uyDy9VDBw4K7xoSkhmCAm8NAFCwu4pkF6JeHUCtVKcX",
+		"account_label": "FTX Cold Storage #2",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"F7RkX6Y1qTfBqoX5oHoZEgrG1Dpy55UZ3GfWwPbM58nQ": {
+		"account_address": "F7RkX6Y1qTfBqoX5oHoZEgrG1Dpy55UZ3GfWwPbM58nQ",
+		"account_label": "Kraken Cold Wallet 2",
+		"account_icon": "https://statics.solscan.io/solscan-img/kraken.jpg",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"3yHvm5kFrEqYURBekXAXEpEWggpb8q51VRWDZtjZRQpT": {
+		"account_address": "3yHvm5kFrEqYURBekXAXEpEWggpb8q51VRWDZtjZRQpT",
+		"account_label": "Rapira",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9": {
+		"account_address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+		"account_label": "Binance 2",
+		"account_tags": ["binance", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"5VCwKtCXgCJ6kit5FybXjvriW3xELsFDhYrPSqtJNmcD": {
+		"account_address": "5VCwKtCXgCJ6kit5FybXjvriW3xELsFDhYrPSqtJNmcD",
+		"account_label": "OKX",
+		"account_icon": "https://statics.solscan.io/solscan-img/okx.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"6b4aypBhH337qSzzkbeoHWzTLt4DjG2aG8GkrrTQJfQA": {
+		"account_address": "6b4aypBhH337qSzzkbeoHWzTLt4DjG2aG8GkrrTQJfQA",
+		"account_label": "FTX Cold Storage #1",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"py5jDEUAynTufQHM7P6Tu9M8NUd8JYux7aMcLXcC51q": {
+		"account_address": "py5jDEUAynTufQHM7P6Tu9M8NUd8JYux7aMcLXcC51q",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"G6zmnfSdG6QJaDWYwbGQ4dpCSUC4gvjfZxYQ4ZharV7C": {
+		"account_address": "G6zmnfSdG6QJaDWYwbGQ4dpCSUC4gvjfZxYQ4ZharV7C",
+		"account_label": "Coinbase: Cold Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"CK8i4zFXkDE2KWfyg7g9S748r6mwxajbcKcyGhQMR3qQ": {
+		"account_address": "CK8i4zFXkDE2KWfyg7g9S748r6mwxajbcKcyGhQMR3qQ",
+		"account_label": "Bybit Wallet 13",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	},
+	"u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w": {
+		"account_address": "u6PJ8DtQuPFnfmwHbGFULQ4u4EgjDiyYKjVEsynXq2w",
+		"account_label": "Gate.io",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"GzHZpVPqDLK7sV6cFskSC4qaDzYWYryhf51VoFPtUvfz": {
+		"account_address": "GzHZpVPqDLK7sV6cFskSC4qaDzYWYryhf51VoFPtUvfz",
+		"account_label": "Coinbase Cold Wallet 4",
+		"account_icon": "https://statics.solscan.io/solscan-img/coinbase.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV": {
+		"account_address": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+		"account_label": "OKX: Hot Wallet",
+		"account_icon": "https://statics.solscan.io/solscan-img/okx.png",
+		"account_tags": ["exchange_wallet"],
+		"account_type": "address"
+	},
+	"32cT9eAwkEvAk631rUcUAbXVFPg21DaAXzGiz9AqHTVE": {
+		"account_address": "32cT9eAwkEvAk631rUcUAbXVFPg21DaAXzGiz9AqHTVE",
+		"account_label": "Bybit wallet 4",
+		"account_tags": ["bybit", "exchange_wallet"],
+		"account_type": "address"
+	}
+}

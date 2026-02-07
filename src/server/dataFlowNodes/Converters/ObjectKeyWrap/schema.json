@@ -1,0 +1,36 @@
+{
+  "id": "object-key-wrap",
+  "version": "1.0.0",
+  "name": "Object Key Wrap",
+  "category": "Converters",
+  "description": "Wraps input value into an object with specified key. Preserves original data type.",
+  "ui": {
+    "color": "#f97316",
+    "icon": "braces"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "any",
+        "description": "Any value to wrap"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "object",
+        "description": "Object with wrapped value: { key: value }"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "key",
+      "type": "string",
+      "label": "Object Key",
+      "defaultValue": "data",
+      "required": true
+    }
+  ]
+}

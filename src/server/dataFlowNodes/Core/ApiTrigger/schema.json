@@ -1,0 +1,37 @@
+{
+	"id": "api-trigger",
+	"version": "1.0.0",
+	"name": "API Trigger",
+	"category": "Core",
+	"description": "Triggers when an API request is received. Use POST /api/datastudio/trigger with {key, payload} to fire.",
+	"ui": {
+		"color": "#f59e0b",
+		"icon": "zap"
+	},
+	"ports": {
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Payload from API request"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "triggerKey",
+			"type": "string",
+			"label": "Trigger Key",
+			"defaultValue": "",
+			"description": "Unique key to identify this trigger. Leave empty to receive all events."
+		},
+		{
+			"name": "description",
+			"type": "string",
+			"label": "Description",
+			"defaultValue": "",
+			"description": "Optional description for this trigger"
+		}
+	]
+}

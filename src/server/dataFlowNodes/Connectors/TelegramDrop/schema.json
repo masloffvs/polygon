@@ -1,0 +1,64 @@
+{
+	"id": "telegram-drop",
+	"version": "1.0.0",
+	"name": "Telegram Drop",
+	"category": "Connectors",
+	"description": "Sends incoming data to a Telegram chat. Enter bot token and chat ID directly.",
+	"ui": {
+		"color": "#0088cc",
+		"icon": "send"
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "message",
+				"type": "any",
+				"description": "Message content to send (string or object)"
+			}
+		],
+		"outputs": [
+			{
+				"name": "result",
+				"type": "object",
+				"description": "Send result with message_id and status"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "botToken",
+			"type": "string",
+			"label": "Bot Token",
+			"defaultValue": "",
+			"description": "Bot token from @BotFather (e.g., 123456789:ABCdef...)"
+		},
+		{
+			"name": "chatId",
+			"type": "string",
+			"label": "Chat ID",
+			"defaultValue": "",
+			"description": "Telegram chat ID (use @userinfobot to get it, negative for groups)"
+		},
+		{
+			"name": "parseMode",
+			"type": "string",
+			"label": "Parse Mode",
+			"defaultValue": "HTML",
+			"description": "Message format: HTML, Markdown, MarkdownV2, or empty for plain text"
+		},
+		{
+			"name": "prefix",
+			"type": "string",
+			"label": "Message Prefix",
+			"defaultValue": "",
+			"description": "Optional prefix to prepend to each message"
+		},
+		{
+			"name": "silent",
+			"type": "boolean",
+			"label": "Silent Mode",
+			"defaultValue": false,
+			"description": "Send without notification sound"
+		}
+	]
+}

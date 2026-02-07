@@ -1,0 +1,50 @@
+{
+	"id": "to-string",
+	"version": "1.0.0",
+	"name": "To String",
+	"category": "Converters",
+	"description": "Converts any input to a string. Objects/arrays are JSON-stringified.",
+	"ui": {
+		"color": "#3b82f6",
+		"icon": "type"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Data to convert"
+			}
+		],
+		"outputs": [
+			{
+				"name": "result",
+				"type": "string",
+				"description": "Converted string value"
+			},
+			{
+				"name": "original",
+				"type": "any",
+				"description": "Original input (passthrough)"
+			},
+			{
+				"name": "errored",
+				"type": "any",
+				"description": "Input data if conversion failed"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "prettyPrint",
+			"type": "boolean",
+			"label": "Pretty Print JSON",
+			"defaultValue": false,
+			"description": "Format objects/arrays with indentation"
+		}
+	]
+}

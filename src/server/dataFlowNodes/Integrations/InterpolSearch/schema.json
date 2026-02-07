@@ -1,0 +1,53 @@
+{
+  "id": "interpol-search",
+  "version": "1.0.0",
+  "name": "Interpol Search",
+  "category": "Integrations",
+  "description": "Search Interpol and FBI wanted notices database by name",
+  "view": {
+    "id": "InterpolView",
+    "args": {
+      "title": "Interpol & FBI Database"
+    }
+  },
+  "ui": {
+    "color": "#ef4444",
+    "icon": "search"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "query",
+        "type": "string",
+        "description": "Name or keyword to search for"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "results",
+        "type": "typed:interpol/search-results",
+        "description": "Search results with matching wanted notices"
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "description": "Number of matches found"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "limit",
+      "type": "number",
+      "label": "Max Results",
+      "defaultValue": 20
+    },
+    {
+      "name": "sources",
+      "type": "select",
+      "label": "Sources",
+      "defaultValue": "all",
+      "options": ["all", "interpol", "fbi"]
+    }
+  ]
+}

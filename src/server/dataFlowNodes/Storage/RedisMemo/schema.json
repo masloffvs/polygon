@@ -1,0 +1,24 @@
+{
+	"id": "redis-memo",
+	"version": "1.0.0",
+	"name": "Redis Memo",
+	"category": "Storage",
+	"description": "Remembers value in Redis for 3 days. Updates on new input.",
+	"ui": {
+		"color": "#ef4444",
+		"icon": "database-02"
+	},
+	"ports": {
+		"inputs": [
+			{ "name": "data", "type": "any", "description": "Data to memorize" }
+		],
+		"outputs": [
+			{
+				"name": "stored",
+				"type": "object",
+				"description": "The stored data with metadata"
+			}
+		]
+	},
+	"settings": []
+}

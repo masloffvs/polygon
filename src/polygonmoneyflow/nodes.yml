@@ -1,0 +1,54 @@
+solana:
+  primary: https://api.mainnet-beta.solana.com
+  fallbacks:
+    - https://rpc.ankr.com/solana
+eth:
+  primary: https://cloudflare-eth.com
+  fallbacks:
+    - https://rpc.ankr.com/eth
+  chainId: 1
+base:
+  primary: https://mainnet.base.org
+  fallbacks:
+    - https://rpc.ankr.com/base
+  chainId: 8453
+polygon:
+  primary: https://polygon-rpc.com
+  fallbacks:
+    - https://rpc.ankr.com/polygon
+  chainId: 137
+trx:
+  primary: https://api.trongrid.io
+  fallbacks:
+    - https://tron-rpc.publicnode.com
+xrp:
+  primary: wss://xrplcluster.com
+  fallbacks:
+    - wss://s1.ripple.com
+polkadot:
+  primary: wss://rpc.polkadot.io
+  fallbacks:
+    - wss://polkadot-rpc.dwellir.com
+  ss58Prefix: 0
+ada:
+  primary: https://api.koios.rest/api/v1
+  fallbacks:
+    - https://api.koios.rest/api/v1
+atom:
+  primary: https://rest.cosmos.network
+  fallbacks:
+    - https://rest.publicnode.com/cosmos
+link:
+  primary: https://cloudflare-eth.com
+  fallbacks:
+    - https://rpc.ankr.com/eth
+  chainId: 1
+  tokenAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+bitcoin:
+  primary: https://mempool.space/api
+  fallbacks:
+    - https://blockstream.info/api
+lightning:
+  primary: https://mempool.space/api/v1/lightning
+  fallbacks:
+    - https://mempool.ninja/api/v1/lightning

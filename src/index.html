@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&family=Yellowtail&family=Pixelify+Sans:wght@400..700&family=Playpen+Sans:wght@100..800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @font-face {
+        font-family: "CrashNumberingGothic";
+        src: url("/crash-numbering-font/Crashnumberinggothic-MAjp.ttf")
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "CrashNumberingSerif";
+        src: url("/crash-numbering-font/Crashnumberingserif-KVjW.ttf")
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      #error-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #1a1a1a;
+        color: #ff6b6b;
+        font-family: "Menlo", "Monaco", "Courier New", monospace;
+        padding: 2rem;
+        overflow: auto;
+        z-index: 99999;
+      }
+      #error-overlay.visible {
+        display: block;
+      }
+      #error-overlay h1 {
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+      }
+      #error-overlay pre {
+        background: #2a2a2a;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.5;
+        border-left: 4px solid #ff6b6b;
+      }
+      #error-overlay .file {
+        color: #4ecdc4;
+      }
+      #error-overlay .line {
+        color: #ffe66d;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="error-overlay"></div>
+    <script>
+      // Catch build/import errors
+      window.onerror = (msg, _url, _line, _col, error) => {
+        showError(error?.stack || msg);
+        return true;
+      };
+      window.addEventListener("unhandledrejection", (e) => {
+        showError(e.reason?.stack || e.reason?.message || e.reason);
+      });
+      function showError(err) {
+        const overlay = document.getElementById("error-overlay");
+        overlay.innerHTML =
+          `<h1>⚠️ Build Error</h1><pre>${escapeHtml(String(err))}</pre>`;
+        overlay.classList.add("visible");
+        console.error("Build Error:", err);
+      }
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+    </script>
+    <script
+      type="module"
+      src="./frontend.tsx"
+      onerror="
+        showError('Failed to load frontend.tsx - check console for details')
+      "
+    ></script>
+  </body>
+</html>

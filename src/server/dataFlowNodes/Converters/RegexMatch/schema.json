@@ -1,0 +1,57 @@
+{
+  "id": "regex-match",
+  "version": "1.0.0",
+  "name": "Regex Match",
+  "category": "Converters",
+  "description": "Extract data from string using regular expression.",
+  "ui": {
+    "color": "#ef4444",
+    "icon": "search"
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "data",
+        "type": "string",
+        "description": "String to match against"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "match",
+        "type": "string",
+        "description": "Full match (or null)"
+      },
+      {
+        "name": "groups",
+        "type": "array",
+        "description": "Captured groups"
+      },
+      {
+        "name": "all",
+        "type": "array",
+        "description": "All matches (with global flag)"
+      },
+      {
+        "name": "found",
+        "type": "boolean",
+        "description": "Whether pattern was found"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "pattern",
+      "type": "string",
+      "label": "Regex Pattern",
+      "defaultValue": "(\\w+)",
+      "required": true
+    },
+    {
+      "name": "flags",
+      "type": "string",
+      "label": "Flags (g, i, m)",
+      "defaultValue": "g"
+    }
+  ]
+}

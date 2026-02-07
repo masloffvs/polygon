@@ -1,0 +1,29 @@
+{
+	"id": "clock-trigger",
+	"version": "1.0.0",
+	"name": "Clock Trigger",
+	"category": "Core",
+	"description": "Emits the current time periodically.",
+	"ui": {
+		"color": "#f59e0b",
+		"icon": "clock"
+	},
+	"ports": {
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "output",
+				"type": "string",
+				"description": "Current ISO timestamp"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "interval",
+			"type": "number",
+			"label": "Interval (ms)",
+			"defaultValue": 1000
+		}
+	]
+}
