@@ -1,6 +1,7 @@
 import { ChainId, TxDraft, Wallet, WalletSecrets } from "../../chains/common/chain-adapter";
 import { createChainRouter } from "../router";
 import { AppConfig } from "../infra/config";
+import { logger } from "../infra/logger";
 import { BadRequestError, NotFoundError } from "../utils/errors";
 import {
   findByAddress,
