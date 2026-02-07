@@ -47,7 +47,13 @@ bun run start
 | `TAKER_WITHDRAW_NETWORKS` | Comma-separated withdraw networks | `erc20,trc20,bep20,...` |
 | `TAKER_FEES_JSON` | JSON fees map by network/symbol | See `.env.example` |
 | `TAKER_BALANCE_TARGETS_JSON` | JSON array of balance targets (`chain`, `idOrAddress`, optional `symbol`, `asset`) | `[]` |
+| `TAKER_BALANCE_FALLBACK_INCOMING_LIMIT` | Incoming tx fetch limit per owner/wallet for fallback balance mode | `200` |
+| `TAKER_BALANCE_FALLBACK_CACHE_TTL_MS` | Cache TTL for fallback-computed balances (ms) | `120000` |
+| `TAKER_BALANCE_FALLBACK_WALLET_PAGE_LIMIT` | Wallet list page size for fallback scanner | `1000` |
+| `TAKER_BALANCE_FALLBACK_WALLET_MAX` | Max wallets scanned per fallback cycle | `5000` |
 | `TAKER_USD_PRICE_OVERRIDES_JSON` | Optional USD price overrides JSON | `{}` |
+
+If `TAKER_BALANCE_TARGETS_JSON` is empty, the client now builds `balance_report` from cached incoming transactions in wallet-flow (`/virtualOwned/transactions/incoming` and `/transactions/incoming`).
 
 ## Protocol
 

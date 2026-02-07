@@ -14,7 +14,11 @@ export type ChainId =
   | "polygon"
   | "trx"
   | "xrp"
-  | "polkadot";
+  | "polkadot"
+  | "bitcoin"
+  | "atom"
+  | "ada"
+  | "link";
 
 export interface WalletResponse {
   id: string;
@@ -93,6 +97,21 @@ const NETWORK_TO_CHAIN: Record<string, ChainId> = {
   // Polkadot
   polkadot: "polkadot",
   dot: "polkadot",
+
+  // Bitcoin
+  bitcoin: "bitcoin",
+  btc: "bitcoin",
+
+  // Cardano
+  ada: "ada",
+  cardano: "ada",
+
+  // Cosmos
+  atom: "atom",
+  cosmos: "atom",
+
+  // Chainlink (ERC-20 monitoring)
+  link: "link",
 
   // Arbitrum, Optimism -> map to ETH for now (same address format)
   arbitrum: "eth",
@@ -256,6 +275,37 @@ export class WalletApiClient {
       if (response.status === 404) {
         return [];
       }
+      const error = await response.text();
+      throw new Error(`Wallet API error: ${response.status} - ${error}`);
+    }
+
+    return (await response.json()) as IncomingTx[];
+  }
+
+  /**
+   * Get cached incoming transactions with optional filters.
+   * Used for balance-report fallback when direct balance endpoints are not configured.
+   */
+  async getIncoming(params?: {
+    chain?: string;
+    walletId?: string;
+    address?: string;
+    limit?: number;
+  }): Promise<IncomingTx[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.chain) searchParams.set("chain", params.chain);
+    if (params?.walletId) searchParams.set("walletId", params.walletId);
+    if (params?.address) searchParams.set("address", params.address);
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+
+    const query = searchParams.toString();
+    const url = `${this.config.baseUrl}/transactions/incoming${query ? `?${query}` : ""}`;
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(this.config.timeoutMs!),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) return [];
       const error = await response.text();
       throw new Error(`Wallet API error: ${response.status} - ${error}`);
     }

@@ -83,6 +83,22 @@ const config = {
   balanceTargets: parseJsonEnv<
     Array<{ chain: string; idOrAddress: string; symbol?: string; asset?: string }>
   >(process.env.TAKER_BALANCE_TARGETS_JSON, []),
+  balanceFallbackIncomingLimit: parseInt(
+    process.env.TAKER_BALANCE_FALLBACK_INCOMING_LIMIT || "200",
+    10,
+  ),
+  balanceFallbackCacheTtlMs: parseInt(
+    process.env.TAKER_BALANCE_FALLBACK_CACHE_TTL_MS || "120000",
+    10,
+  ),
+  balanceFallbackWalletPageLimit: parseInt(
+    process.env.TAKER_BALANCE_FALLBACK_WALLET_PAGE_LIMIT || "1000",
+    10,
+  ),
+  balanceFallbackWalletMax: parseInt(
+    process.env.TAKER_BALANCE_FALLBACK_WALLET_MAX || "5000",
+    10,
+  ),
   usdPriceOverrides: parseJsonEnv<Record<string, number>>(
     process.env.TAKER_USD_PRICE_OVERRIDES_JSON,
     {},

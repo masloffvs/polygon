@@ -13,6 +13,7 @@ import {
   listWalletsByOwner,
   registerWallet
 } from "../infra/wallet-registry";
+import { listIncomingForAddress } from "../infra/txstore";
 
 type CapabilityStatus = "full" | "partial" | "placeholder" | "not_implemented";
 type ChainImplementationMode = "full" | "partial" | "placeholder";
@@ -37,6 +38,32 @@ type ChainLiveReport = {
     estimateFee: ProbeCheck;
   };
   error?: string;
+};
+
+type RefinanceTransferItem = {
+  walletId: string;
+  fromAddress: string;
+  amount: string;
+  feeReserved: string;
+  feeCurrency: string;
+  txnId: string;
+  txHash?: string;
+  status: "pending" | "confirmed" | "failed" | "unknown";
+};
+
+export type RefinanceTransferResult = {
+  chain: ChainId;
+  asset?: string;
+  to: string;
+  requestedAmount: string;
+  transferredAmount: string;
+  remainingAmount: string;
+  allowSplit: boolean;
+  transfers: RefinanceTransferItem[];
+  txHashes: string[];
+  walletsConsidered: number;
+  walletsWithHistory: number;
+  walletsWithLiquidity: number;
 };
 
 export type ChainStatusReport = {
@@ -78,6 +105,35 @@ export const createWalletService = (config: AppConfig) => {
       .filter((asset) => asset.length > 0);
     if (!cleaned.length) return undefined;
     return Array.from(new Set(cleaned));
+  };
+
+  const normalizeSymbol = (value?: string): string => value?.trim().toUpperCase() ?? "";
+
+  const parseUnits = (value: string, decimals: number): bigint => {
+    const trimmed = value.trim();
+    if (!/^\d+(\.\d+)?$/.test(trimmed)) {
+      throw new BadRequestError(`Invalid amount: ${value}`);
+    }
+    if (decimals <= 0) return BigInt(trimmed.split(".")[0] ?? "0");
+
+    const [whole, fraction = ""] = trimmed.split(".");
+    if (fraction.length > decimals) {
+      throw new BadRequestError(
+        `Amount ${value} exceeds supported precision (${decimals} decimals)`,
+      );
+    }
+    const fractionPadded = (fraction + "0".repeat(decimals)).slice(0, decimals);
+    return BigInt(whole || "0") * 10n ** BigInt(decimals) + BigInt(fractionPadded || "0");
+  };
+
+  const formatUnits = (value: bigint, decimals: number): string => {
+    if (decimals <= 0) return value.toString();
+    const base = 10n ** BigInt(decimals);
+    const whole = value / base;
+    const fraction = value % base;
+    if (fraction === 0n) return whole.toString();
+    const fractionStr = fraction.toString().padStart(decimals, "0").replace(/0+$/, "");
+    return `${whole.toString()}.${fractionStr}`;
   };
 
   const defaultInstitutionalAssets = (chain: ChainId): string[] => {
@@ -640,6 +696,214 @@ export const createWalletService = (config: AppConfig) => {
     return router.get(chain).sendTransaction(draft);
   };
 
+  const refinanceTransfer = async (
+    chain: ChainId,
+    params: {
+      to: string;
+      amount: string;
+      allowSplit?: boolean;
+      asset?: string;
+    }
+  ): Promise<RefinanceTransferResult> => {
+    const to = params.to?.trim();
+    const amountRaw = params.amount?.trim();
+    const allowSplit = params.allowSplit === true;
+    const asset = (params.asset?.trim() || (chain === "link" ? "LINK" : "")).trim() || undefined;
+
+    if (!to) throw new BadRequestError("to is required");
+    if (!amountRaw) throw new BadRequestError("amount is required");
+    if (chain === "ada") {
+      throw new BadRequestError(
+        "refinanceTransfer is not available for ADA: adapter requires signed rawTx for sends.",
+      );
+    }
+
+    const wallets = (await listRegisteredWallets()).filter((wallet) => wallet.chain === chain);
+    const walletsConsidered = wallets.length;
+    if (!wallets.length) {
+      throw new NotFoundError(`No wallets registered for chain ${chain}`);
+    }
+
+    const candidates: Array<{
+      wallet: Wallet;
+      decimals: number;
+      symbol: string;
+      balanceUnits: bigint;
+      spendableUnits: bigint;
+      feeUnitsReserved: bigint;
+      feeCurrency: string;
+    }> = [];
+
+    let walletsWithHistory = 0;
+    let walletsWithLiquidity = 0;
+
+    for (const wallet of wallets) {
+      const incoming = await listIncomingForAddress(chain, wallet.address, 1);
+      if (!incoming.length) continue;
+      walletsWithHistory += 1;
+
+      const stored = await getWallet(wallet.id);
+      if (!stored?.secrets) continue;
+
+      let balance:
+        | {
+            amount: string;
+            decimals: number;
+            symbol: string;
+          }
+        | undefined;
+      try {
+        balance = await router.get(chain).getBalance(stored, asset);
+      } catch {
+        continue;
+      }
+
+      const balanceUnits = parseUnits(balance.amount, balance.decimals);
+      if (balanceUnits <= 0n) continue;
+
+      let feeUnitsReserved = 0n;
+      let feeCurrency = balance.symbol;
+      try {
+        const fee = await router.get(chain).estimateFee({
+          from: stored,
+          to,
+          amount: amountRaw,
+          asset
+        });
+        feeCurrency = fee.currency;
+        if (normalizeSymbol(fee.currency) === normalizeSymbol(balance.symbol)) {
+          feeUnitsReserved = parseUnits(fee.amount, balance.decimals);
+        }
+      } catch {
+        continue;
+      }
+
+      const spendableUnits = balanceUnits - feeUnitsReserved;
+      if (spendableUnits <= 0n) continue;
+
+      walletsWithLiquidity += 1;
+      candidates.push({
+        wallet: stored,
+        decimals: balance.decimals,
+        symbol: balance.symbol,
+        balanceUnits,
+        spendableUnits,
+        feeUnitsReserved,
+        feeCurrency
+      });
+    }
+
+    if (!candidates.length) {
+      throw new BadRequestError(
+        `No funded wallets with cached incoming history and valid fee estimate were found for ${chain}`,
+      );
+    }
+
+    const decimals = candidates[0]!.decimals;
+    const symbol = normalizeSymbol(candidates[0]!.symbol);
+    const requiredUnits = parseUnits(amountRaw, decimals);
+    if (requiredUnits <= 0n) {
+      throw new BadRequestError("amount must be greater than 0");
+    }
+
+    const compatible = candidates
+      .filter(
+        (candidate) =>
+          candidate.decimals === decimals &&
+          normalizeSymbol(candidate.symbol) === symbol,
+      )
+      .sort((a, b) => {
+        if (a.spendableUnits === b.spendableUnits) {
+          if (a.balanceUnits === b.balanceUnits) {
+            return a.wallet.address.localeCompare(b.wallet.address);
+          }
+          return a.balanceUnits < b.balanceUnits ? -1 : 1;
+        }
+        return a.spendableUnits < b.spendableUnits ? -1 : 1;
+      });
+
+    if (!compatible.length) {
+      throw new BadRequestError(
+        `No compatible wallets found for transfer asset on ${chain} (${symbol})`,
+      );
+    }
+
+    const plan: Array<{
+      candidate: (typeof compatible)[number];
+      amountUnits: bigint;
+    }> = [];
+
+    if (!allowSplit) {
+      const single = compatible.find((candidate) => candidate.spendableUnits >= requiredUnits);
+      if (!single) {
+        throw new BadRequestError(
+          `Insufficient single-wallet liquidity for ${amountRaw} ${symbol}. Enable allowSplit to aggregate balances.`,
+        );
+      }
+      plan.push({ candidate: single, amountUnits: requiredUnits });
+    } else {
+      let remaining = requiredUnits;
+      for (const candidate of compatible) {
+        if (remaining <= 0n) break;
+        const amountUnits =
+          candidate.spendableUnits < remaining ? candidate.spendableUnits : remaining;
+        if (amountUnits <= 0n) continue;
+        plan.push({ candidate, amountUnits });
+        remaining -= amountUnits;
+      }
+      if (remaining > 0n) {
+        throw new BadRequestError(
+          `Insufficient aggregated liquidity for ${amountRaw} ${symbol}. Missing ${formatUnits(
+            remaining,
+            decimals,
+          )} ${symbol}.`,
+        );
+      }
+    }
+
+    const transfers: RefinanceTransferItem[] = [];
+    const txHashes: string[] = [];
+    let transferredUnits = 0n;
+
+    for (const leg of plan) {
+      const sendAmount = formatUnits(leg.amountUnits, decimals);
+      const result = await sendTransaction(chain, {
+        walletId: leg.candidate.wallet.id,
+        to,
+        amount: sendAmount,
+        asset
+      });
+      transferredUnits += leg.amountUnits;
+      transfers.push({
+        walletId: leg.candidate.wallet.id,
+        fromAddress: leg.candidate.wallet.address,
+        amount: sendAmount,
+        feeReserved: formatUnits(leg.candidate.feeUnitsReserved, decimals),
+        feeCurrency: leg.candidate.feeCurrency,
+        txnId: result.txnId,
+        txHash: result.txHash,
+        status: result.status
+      });
+      txHashes.push(result.txHash ?? result.txnId);
+    }
+
+    const remainingUnits = requiredUnits - transferredUnits;
+    return {
+      chain,
+      asset,
+      to,
+      requestedAmount: amountRaw,
+      transferredAmount: formatUnits(transferredUnits, decimals),
+      remainingAmount: formatUnits(remainingUnits > 0n ? remainingUnits : 0n, decimals),
+      allowSplit,
+      transfers,
+      txHashes,
+      walletsConsidered,
+      walletsWithHistory,
+      walletsWithLiquidity
+    };
+  };
+
   const getStatus = (chain: ChainId, txnId: string) => router.get(chain).getStatus(txnId);
 
   const listWallets = async (filters?: {
@@ -709,6 +973,7 @@ export const createWalletService = (config: AppConfig) => {
     getBalance,
     estimateFee,
     sendTransaction,
+    refinanceTransfer,
     getStatus,
     createInstitutionalWallet,
     createVirtualOwnedWallets,

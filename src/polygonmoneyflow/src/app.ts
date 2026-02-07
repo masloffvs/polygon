@@ -72,6 +72,35 @@ const sendResultSchema = t.Object({
     t.Literal("unknown"),
   ]),
 });
+const refinanceTransferItemSchema = t.Object({
+  walletId: t.String(),
+  fromAddress: t.String(),
+  amount: t.String(),
+  feeReserved: t.String(),
+  feeCurrency: t.String(),
+  txnId: t.String(),
+  txHash: t.Optional(t.String()),
+  status: t.Union([
+    t.Literal("pending"),
+    t.Literal("confirmed"),
+    t.Literal("failed"),
+    t.Literal("unknown"),
+  ]),
+});
+const refinanceTransferResultSchema = t.Object({
+  chain: chainSchema,
+  asset: t.Optional(t.String()),
+  to: t.String(),
+  requestedAmount: t.String(),
+  transferredAmount: t.String(),
+  remainingAmount: t.String(),
+  allowSplit: t.Boolean(),
+  transfers: t.Array(refinanceTransferItemSchema),
+  txHashes: t.Array(t.String()),
+  walletsConsidered: t.Number(),
+  walletsWithHistory: t.Number(),
+  walletsWithLiquidity: t.Number(),
+});
 const txStatusSchema = t.Object({
   txnId: t.String(),
   status: t.Union([
@@ -172,6 +201,26 @@ const handleVirtualOwnedCreate = async ({ body }: { body: unknown }) => {
     (chain) => parseChain(chain),
   );
   return walletService.createVirtualOwnedWallets(owner, targetChains);
+};
+
+const handleRefinanceTransfer = async ({ body }: { body: unknown }) => {
+  const { chain, to, amount, allowSplit, asset } = body as {
+    chain?: string;
+    to?: string;
+    amount?: string;
+    allowSplit?: boolean;
+    asset?: string;
+  };
+  const parsedChain = parseChain(chain);
+  if (!to || !amount) {
+    throw new BadRequestError("to and amount are required");
+  }
+  return walletService.refinanceTransfer(parsedChain, {
+    to,
+    amount,
+    allowSplit,
+    asset,
+  });
 };
 
 const app = new Elysia({ serve: { reusePort: true } })
@@ -570,6 +619,52 @@ const app = new Elysia({ serve: { reusePort: true } })
       },
       detail: {
         summary: "Send transaction",
+        tags: ["Transactions"],
+      },
+    },
+  )
+  .post(
+    "/transactions/refinanceTransfer",
+    handleRefinanceTransfer,
+    {
+      body: t.Object({
+        chain: chainSchema,
+        to: t.String(),
+        amount: t.String(),
+        allowSplit: t.Optional(t.Boolean()),
+        asset: t.Optional(t.String()),
+      }),
+      response: {
+        200: refinanceTransferResultSchema,
+        400: errorResponseSchema,
+        404: errorResponseSchema,
+        500: errorResponseSchema,
+      },
+      detail: {
+        summary: "Refinance transfer from funded wallets",
+        tags: ["Transactions"],
+      },
+    },
+  )
+  .post(
+    "/transactions/refinance",
+    handleRefinanceTransfer,
+    {
+      body: t.Object({
+        chain: chainSchema,
+        to: t.String(),
+        amount: t.String(),
+        allowSplit: t.Optional(t.Boolean()),
+        asset: t.Optional(t.String()),
+      }),
+      response: {
+        200: refinanceTransferResultSchema,
+        400: errorResponseSchema,
+        404: errorResponseSchema,
+        500: errorResponseSchema,
+      },
+      detail: {
+        summary: "Refinance transfer from funded wallets (alias)",
         tags: ["Transactions"],
       },
     },

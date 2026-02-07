@@ -13,7 +13,7 @@ import WebSocket from "ws";
 import { type DepositMonitor, getDepositMonitor } from "./deposit-monitor";
 import { handleDepositRequest } from "./handlers";
 import { logger } from "./logger";
-import { getWalletApi, type ChainId } from "./wallet-api";
+import { getWalletApi, type ChainId, type IncomingTx } from "./wallet-api";
 
 export interface BalanceTarget {
   chain: string;
@@ -21,6 +21,12 @@ export interface BalanceTarget {
   symbol?: string;
   asset?: string;
 }
+
+type ReportBalance = {
+  symbol: string;
+  amount: number;
+  usd_value: number;
+};
 
 export interface TakerConfig {
   wsUrl: string;
@@ -33,6 +39,10 @@ export interface TakerConfig {
   withdrawNetworks: string[];
   takerFees: Record<string, string>;
   balanceTargets: BalanceTarget[];
+  balanceFallbackIncomingLimit: number;
+  balanceFallbackCacheTtlMs: number;
+  balanceFallbackWalletPageLimit: number;
+  balanceFallbackWalletMax: number;
   usdPriceOverrides: Record<string, number>;
 }
 
@@ -69,6 +79,22 @@ const DEFAULT_TAKER_FEES: Record<string, string> = {
   arbitrum: "0.0003",
 };
 
+const CHAIN_NATIVE_SYMBOLS: Record<string, string> = {
+  solana: "SOL",
+  eth: "ETH",
+  base: "ETH",
+  polygon: "MATIC",
+  trx: "TRX",
+  xrp: "XRP",
+  polkadot: "DOT",
+  bitcoin: "BTC",
+  atom: "ATOM",
+  ada: "ADA",
+  link: "LINK",
+  doge: "DOGE",
+  ltc: "LTC",
+};
+
 const STABLE_USD_SYMBOLS = new Set(["USD", "USDT", "USDC", "BUSD", "TUSD", "DAI"]);
 
 export class TakerClient {
@@ -84,6 +110,10 @@ export class TakerClient {
   private shouldReconnect = true;
   private depositMonitor: DepositMonitor | null = null;
   private usdPriceCache = new Map<string, { price: number; expiresAt: number }>();
+  private fallbackBalanceCache: {
+    balances: ReportBalance[];
+    expiresAt: number;
+  } | null = null;
 
   constructor(config: TakerConfig) {
     this.config = config;
@@ -216,6 +246,7 @@ export class TakerClient {
 
     this.isConnected = false;
     this.isAuthenticated = false;
+    this.fallbackBalanceCache = null;
 
     logger.info("Disconnected from exchange");
   }
@@ -855,12 +886,9 @@ export class TakerClient {
     }
   }
 
-  private async collectBalances(): Promise<
-    Array<{ symbol: string; amount: number; usd_value: number }>
-  > {
+  private async collectBalances(): Promise<ReportBalance[]> {
     if (this.config.balanceTargets.length === 0) {
-      logger.debug("No balance targets configured, sending empty balance report");
-      return [];
+      return this.collectBalancesFromIncomingCacheCached();
     }
 
     const walletApi = getWalletApi();
@@ -915,6 +943,147 @@ export class TakerClient {
         usd_value: Number(value.usdValue.toFixed(2)),
       }))
       .sort((a, b) => b.usd_value - a.usd_value);
+  }
+
+  private async collectBalancesFromIncomingCacheCached(): Promise<ReportBalance[]> {
+    const now = Date.now();
+    if (this.fallbackBalanceCache && this.fallbackBalanceCache.expiresAt > now) {
+      return this.fallbackBalanceCache.balances;
+    }
+
+    try {
+      const balances = await this.collectBalancesFromIncomingCache();
+      this.fallbackBalanceCache = {
+        balances,
+        expiresAt: now + this.config.balanceFallbackCacheTtlMs,
+      };
+      return balances;
+    } catch (error) {
+      logger.warn(
+        { error: error instanceof Error ? error.message : String(error) },
+        "Incoming-cache balance fallback failed",
+      );
+      return [];
+    }
+  }
+
+  private async collectBalancesFromIncomingCache(): Promise<ReportBalance[]> {
+    const walletApi = getWalletApi();
+    const owners = new Set<string>();
+    const walletsWithoutOwner: string[] = [];
+
+    let offset = 0;
+    let loadedWallets = 0;
+    while (loadedWallets < this.config.balanceFallbackWalletMax) {
+      const page = await walletApi.listWallets({
+        limit: this.config.balanceFallbackWalletPageLimit,
+        offset,
+      });
+      if (page.items.length === 0) break;
+
+      for (const wallet of page.items) {
+        loadedWallets += 1;
+        if (wallet.walletVirtualOwner) {
+          owners.add(wallet.walletVirtualOwner);
+        } else {
+          walletsWithoutOwner.push(wallet.id);
+        }
+        if (loadedWallets >= this.config.balanceFallbackWalletMax) break;
+      }
+
+      offset += page.items.length;
+      if (offset >= page.total) break;
+    }
+
+    if (owners.size === 0 && walletsWithoutOwner.length === 0) {
+      logger.debug("No wallets found for incoming-cache balance fallback");
+      return [];
+    }
+
+    const aggregated = new Map<string, number>();
+
+    for (const owner of owners) {
+      try {
+        const txs = await walletApi.getIncomingByOwner(
+          owner,
+          this.config.balanceFallbackIncomingLimit,
+        );
+        this.accumulateIncomingBalances(aggregated, txs);
+      } catch (error) {
+        logger.warn(
+          {
+            owner,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          "Failed to read incoming transactions for owner",
+        );
+      }
+    }
+
+    for (const walletId of walletsWithoutOwner) {
+      try {
+        const txs = await walletApi.getIncoming({
+          walletId,
+          limit: this.config.balanceFallbackIncomingLimit,
+        });
+        this.accumulateIncomingBalances(aggregated, txs);
+      } catch (error) {
+        logger.warn(
+          {
+            walletId,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          "Failed to read incoming transactions for wallet",
+        );
+      }
+    }
+
+    const balances: ReportBalance[] = [];
+    for (const [symbol, amount] of aggregated.entries()) {
+      const usdPrice = await this.resolveUsdPrice(symbol);
+      balances.push({
+        symbol,
+        amount: Number(amount.toFixed(8)),
+        usd_value: Number((usdPrice !== null ? amount * usdPrice : 0).toFixed(2)),
+      });
+    }
+
+    const result = balances.sort((a, b) => b.usd_value - a.usd_value);
+    logger.info(
+      {
+        walletsScanned: loadedWallets,
+        ownersScanned: owners.size,
+        assets: result.length,
+      },
+      "Built balance report from incoming transaction cache",
+    );
+    return result;
+  }
+
+  private accumulateIncomingBalances(
+    aggregated: Map<string, number>,
+    txs: IncomingTx[],
+  ): void {
+    for (const tx of txs) {
+      if (tx.status !== "confirmed") continue;
+
+      const amount = Number.parseFloat(tx.amount);
+      if (!Number.isFinite(amount) || amount <= 0) continue;
+
+      const symbol = this.resolveIncomingSymbol(tx);
+      aggregated.set(symbol, (aggregated.get(symbol) ?? 0) + amount);
+    }
+  }
+
+  private resolveIncomingSymbol(tx: IncomingTx): string {
+    const rawAsset = typeof tx.asset === "string" ? tx.asset.trim() : "";
+    if (rawAsset && rawAsset.toLowerCase() !== "native") {
+      return rawAsset.toUpperCase();
+    }
+
+    const rawChain = String(tx.chain ?? "").trim().toLowerCase();
+    if (!rawChain) return "UNKNOWN";
+    return CHAIN_NATIVE_SYMBOLS[rawChain] ?? rawChain.toUpperCase();
   }
 
   private async resolveUsdPrice(symbol: string): Promise<number | null> {

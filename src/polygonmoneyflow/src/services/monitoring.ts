@@ -20,6 +20,8 @@ type MonitorOptions = {
   evmLookback: number;
   rateLimitBackoffBaseMs: number;
   rateLimitBackoffMaxMs: number;
+  addressDegradeStepMs: number;
+  addressDegradeMaxMultiplier: number;
 };
 
 const defaultOptions = (): MonitorOptions => ({
@@ -28,12 +30,22 @@ const defaultOptions = (): MonitorOptions => ({
   evmBlocksPerPoll: Number(process.env.MONITOR_EVM_BLOCKS_PER_POLL ?? "20"),
   evmLookback: Number(process.env.MONITOR_EVM_LOOKBACK ?? "50"),
   rateLimitBackoffBaseMs: Number(process.env.MONITOR_RATE_LIMIT_BACKOFF_BASE_MS ?? "30000"),
-  rateLimitBackoffMaxMs: Number(process.env.MONITOR_RATE_LIMIT_BACKOFF_MAX_MS ?? "300000")
+  rateLimitBackoffMaxMs: Number(process.env.MONITOR_RATE_LIMIT_BACKOFF_MAX_MS ?? "300000"),
+  addressDegradeStepMs: Number(process.env.MONITOR_ADDRESS_DEGRADE_STEP_MS ?? "7200000"),
+  addressDegradeMaxMultiplier: Number(
+    process.env.MONITOR_ADDRESS_DEGRADE_MAX_MULTIPLIER ?? "64"
+  )
 });
 
 type ChainBackoffState = {
   nextAttemptAtMs: number;
   backoffMs: number;
+};
+
+type AddressPollState = {
+  lastIncomingAtMs: number;
+  nextPollAtMs: number;
+  lastMultiplier: number;
 };
 
 const getErrorText = (err: unknown): string => {
@@ -134,26 +146,94 @@ const pollEvmChain = async (
 };
 
 const pollAddressChain = async (
+  chain: ChainId,
   wallets: Wallet[],
   options: MonitorOptions,
+  walletPollState: Map<string, AddressPollState>,
   fetcher: (wallet: Wallet, limit: number) => Promise<IncomingTx[]>
 ) => {
+  if (!wallets.length) {
+    walletPollState.clear();
+    return;
+  }
+
+  const activeWalletIds = new Set(wallets.map((wallet) => wallet.id));
+  for (const walletId of walletPollState.keys()) {
+    if (!activeWalletIds.has(walletId)) {
+      walletPollState.delete(walletId);
+    }
+  }
+
   for (const wallet of wallets) {
+    const now = Date.now();
+    const state =
+      walletPollState.get(wallet.id) ??
+      ({ lastIncomingAtMs: now, nextPollAtMs: 0, lastMultiplier: 1 } satisfies AddressPollState);
+
+    if (state.nextPollAtMs > now) {
+      walletPollState.set(wallet.id, state);
+      continue;
+    }
+
     try {
       const txs = await fetcher(wallet, options.perAddressLimit);
+      let hasIncoming = false;
       for (const tx of txs) {
+        hasIncoming = true;
         if (!tx.walletId) tx.walletId = wallet.id;
         if (!tx.walletVirtualOwner && wallet.walletVirtualOwner) {
           tx.walletVirtualOwner = wallet.walletVirtualOwner;
         }
         await recordIncomingTx(tx);
       }
+
+      if (hasIncoming) {
+        if (state.lastMultiplier > 1) {
+          logger.info(
+            { chain, walletId: wallet.id, address: wallet.address },
+            "monitor wallet activity detected, restoring base poll interval"
+          );
+        }
+        state.lastIncomingAtMs = Date.now();
+        state.lastMultiplier = 1;
+        state.nextPollAtMs = state.lastIncomingAtMs + options.intervalMs;
+      } else {
+        const degradeStepMs = Math.max(options.addressDegradeStepMs, options.intervalMs, 1);
+        const inactiveMs = Math.max(0, Date.now() - state.lastIncomingAtMs);
+        const steps = Math.max(0, Math.floor(inactiveMs / degradeStepMs));
+        const maxMultiplier = Math.max(1, Math.floor(options.addressDegradeMaxMultiplier));
+        const multiplier = Math.min(Math.pow(2, Math.min(steps, 30)), maxMultiplier);
+        const nextDelayMs = Math.max(options.intervalMs, Math.floor(options.intervalMs * multiplier));
+
+        if (multiplier > state.lastMultiplier && multiplier > 1) {
+          logger.info(
+            {
+              chain,
+              walletId: wallet.id,
+              address: wallet.address,
+              multiplier,
+              nextDelayMs,
+              inactiveMinutes: Math.floor(inactiveMs / 60000)
+            },
+            "monitor wallet polling degraded due to inactivity"
+          );
+        }
+
+        state.lastMultiplier = multiplier;
+        state.nextPollAtMs = Date.now() + nextDelayMs;
+      }
+
+      walletPollState.set(wallet.id, state);
     } catch (err) {
       if (isRateLimitError(err)) throw err;
       logger.error(
         { chain: wallet.chain, walletId: wallet.id, address: wallet.address, err },
         "monitor wallet poll failed"
       );
+
+      state.nextPollAtMs =
+        Date.now() + Math.max(options.intervalMs, Math.floor(options.intervalMs * state.lastMultiplier));
+      walletPollState.set(wallet.id, state);
     }
   }
 };
@@ -163,12 +243,21 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
   let running = false;
   let timer: NodeJS.Timeout | null = null;
   const backoffByChain = new Map<ChainId, ChainBackoffState>();
+  const addressPollStateByChain = new Map<ChainId, Map<string, AddressPollState>>();
 
   const chainState = (chain: ChainId): ChainBackoffState => {
     const existing = backoffByChain.get(chain);
     if (existing) return existing;
     const state = { nextAttemptAtMs: 0, backoffMs: 0 };
     backoffByChain.set(chain, state);
+    return state;
+  };
+
+  const addressPollState = (chain: ChainId): Map<string, AddressPollState> => {
+    const existing = addressPollStateByChain.get(chain);
+    if (existing) return existing;
+    const state = new Map<string, AddressPollState>();
+    addressPollStateByChain.set(chain, state);
     return state;
   };
 
@@ -228,42 +317,47 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
       );
 
       await runChainPoll("solana", () =>
-        pollAddressChain(grouped.get("solana") ?? [], options, (wallet, limit) =>
+        pollAddressChain("solana", grouped.get("solana") ?? [], options, addressPollState("solana"), (wallet, limit) =>
           listSolanaIncoming(config.chains.solana, wallet.address, limit)
         )
       );
       await runChainPoll("trx", () =>
-        pollAddressChain(grouped.get("trx") ?? [], options, (wallet, limit) =>
+        pollAddressChain("trx", grouped.get("trx") ?? [], options, addressPollState("trx"), (wallet, limit) =>
           listTrxIncoming(config.chains.trx, wallet.address, limit)
         )
       );
       await runChainPoll("xrp", () =>
-        pollAddressChain(grouped.get("xrp") ?? [], options, (wallet, limit) =>
+        pollAddressChain("xrp", grouped.get("xrp") ?? [], options, addressPollState("xrp"), (wallet, limit) =>
           listXrpIncoming(config.chains.xrp, wallet.address, limit)
         )
       );
       await runChainPoll("polkadot", () =>
-        pollAddressChain(grouped.get("polkadot") ?? [], options, (wallet, limit) =>
-          listPolkadotIncoming(config.chains.polkadot, wallet.address, limit)
+        pollAddressChain(
+          "polkadot",
+          grouped.get("polkadot") ?? [],
+          options,
+          addressPollState("polkadot"),
+          (wallet, limit) =>
+            listPolkadotIncoming(config.chains.polkadot, wallet.address, limit)
         )
       );
       await runChainPoll("bitcoin", () =>
-        pollAddressChain(grouped.get("bitcoin") ?? [], options, (wallet, limit) =>
+        pollAddressChain("bitcoin", grouped.get("bitcoin") ?? [], options, addressPollState("bitcoin"), (wallet, limit) =>
           listBitcoinIncoming(config.chains.bitcoin, wallet.address, limit)
         )
       );
       await runChainPoll("atom", () =>
-        pollAddressChain(grouped.get("atom") ?? [], options, (wallet, limit) =>
+        pollAddressChain("atom", grouped.get("atom") ?? [], options, addressPollState("atom"), (wallet, limit) =>
           listAtomIncoming(config.chains.atom, wallet.address, limit)
         )
       );
       await runChainPoll("ada", () =>
-        pollAddressChain(grouped.get("ada") ?? [], options, (wallet, limit) =>
+        pollAddressChain("ada", grouped.get("ada") ?? [], options, addressPollState("ada"), (wallet, limit) =>
           listAdaIncoming(config.chains.ada, wallet.address, limit)
         )
       );
       await runChainPoll("link", () =>
-        pollAddressChain(grouped.get("link") ?? [], options, (wallet, limit) =>
+        pollAddressChain("link", grouped.get("link") ?? [], options, addressPollState("link"), (wallet, limit) =>
           listLinkIncoming(
             {
               rpc: config.chains.link.rpc,

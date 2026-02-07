@@ -53,6 +53,10 @@ function getChainSymbol(chain: ChainId, asset?: string): string {
     trx: "TRX",
     xrp: "XRP",
     polkadot: "DOT",
+    bitcoin: "BTC",
+    atom: "ATOM",
+    ada: "ADA",
+    link: "LINK",
   };
   return symbols[chain] ?? chain.toUpperCase();
 }
