@@ -48,11 +48,11 @@ jobs:
           - service: arbscanner
             image_name: arbscanner
             context: ./src/arbscanner
-            dockerfile: Dockerfile
+            dockerfile: src/arbscanner/Dockerfile
           - service: wallet
             image_name: wallet
             context: ./src/polygonmoneyflow
-            dockerfile: Dockerfile
+            dockerfile: src/polygonmoneyflow/Dockerfile
 
     steps:
       - name: Checkout
