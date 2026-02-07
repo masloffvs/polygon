@@ -18,14 +18,51 @@ type MonitorOptions = {
   perAddressLimit: number;
   evmBlocksPerPoll: number;
   evmLookback: number;
+  rateLimitBackoffBaseMs: number;
+  rateLimitBackoffMaxMs: number;
 };
 
 const defaultOptions = (): MonitorOptions => ({
   intervalMs: Number(process.env.MONITOR_INTERVAL_MS ?? "15000"),
   perAddressLimit: Number(process.env.MONITOR_LIMIT_PER_ADDRESS ?? "20"),
   evmBlocksPerPoll: Number(process.env.MONITOR_EVM_BLOCKS_PER_POLL ?? "20"),
-  evmLookback: Number(process.env.MONITOR_EVM_LOOKBACK ?? "50")
+  evmLookback: Number(process.env.MONITOR_EVM_LOOKBACK ?? "50"),
+  rateLimitBackoffBaseMs: Number(process.env.MONITOR_RATE_LIMIT_BACKOFF_BASE_MS ?? "30000"),
+  rateLimitBackoffMaxMs: Number(process.env.MONITOR_RATE_LIMIT_BACKOFF_MAX_MS ?? "300000")
 });
+
+type ChainBackoffState = {
+  nextAttemptAtMs: number;
+  backoffMs: number;
+};
+
+const getErrorText = (err: unknown): string => {
+  if (err instanceof Error) {
+    const cause = "cause" in err ? String((err as { cause?: unknown }).cause ?? "") : "";
+    return `${err.name} ${err.message} ${cause}`.toLowerCase();
+  }
+  if (typeof err === "string") return err.toLowerCase();
+  if (err && typeof err === "object") {
+    const obj = err as {
+      message?: unknown;
+      details?: unknown;
+      shortMessage?: unknown;
+      code?: unknown;
+    };
+    return `${String(obj.message ?? "")} ${String(obj.details ?? "")} ${String(obj.shortMessage ?? "")} ${String(obj.code ?? "")}`.toLowerCase();
+  }
+  return "";
+};
+
+const isRateLimitError = (err: unknown): boolean => {
+  const text = getErrorText(err);
+  return (
+    text.includes("too many requests") ||
+    text.includes("rate limit") ||
+    text.includes(" 429") ||
+    text.includes("error\":{\"code\": 429")
+  );
+};
 
 const groupByChain = (wallets: Wallet[]) => {
   const grouped = new Map<ChainId, Wallet[]>();
@@ -102,13 +139,21 @@ const pollAddressChain = async (
   fetcher: (wallet: Wallet, limit: number) => Promise<IncomingTx[]>
 ) => {
   for (const wallet of wallets) {
-    const txs = await fetcher(wallet, options.perAddressLimit);
-    for (const tx of txs) {
-      if (!tx.walletId) tx.walletId = wallet.id;
-      if (!tx.walletVirtualOwner && wallet.walletVirtualOwner) {
-        tx.walletVirtualOwner = wallet.walletVirtualOwner;
+    try {
+      const txs = await fetcher(wallet, options.perAddressLimit);
+      for (const tx of txs) {
+        if (!tx.walletId) tx.walletId = wallet.id;
+        if (!tx.walletVirtualOwner && wallet.walletVirtualOwner) {
+          tx.walletVirtualOwner = wallet.walletVirtualOwner;
+        }
+        await recordIncomingTx(tx);
       }
-      await recordIncomingTx(tx);
+    } catch (err) {
+      if (isRateLimitError(err)) throw err;
+      logger.error(
+        { chain: wallet.chain, walletId: wallet.id, address: wallet.address, err },
+        "monitor wallet poll failed"
+      );
     }
   }
 };
@@ -117,6 +162,51 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
   const options = { ...defaultOptions(), ...override };
   let running = false;
   let timer: NodeJS.Timeout | null = null;
+  const backoffByChain = new Map<ChainId, ChainBackoffState>();
+
+  const chainState = (chain: ChainId): ChainBackoffState => {
+    const existing = backoffByChain.get(chain);
+    if (existing) return existing;
+    const state = { nextAttemptAtMs: 0, backoffMs: 0 };
+    backoffByChain.set(chain, state);
+    return state;
+  };
+
+  const runChainPoll = async (chain: ChainId, fn: () => Promise<void>) => {
+    const now = Date.now();
+    const state = chainState(chain);
+    if (state.nextAttemptAtMs > now) return;
+
+    try {
+      await fn();
+      if (state.backoffMs > 0 || state.nextAttemptAtMs > 0) {
+        logger.info({ chain }, "monitor chain recovered");
+      }
+      state.backoffMs = 0;
+      state.nextAttemptAtMs = 0;
+    } catch (err) {
+      if (isRateLimitError(err)) {
+        const nextBackoff =
+          state.backoffMs > 0
+            ? Math.min(state.backoffMs * 2, options.rateLimitBackoffMaxMs)
+            : options.rateLimitBackoffBaseMs;
+        state.backoffMs = Math.max(nextBackoff, options.intervalMs);
+        state.nextAttemptAtMs = Date.now() + state.backoffMs;
+        logger.warn(
+          {
+            chain,
+            backoffMs: state.backoffMs,
+            nextAttemptAt: new Date(state.nextAttemptAtMs).toISOString(),
+            err
+          },
+          "monitor chain rate-limited, applying backoff"
+        );
+        return;
+      }
+
+      logger.error({ chain, err }, "monitor chain poll failed");
+    }
+  };
 
   const pollOnce = async () => {
     if (running) return;
@@ -129,40 +219,60 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
       }
       const grouped = groupByChain(wallets);
 
-      await pollEvmChain("eth", config, grouped.get("eth") ?? [], options);
-      await pollEvmChain("base", config, grouped.get("base") ?? [], options);
-      await pollEvmChain("polygon", config, grouped.get("polygon") ?? [], options);
+      await runChainPoll("eth", () => pollEvmChain("eth", config, grouped.get("eth") ?? [], options));
+      await runChainPoll("base", () =>
+        pollEvmChain("base", config, grouped.get("base") ?? [], options)
+      );
+      await runChainPoll("polygon", () =>
+        pollEvmChain("polygon", config, grouped.get("polygon") ?? [], options)
+      );
 
-      await pollAddressChain(grouped.get("solana") ?? [], options, (wallet, limit) =>
-        listSolanaIncoming(config.chains.solana, wallet.address, limit)
+      await runChainPoll("solana", () =>
+        pollAddressChain(grouped.get("solana") ?? [], options, (wallet, limit) =>
+          listSolanaIncoming(config.chains.solana, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("trx") ?? [], options, (wallet, limit) =>
-        listTrxIncoming(config.chains.trx, wallet.address, limit)
+      await runChainPoll("trx", () =>
+        pollAddressChain(grouped.get("trx") ?? [], options, (wallet, limit) =>
+          listTrxIncoming(config.chains.trx, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("xrp") ?? [], options, (wallet, limit) =>
-        listXrpIncoming(config.chains.xrp, wallet.address, limit)
+      await runChainPoll("xrp", () =>
+        pollAddressChain(grouped.get("xrp") ?? [], options, (wallet, limit) =>
+          listXrpIncoming(config.chains.xrp, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("polkadot") ?? [], options, (wallet, limit) =>
-        listPolkadotIncoming(config.chains.polkadot, wallet.address, limit)
+      await runChainPoll("polkadot", () =>
+        pollAddressChain(grouped.get("polkadot") ?? [], options, (wallet, limit) =>
+          listPolkadotIncoming(config.chains.polkadot, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("bitcoin") ?? [], options, (wallet, limit) =>
-        listBitcoinIncoming(config.chains.bitcoin, wallet.address, limit)
+      await runChainPoll("bitcoin", () =>
+        pollAddressChain(grouped.get("bitcoin") ?? [], options, (wallet, limit) =>
+          listBitcoinIncoming(config.chains.bitcoin, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("atom") ?? [], options, (wallet, limit) =>
-        listAtomIncoming(config.chains.atom, wallet.address, limit)
+      await runChainPoll("atom", () =>
+        pollAddressChain(grouped.get("atom") ?? [], options, (wallet, limit) =>
+          listAtomIncoming(config.chains.atom, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("ada") ?? [], options, (wallet, limit) =>
-        listAdaIncoming(config.chains.ada, wallet.address, limit)
+      await runChainPoll("ada", () =>
+        pollAddressChain(grouped.get("ada") ?? [], options, (wallet, limit) =>
+          listAdaIncoming(config.chains.ada, wallet.address, limit)
+        )
       );
-      await pollAddressChain(grouped.get("link") ?? [], options, (wallet, limit) =>
-        listLinkIncoming(
-          {
-            rpc: config.chains.link.rpc,
-            chainId: config.chains.link.chainId ?? 1,
-            tokenAddress: config.chains.link.tokenAddress
-          },
-          wallet.address,
-          limit
+      await runChainPoll("link", () =>
+        pollAddressChain(grouped.get("link") ?? [], options, (wallet, limit) =>
+          listLinkIncoming(
+            {
+              rpc: config.chains.link.rpc,
+              chainId: config.chains.link.chainId ?? 1,
+              tokenAddress: config.chains.link.tokenAddress
+            },
+            wallet.address,
+            limit
+          )
         )
       );
     } catch (err) {

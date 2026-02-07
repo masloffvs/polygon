@@ -80,6 +80,8 @@ const extractTxStatus = (value: unknown): TxStatus["status"] => {
 
 type KoiosAddressTx = {
   tx_hash?: string;
+  block_height?: number;
+  block_time?: number;
 };
 
 type KoiosTxInfo = {
@@ -105,31 +107,26 @@ const fetchAddressTxHashes = async (
   limit: number
 ): Promise<string[]> => {
   const safeLimit = Math.max(1, limit);
-  const getRes = await fetch(
-    toUrl(
-      endpoint,
-      `/address_txs?_address=${encodeURIComponent(address)}&_order=desc&_limit=${safeLimit}`
-    )
-  );
-  if (getRes.ok) {
-    const rows = (await getRes.json()) as KoiosAddressTx[];
-    return rows.map((row) => row.tx_hash).filter((hash): hash is string => Boolean(hash));
-  }
-
   const postRes = await fetch(toUrl(endpoint, "/address_txs"), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      _addresses: [address],
-      _order: "desc",
-      _limit: safeLimit
+      _addresses: [address]
     })
   });
   if (!postRes.ok) {
     throw new Error(`ADA incoming tx lookup failed (${postRes.status}): ${await postRes.text()}`);
   }
   const rows = (await postRes.json()) as KoiosAddressTx[];
-  return rows.map((row) => row.tx_hash).filter((hash): hash is string => Boolean(hash));
+  return rows
+    .filter((row): row is KoiosAddressTx & { tx_hash: string } => typeof row.tx_hash === "string")
+    .sort((a, b) => {
+      const blockCmp = (b.block_height ?? 0) - (a.block_height ?? 0);
+      if (blockCmp !== 0) return blockCmp;
+      return (b.block_time ?? 0) - (a.block_time ?? 0);
+    })
+    .slice(0, safeLimit)
+    .map((row) => row.tx_hash);
 };
 
 const fetchTxInfo = async (endpoint: string, txHashes: string[]): Promise<KoiosTxInfo[]> => {
