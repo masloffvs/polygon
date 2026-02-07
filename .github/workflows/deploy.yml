@@ -37,6 +37,10 @@ jobs:
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
       DEPLOY_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      APP_ENV_FILE: ${{ secrets.APP_ENV_FILE }}
+      WALLET_ENV_FILE_SECRET: ${{ secrets.WALLET_ENV_FILE }}
+      GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
     steps:
       - name: Checkout infrastructure files
@@ -106,9 +110,7 @@ jobs:
             "touch ${DEPLOY_TARGET_DIR}/secrets/app.env ${DEPLOY_TARGET_DIR}/secrets/wallet.env"
 
       - name: Upload app env file (optional)
-        if: ${{ secrets.APP_ENV_FILE != '' }}
-        env:
-          APP_ENV_FILE: ${{ secrets.APP_ENV_FILE }}
+        if: ${{ env.APP_ENV_FILE != '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -119,9 +121,7 @@ jobs:
             "printf '%s' '${app_env_b64}' | base64 -d > ${DEPLOY_TARGET_DIR}/secrets/app.env && chmod 600 ${DEPLOY_TARGET_DIR}/secrets/app.env"
 
       - name: Upload wallet env file (optional)
-        if: ${{ secrets.WALLET_ENV_FILE != '' }}
-        env:
-          WALLET_ENV_FILE_SECRET: ${{ secrets.WALLET_ENV_FILE }}
+        if: ${{ env.WALLET_ENV_FILE_SECRET != '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -132,10 +132,7 @@ jobs:
             "printf '%s' '${wallet_env_b64}' | base64 -d > ${DEPLOY_TARGET_DIR}/secrets/wallet.env && chmod 600 ${DEPLOY_TARGET_DIR}/secrets/wallet.env"
 
       - name: Login remote host to GHCR (optional)
-        if: ${{ secrets.GHCR_USERNAME != '' && secrets.GHCR_TOKEN != '' }}
-        env:
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        if: ${{ env.GHCR_USERNAME != '' && env.GHCR_TOKEN != '' }}
         shell: bash
         run: |
           set -euo pipefail
