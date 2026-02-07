@@ -735,7 +735,9 @@ export const createWalletService = (config: AppConfig) => {
     }> = [];
 
     let walletsWithHistory = 0;
+    let walletsWithSecrets = 0;
     let walletsWithLiquidity = 0;
+    let feeEstimateFailures = 0;
 
     for (const wallet of wallets) {
       const incoming = await listIncomingForAddress(chain, wallet.address, 1);
@@ -744,6 +746,7 @@ export const createWalletService = (config: AppConfig) => {
 
       const stored = await getWallet(wallet.id);
       if (!stored?.secrets) continue;
+      walletsWithSecrets += 1;
 
       let balance:
         | {
@@ -774,8 +777,17 @@ export const createWalletService = (config: AppConfig) => {
         if (normalizeSymbol(fee.currency) === normalizeSymbol(balance.symbol)) {
           feeUnitsReserved = parseUnits(fee.amount, balance.decimals);
         }
-      } catch {
-        continue;
+      } catch (err) {
+        feeEstimateFailures += 1;
+        logger.warn(
+          {
+            chain,
+            walletId: stored.id,
+            address: stored.address,
+            err: err instanceof Error ? err.message : String(err)
+          },
+          "refinanceTransfer fee estimate failed, continuing with zero reserved fee"
+        );
       }
 
       const spendableUnits = balanceUnits - feeUnitsReserved;
@@ -794,8 +806,23 @@ export const createWalletService = (config: AppConfig) => {
     }
 
     if (!candidates.length) {
+      const details = {
+        chain,
+        walletsConsidered,
+        walletsWithHistory,
+        walletsWithSecrets,
+        walletsWithLiquidity,
+        feeEstimateFailures
+      };
+      if (walletsWithHistory > 0 && walletsWithSecrets === 0) {
+        throw new BadRequestError(
+          `Wallets with incoming history were found for ${chain}, but none have signing secrets in keystore`,
+        );
+      }
       throw new BadRequestError(
-        `No funded wallets with cached incoming history and valid fee estimate were found for ${chain}`,
+        `No funded wallets with cached incoming history were found for ${chain}. Details: ${JSON.stringify(
+          details,
+        )}`,
       );
     }
 
