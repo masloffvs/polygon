@@ -2,11 +2,13 @@
 set -euo pipefail
 
 WORKFLOW_FILE="${WORKFLOW_FILE:-deploy.yml}"
+BUILD_WORKFLOW_FILE="${BUILD_WORKFLOW_FILE:-build-images.yml}"
 ENVIRONMENT="production"
 IMAGE_TAG="$(git rev-parse HEAD 2>/dev/null || echo latest)"
 REF="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo master)"
 REPO="${GITHUB_REPOSITORY:-}"
 WAIT_FOR_RUN=false
+WAIT_FOR_BUILD=true
 
 usage() {
     cat <<'EOF'
@@ -21,6 +23,8 @@ Options:
   --ref <git-ref>       Git ref for workflow dispatch (default: current branch)
   --repo <owner/repo>   GitHub repository (auto-detected if omitted)
   --workflow <file>     Workflow filename (default: deploy.yml)
+  --build-workflow <f>  Build workflow filename (default: build-images.yml)
+  --no-wait-build       Do not wait for build workflow before deploy
   --wait                Wait for started workflow run
   -h, --help            Show this help
 
@@ -51,6 +55,101 @@ detect_repo() {
     return 1
 }
 
+resolve_ref_sha() {
+    local repo="$1"
+    local ref="$2"
+    gh api "repos/${repo}/commits/${ref}" --jq '.sha'
+}
+
+wait_for_build_images() {
+    local repo="$1"
+    local build_workflow="$2"
+    local head_sha="$3"
+
+    local run_id
+    local run_status
+    local run_conclusion
+    local attempts=0
+
+    echo "Waiting for build workflow '${build_workflow}' on commit ${head_sha}..."
+
+    while (( attempts < 60 )); do
+        attempts=$((attempts + 1))
+
+        run_id="$(gh run list \
+            --repo "${repo}" \
+            --workflow "${build_workflow}" \
+            --limit 50 \
+            --json databaseId,headSha \
+            --jq "map(select(.headSha == \"${head_sha}\")) | sort_by(.databaseId) | last | .databaseId")"
+
+        if [[ -z "${run_id}" || "${run_id}" == "null" ]]; then
+            sleep 2
+            continue
+        fi
+
+        run_status="$(gh run view "${run_id}" --repo "${repo}" --json status --jq '.status')"
+        run_conclusion="$(gh run view "${run_id}" --repo "${repo}" --json conclusion --jq '.conclusion // ""')"
+
+        if [[ "${run_status}" != "completed" ]]; then
+            echo "Build run ${run_id} is '${run_status}'. Watching until completion..."
+            gh run watch "${run_id}" --repo "${repo}" || true
+            run_status="$(gh run view "${run_id}" --repo "${repo}" --json status --jq '.status')"
+            run_conclusion="$(gh run view "${run_id}" --repo "${repo}" --json conclusion --jq '.conclusion // ""')"
+        fi
+
+        if [[ "${run_status}" == "completed" && "${run_conclusion}" == "success" ]]; then
+            echo "Build run ${run_id} completed successfully."
+            return 0
+        fi
+
+        if [[ "${run_status}" == "completed" ]]; then
+            echo "Build run ${run_id} finished with conclusion: ${run_conclusion}" >&2
+            return 1
+        fi
+
+        sleep 2
+    done
+
+    echo "Timed out waiting for build workflow '${build_workflow}' on ${head_sha}." >&2
+    return 1
+}
+
+resolve_new_dispatch_run_id() {
+    local repo="$1"
+    local workflow_file="$2"
+    local previous_id="$3"
+    local head_sha="${4:-}"
+
+    local run_id
+    local jq_query
+
+    if [[ -n "${head_sha}" ]]; then
+        jq_query="map(select(.databaseId > ${previous_id} and .headSha == \"${head_sha}\")) | sort_by(.databaseId) | last | .databaseId"
+    else
+        jq_query="map(select(.databaseId > ${previous_id})) | sort_by(.databaseId) | last | .databaseId"
+    fi
+
+    for _ in {1..40}; do
+        run_id="$(gh run list \
+            --repo "${repo}" \
+            --workflow "${workflow_file}" \
+            --event workflow_dispatch \
+            --limit 50 \
+            --json databaseId,headSha \
+            --jq "${jq_query}")"
+
+        if [[ -n "${run_id}" && "${run_id}" != "null" ]]; then
+            echo "${run_id}"
+            return 0
+        fi
+
+        sleep 2
+    done
+
+    return 1
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --env)
@@ -72,6 +171,14 @@ while [[ $# -gt 0 ]]; do
         --workflow)
             WORKFLOW_FILE="${2:-}"
             shift 2
+            ;;
+        --build-workflow)
+            BUILD_WORKFLOW_FILE="${2:-}"
+            shift 2
+            ;;
+        --no-wait-build)
+            WAIT_FOR_BUILD=false
+            shift
             ;;
         --wait)
             WAIT_FOR_RUN=true
@@ -113,6 +220,26 @@ echo "Ref        : ${REF}"
 echo "=========================================="
 
 if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    target_sha="$(resolve_ref_sha "${REPO}" "${REF}" 2>/dev/null || true)"
+
+    if [[ -n "${target_sha}" && "${WAIT_FOR_BUILD}" == true && "${IMAGE_TAG}" == "${target_sha}" ]]; then
+        wait_for_build_images "${REPO}" "${BUILD_WORKFLOW_FILE}" "${target_sha}"
+    elif [[ "${WAIT_FOR_BUILD}" == true ]]; then
+        echo "Skipping build wait (image tag '${IMAGE_TAG}' does not match ref SHA '${target_sha:-unknown}')."
+    fi
+
+    previous_dispatch_run_id="$(gh run list \
+        --repo "${REPO}" \
+        --workflow "${WORKFLOW_FILE}" \
+        --event workflow_dispatch \
+        --limit 1 \
+        --json databaseId \
+        --jq '.[0].databaseId // 0')"
+
+    if [[ -z "${previous_dispatch_run_id}" || "${previous_dispatch_run_id}" == "null" ]]; then
+        previous_dispatch_run_id=0
+    fi
+
     gh workflow run "${WORKFLOW_FILE}" \
         --repo "${REPO}" \
         --ref "${REF}" \
@@ -123,14 +250,11 @@ if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
     echo "Workflow dispatch sent via gh CLI."
 
     if [[ "${WAIT_FOR_RUN}" == true ]]; then
-        sleep 2
-        run_id="$(gh run list \
-            --repo "${REPO}" \
-            --workflow "${WORKFLOW_FILE}" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')"
+        run_id="$(resolve_new_dispatch_run_id \
+            "${REPO}" \
+            "${WORKFLOW_FILE}" \
+            "${previous_dispatch_run_id}" \
+            "${target_sha}" || true)"
 
         if [[ -n "${run_id}" && "${run_id}" != "null" ]]; then
             echo "Watching run ${run_id}..."
