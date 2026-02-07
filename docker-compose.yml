@@ -99,7 +99,6 @@ services:
     build:
       context: .
       dockerfile: src/emufetch/Dockerfile
-    container_name: emufetch
     ports:
       - "8916:8916"
     env_file:
@@ -110,7 +109,6 @@ services:
     build:
       context: .
       dockerfile: src/ytdlp/Dockerfile
-    container_name: ytdlp
     ports:
       - "8917:8917"
     volumes:
@@ -122,7 +120,6 @@ services:
     build:
       context: .
       dockerfile: src/xscraper/Dockerfile
-    container_name: xscraper
     ports:
       - "8918:8918"
       - "5901:5901"
@@ -136,7 +133,6 @@ services:
     build:
       context: ./src/arbscanner
       dockerfile: Dockerfile
-    container_name: arbscanner
     env_file:
       - .env
     depends_on:
