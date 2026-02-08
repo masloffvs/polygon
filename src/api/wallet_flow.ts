@@ -107,6 +107,28 @@ export const getWalletFlowRoutes = () => ({
 		},
 	},
 
+	"/api/wallet-flow/balances/reindex": {
+		async POST(req: Request) {
+			const body = await req.json();
+			return proxyRequest(req, "/balances/reindex", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+		},
+	},
+
+	"/api/wallet-flow/reindexBalances": {
+		async POST(req: Request) {
+			const body = await req.json();
+			return proxyRequest(req, "/reindexBalances", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+		},
+	},
+
 	"/api/wallet-flow/transactions/incoming": {
 		async GET(req: Request) {
 			return proxyRequest(req, "/transactions/incoming");

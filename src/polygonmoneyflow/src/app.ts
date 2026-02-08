@@ -101,6 +101,28 @@ const refinanceTransferResultSchema = t.Object({
   walletsWithHistory: t.Number(),
   walletsWithLiquidity: t.Number(),
 });
+const reindexBalanceTargetSchema = t.Object({
+  chain: chainSchema,
+  idOrAddress: t.String(),
+  asset: t.Optional(t.String()),
+});
+const reindexBalanceItemSchema = t.Object({
+  chain: chainSchema,
+  idOrAddress: t.String(),
+  walletId: t.Optional(t.String()),
+  address: t.Optional(t.String()),
+  asset: t.Optional(t.String()),
+  balance: t.Optional(balanceSchema),
+  cachedAt: t.Optional(t.String()),
+  status: t.Union([t.Literal("ok"), t.Literal("error")]),
+  error: t.Optional(t.String()),
+});
+const reindexBalanceResultSchema = t.Object({
+  items: t.Array(reindexBalanceItemSchema),
+  total: t.Number(),
+  success: t.Number(),
+  failed: t.Number(),
+});
 const txStatusSchema = t.Object({
   txnId: t.String(),
   status: t.Union([
@@ -220,6 +242,27 @@ const handleRefinanceTransfer = async ({ body }: { body: unknown }) => {
     amount,
     allowSplit,
     asset,
+  });
+};
+
+const handleReindexBalances = async ({ body }: { body: unknown }) => {
+  const { wallets } = body as {
+    wallets?: Array<{ chain?: string; idOrAddress?: string; asset?: string }>;
+  };
+  if (!Array.isArray(wallets) || wallets.length === 0) {
+    throw new BadRequestError("wallets array is required");
+  }
+  return walletService.reindexBalances({
+    wallets: wallets.map((item) => {
+      const chain = parseChain(item.chain);
+      const idOrAddress = item.idOrAddress?.trim();
+      if (!idOrAddress) throw new BadRequestError("idOrAddress is required");
+      return {
+        chain,
+        idOrAddress,
+        asset: item.asset,
+      };
+    }),
   });
 };
 
@@ -566,6 +609,34 @@ const app = new Elysia({ serve: { reusePort: true } })
       },
     },
   )
+  .post("/balances/reindex", handleReindexBalances, {
+    body: t.Object({
+      wallets: t.Array(reindexBalanceTargetSchema),
+    }),
+    response: {
+      200: reindexBalanceResultSchema,
+      400: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+    detail: {
+      summary: "Reindex balances and refresh cache for selected wallets",
+      tags: ["Wallets"],
+    },
+  })
+  .post("/reindexBalances", handleReindexBalances, {
+    body: t.Object({
+      wallets: t.Array(reindexBalanceTargetSchema),
+    }),
+    response: {
+      200: reindexBalanceResultSchema,
+      400: errorResponseSchema,
+      500: errorResponseSchema,
+    },
+    detail: {
+      summary: "Reindex balances and refresh cache for selected wallets (alias)",
+      tags: ["Wallets"],
+    },
+  })
   .post(
     "/transactions",
     async ({ body }) => {

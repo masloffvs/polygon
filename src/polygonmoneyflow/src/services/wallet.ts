@@ -1,15 +1,18 @@
 import { ChainId, TxDraft, Wallet, WalletSecrets } from "../../chains/common/chain-adapter";
 import { createChainRouter } from "../router";
 import { AppConfig } from "../infra/config";
+import { cacheBalance } from "../infra/balance-cache";
 import { logger } from "../infra/logger";
 import { BadRequestError, NotFoundError } from "../utils/errors";
 import {
   findByAddress,
-  getWallet,
+  getWallet as getStoredWallet,
   listInstitutionalWallets,
   saveWallet
 } from "../infra/keystore";
 import {
+  findWalletByAddress as findRegisteredWalletByAddress,
+  getWallet as getRegisteredWallet,
   listWallets as listRegisteredWallets,
   listWalletsByOwner,
   registerWallet
@@ -65,6 +68,35 @@ export type RefinanceTransferResult = {
   walletsConsidered: number;
   walletsWithHistory: number;
   walletsWithLiquidity: number;
+};
+
+export type ReindexBalanceTarget = {
+  chain: ChainId;
+  idOrAddress: string;
+  asset?: string;
+};
+
+export type ReindexBalanceItem = {
+  chain: ChainId;
+  idOrAddress: string;
+  walletId?: string;
+  address?: string;
+  asset?: string;
+  balance?: {
+    amount: string;
+    decimals: number;
+    symbol: string;
+  };
+  cachedAt?: string;
+  status: "ok" | "error";
+  error?: string;
+};
+
+export type ReindexBalancesResult = {
+  items: ReindexBalanceItem[];
+  total: number;
+  success: number;
+  failed: number;
 };
 
 export type ChainStatusReport = {
@@ -614,17 +646,43 @@ export const createWalletService = (config: AppConfig) => {
     opts: { walletId?: string; address?: string; secrets?: WalletSecrets }
   ) => {
     if (opts.walletId) {
-      const stored = await getWallet(opts.walletId);
-      if (!stored) throw new NotFoundError(`Wallet ${opts.walletId} not found`);
-      return stored;
+      const stored = await getStoredWallet(opts.walletId);
+      if (stored) {
+        if (stored.chain !== chain) {
+          throw new BadRequestError(
+            `Wallet ${opts.walletId} belongs to chain ${stored.chain}, requested ${chain}`,
+          );
+        }
+        return stored;
+      }
+
+      const registered = await getRegisteredWallet(opts.walletId);
+      if (registered) {
+        if (registered.chain !== chain) {
+          throw new BadRequestError(
+            `Wallet ${opts.walletId} belongs to chain ${registered.chain}, requested ${chain}`,
+          );
+        }
+        return registered;
+      }
+
+      if (!opts.address) throw new NotFoundError(`Wallet ${opts.walletId} not found`);
     }
     if (opts.address) {
-      const stored = await findByAddress(chain, opts.address);
+      const normalizedAddress = opts.address.trim();
+      const stored = await findByAddress(chain, normalizedAddress);
       if (stored) return stored;
+      const registered = await findRegisteredWalletByAddress(chain, normalizedAddress);
+      if (registered) return registered;
       if (opts.secrets) {
-        return { id: opts.address, address: opts.address, chain, secrets: opts.secrets };
+        return {
+          id: normalizedAddress,
+          address: normalizedAddress,
+          chain,
+          secrets: opts.secrets
+        };
       }
-      return { id: opts.address, address: opts.address, chain };
+      return { id: normalizedAddress, address: normalizedAddress, chain };
     }
     throw new BadRequestError("walletId or address is required");
   };
@@ -634,7 +692,99 @@ export const createWalletService = (config: AppConfig) => {
       walletId: walletIdOrAddress,
       address: walletIdOrAddress
     });
-    return router.get(chain).getBalance(wallet, asset);
+    const balance = await router.get(chain).getBalance(wallet, asset);
+    try {
+      await cacheBalance({
+        chain,
+        walletId: wallet.id,
+        address: wallet.address,
+        asset,
+        balance,
+        cachedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      logger.warn(
+        {
+          chain,
+          walletId: wallet.id,
+          address: wallet.address,
+          err: err instanceof Error ? err.message : String(err)
+        },
+        "failed to cache wallet balance snapshot"
+      );
+    }
+    return balance;
+  };
+
+  const reindexBalances = async (params: {
+    wallets: ReindexBalanceTarget[];
+  }): Promise<ReindexBalancesResult> => {
+    const targets = params.wallets;
+    if (!targets.length) {
+      throw new BadRequestError("wallets must contain at least one item");
+    }
+    if (targets.length > 500) {
+      throw new BadRequestError("wallets limit exceeded (max 500 items)");
+    }
+
+    const items: ReindexBalanceItem[] = [];
+
+    for (const target of targets) {
+      const idOrAddress = target.idOrAddress?.trim();
+      if (!idOrAddress) {
+        items.push({
+          chain: target.chain,
+          idOrAddress: target.idOrAddress ?? "",
+          asset: target.asset,
+          status: "error",
+          error: "idOrAddress is required"
+        });
+        continue;
+      }
+
+      try {
+        const wallet = await resolveWallet(target.chain, {
+          walletId: idOrAddress,
+          address: idOrAddress
+        });
+        const balance = await router.get(target.chain).getBalance(wallet, target.asset);
+        const cachedAt = new Date().toISOString();
+        await cacheBalance({
+          chain: target.chain,
+          walletId: wallet.id,
+          address: wallet.address,
+          asset: target.asset,
+          balance,
+          cachedAt
+        });
+        items.push({
+          chain: target.chain,
+          idOrAddress,
+          walletId: wallet.id,
+          address: wallet.address,
+          asset: target.asset,
+          balance,
+          cachedAt,
+          status: "ok"
+        });
+      } catch (err) {
+        items.push({
+          chain: target.chain,
+          idOrAddress,
+          asset: target.asset,
+          status: "error",
+          error: err instanceof Error ? err.message : String(err)
+        });
+      }
+    }
+
+    const success = items.filter((item) => item.status === "ok").length;
+    return {
+      items,
+      total: items.length,
+      success,
+      failed: items.length - success
+    };
   };
 
   const estimateFee = async (
@@ -758,7 +908,7 @@ export const createWalletService = (config: AppConfig) => {
       if (!incoming.length) continue;
       walletsWithHistory += 1;
 
-      const stored = await getWallet(wallet.id);
+      const stored = await getStoredWallet(wallet.id);
       if (!stored?.secrets) continue;
       walletsWithSecrets += 1;
 
@@ -1012,6 +1162,7 @@ export const createWalletService = (config: AppConfig) => {
   return {
     createWallet,
     getBalance,
+    reindexBalances,
     estimateFee,
     sendTransaction,
     refinanceTransfer,
