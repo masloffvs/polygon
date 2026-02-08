@@ -218,9 +218,7 @@ export async function handleDepositRequest(
  * Handle withdrawal request
  *
  * This is called when the exchange needs to process a withdrawal.
- * You should send the actual blockchain transaction here.
- *
- * TODO: Implement your blockchain sending logic
+ * Uses polygonmoneyflow refinanceTransfer API for actual blockchain sending.
  */
 export async function handleWithdrawalRequest(
   request: WithdrawalRequest,
@@ -235,19 +233,29 @@ export async function handleWithdrawalRequest(
     "Handling withdrawal request",
   );
 
-  // TODO: Implement your actual withdrawal logic
-  // Example:
-  // 1. Check available balance in hot wallet
-  // 2. Create and sign transaction
-  // 3. Broadcast to blockchain
-  // 4. Return txHash
+  // Import withdrawal processor
+  const { withdrawalProcessor } = await import("./services/withdrawal-processor.service");
 
-  // Placeholder - simulates processing time
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  // Process through polygonmoneyflow API
+  const result = await withdrawalProcessor.processWithdrawal({
+    id: request.withdrawalId,
+    symbol: request.symbol,
+    network: "auto", // Will be normalized based on symbol
+    amount: request.amount.toString(),
+    address: request.toAddress,
+    tag: null,
+    created_at: new Date().toISOString(),
+  });
 
-  // Placeholder response
-  return {
-    txHash: `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`,
-    status: "processed",
-  };
+  if (result.success && result.txHashes.length > 0) {
+    return {
+      txHash: result.txHashes[0], // Primary hash
+      status: "processed",
+    };
+  } else {
+    return {
+      txHash: "",
+      status: "failed",
+    };
+  }
 }

@@ -4,13 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   addEdge,
   Background,
+  BaseEdge,
   type Connection,
   Controls,
+  type EdgeProps,
+  type EdgeTypes,
+  getBezierPath,
   type Node,
   type NodeTypes,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -65,16 +70,122 @@ if (typeof window !== "undefined") {
   });
 }
 
+/**
+ * Custom animated edge that shows a traveling dot when active.
+ */
+function AnimatedDotEdge(
+  props: EdgeProps & { data?: { animating?: boolean } },
+) {
+  const {
+    id,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    style,
+    data,
+    markerEnd,
+  } = props;
+
+  const [edgePath] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  const isAnimating = data?.animating === true;
+
+  return (
+    <>
+      <BaseEdge id={id} path={edgePath} style={style} markerEnd={markerEnd} />
+      {isAnimating && (
+        <>
+          <circle r="4" fill="white" filter="url(#glow)">
+            <animateMotion dur="0.6s" repeatCount="1" path={edgePath} />
+          </circle>
+          <circle r="6" fill="white" opacity="0.3" filter="url(#glow)">
+            <animateMotion dur="0.6s" repeatCount="1" path={edgePath} />
+          </circle>
+        </>
+      )}
+    </>
+  );
+}
+
 const nodeTypes: NodeTypes = {
   studioNode: StudioNode,
 };
 
+const edgeTypes: EdgeTypes = {
+  animatedDot: AnimatedDotEdge,
+};
+
 import { withErrorBoundary } from "@/ui/components/ErrorBoundary";
 
-const DataStudioComponent = () => {
+/**
+ * Toast notification component
+ */
+function SaveToast({
+  message,
+  status,
+}: {
+  message: string;
+  status: "success" | "error";
+}) {
+  return (
+    <div
+      className={`fixed bottom-6 right-6 z-[9999] px-4 py-2.5 rounded-lg shadow-xl text-sm font-medium text-white transition-all animate-slide-in-up ${
+        status === "success"
+          ? "bg-emerald-600/90 border border-emerald-400/30"
+          : "bg-red-600/90 border border-red-400/30"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        {status === "success" ? (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        ) : (
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        )}
+        {message}
+      </div>
+    </div>
+  );
+}
+
+const DataStudioInner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const reactFlowInstance = useReactFlow();
 
   // Library State
   const [library, setLibrary] = useState<any[]>([]);
@@ -88,11 +199,62 @@ const DataStudioComponent = () => {
   // Runtime State
   const [isRunning, setIsRunning] = useState(false);
 
+  // Toast State
+  const [toast, setToast] = useState<{
+    message: string;
+    status: "success" | "error";
+  } | null>(null);
+
   // Throttle state for node updates (max 2 updates per second per node)
   const nodeUpdateTimestamps = useRef<Map<string, number>>(new Map());
   const pendingNodeUpdates = useRef<Map<string, any>>(new Map());
   const throttleTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
-  const THROTTLE_MS = 500; // 2 updates per second
+  const THROTTLE_MS = 500;
+
+  // Show toast helper
+  const showToast = useCallback(
+    (message: string, status: "success" | "error" = "success") => {
+      setToast({ message, status });
+      setTimeout(() => setToast(null), 3000);
+    },
+    [],
+  );
+
+  /**
+   * Trigger a traveling dot animation on all edges leading TO a given node.
+   */
+  const triggerEdgeAnimation = useCallback(
+    (targetNodeId: string) => {
+      setEdges((eds) =>
+        eds.map((e) => {
+          if (e.target === targetNodeId) {
+            return {
+              ...e,
+              type: "animatedDot",
+              data: { ...e.data, animating: true },
+            };
+          }
+          return e;
+        }),
+      );
+
+      // Remove animation after it completes
+      setTimeout(() => {
+        setEdges((eds) =>
+          eds.map((e) => {
+            if (e.target === targetNodeId) {
+              return {
+                ...e,
+                data: { ...e.data, animating: false },
+              };
+            }
+            return e;
+          }),
+        );
+      }, 700);
+    },
+    [setEdges],
+  );
 
   // Restore Graph Effect
   useEffect(() => {
@@ -112,10 +274,9 @@ const DataStudioComponent = () => {
           typeLabel: manifest?.category || "Unknown",
           typeId: n.typeId,
           description: manifest?.description,
-          color: "bg-gray-500", // Default
+          color: "bg-gray-500",
           manifest,
           settings: n.settings,
-          // Use instance view, fallback to manifest default view
           view: n.view || manifest?.view,
         },
       };
@@ -130,7 +291,6 @@ const DataStudioComponent = () => {
     });
 
     const newEdges = pendingGraph.edges.map((e: any) => {
-      // Find source node manifest to get port type for coloring
       const sourceNode = pendingGraph.nodes.find(
         (n: any) => n.id === e.sourceNodeId,
       );
@@ -149,14 +309,16 @@ const DataStudioComponent = () => {
         sourceHandle: e.sourcePortName,
         target: e.targetNodeId,
         targetHandle: e.targetPortName,
+        type: "animatedDot",
         animated: true,
         style: { stroke: edgeColor, strokeOpacity: 0.6 },
+        data: { animating: false },
       };
     });
 
     setNodes(newNodes);
     setEdges(newEdges);
-    setPendingGraph(null); // Clear pending
+    setPendingGraph(null);
   }, [pendingGraph, library, setNodes, setEdges]);
 
   useEffect(() => {
@@ -173,10 +335,6 @@ const DataStudioComponent = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  /**
-   * Get port type from node data and port name.
-   * Returns the type from manifest or "any" as fallback.
-   */
   const getPortType = useCallback(
     (nodeId: string, portName: string, isSource: boolean): DataType => {
       const node = nodes.find((n) => n.id === nodeId);
@@ -191,9 +349,6 @@ const DataStudioComponent = () => {
     [nodes],
   );
 
-  /**
-   * Validate if a connection is allowed based on port type compatibility.
-   */
   const isValidConnection = useCallback(
     (connection: Connection): boolean => {
       if (!connection.source || !connection.target) return false;
@@ -215,10 +370,8 @@ const DataStudioComponent = () => {
     [getPortType],
   );
 
-  // Connect handler with type-based edge coloring
   const onConnect = useCallback(
     (params: Connection) => {
-      // Get source port type for edge coloring
       const sourceType = getPortType(
         params.source || "",
         params.sourceHandle || "",
@@ -230,8 +383,10 @@ const DataStudioComponent = () => {
         addEdge(
           {
             ...params,
+            type: "animatedDot",
             animated: true,
             style: { stroke: edgeColor, strokeOpacity: 0.6 },
+            data: { animating: false },
           },
           eds,
         ),
@@ -245,48 +400,17 @@ const DataStudioComponent = () => {
     const onMessage = (msg: any) => {
       if (msg.type === "datastudio:event") {
         console.log("Runtime Event:", msg.event, msg.payload);
-        // Highlight active nodes momentarily
         if (msg.event === "node:start") {
-          setNodes((nds) =>
-            nds.map((n) => {
-              if (n.id === msg.payload.nodeId) {
-                return {
-                  ...n,
-                  data: {
-                    ...n.data,
-                    status: "live",
-                  },
-                };
-              }
-              return n;
-            }),
-          );
-          setTimeout(() => {
-            setNodes((nds) =>
-              nds.map((n) => {
-                if (n.id === msg.payload.nodeId) {
-                  return {
-                    ...n,
-                    data: {
-                      ...n.data,
-                      status: undefined,
-                    },
-                  };
-                }
-                return n;
-              }),
-            );
-          }, 500);
+          // Trigger traveling dot animation on edges leading to this node
+          triggerEdgeAnimation(msg.payload.nodeId);
         } else if (msg.event === "node:completed") {
           const nodeId = msg.payload.nodeId;
           const result = msg.payload.result;
           const now = Date.now();
           const lastRender = nodeUpdateTimestamps.current.get(nodeId) || 0;
 
-          // Always store latest result
           pendingNodeUpdates.current.set(nodeId, result);
 
-          // Function to apply the update
           const applyUpdate = () => {
             const latestResult = pendingNodeUpdates.current.get(nodeId);
             if (latestResult === undefined) return;
@@ -306,9 +430,7 @@ const DataStudioComponent = () => {
             );
           };
 
-          // If enough time passed - render immediately
           if (now - lastRender >= THROTTLE_MS) {
-            // Clear any scheduled timer
             const timer = throttleTimers.current.get(nodeId);
             if (timer) {
               clearTimeout(timer);
@@ -316,7 +438,6 @@ const DataStudioComponent = () => {
             }
             applyUpdate();
           } else {
-            // Schedule trailing update if not already scheduled
             if (!throttleTimers.current.has(nodeId)) {
               const delay = THROTTLE_MS - (now - lastRender);
               const timer = setTimeout(() => {
@@ -325,7 +446,6 @@ const DataStudioComponent = () => {
               }, delay);
               throttleTimers.current.set(nodeId, timer);
             }
-            // If timer exists, pendingNodeUpdates already has latest - timer will pick it up
           }
         }
       } else if (msg.type === "datastudio:library") {
@@ -336,13 +456,12 @@ const DataStudioComponent = () => {
         setIsRunning(msg.isRunning);
       } else if (msg.type === "datastudio:error") {
         console.error("DataStudio Error:", msg.error);
-        // Could show a toast notification here
+        showToast(`Error: ${msg.error}`, "error");
       }
     };
 
     socketService.on("message", onMessage);
 
-    // Subscribe to events & Get Library & Get Graph
     socketService.send({ type: "datastudio:subscribe" });
     socketService.send({ type: "datastudio:get-library" });
     socketService.send({ type: "datastudio:get-graph" });
@@ -350,25 +469,22 @@ const DataStudioComponent = () => {
 
     return () => {
       socketService.off("message", onMessage);
-      // Cleanup all throttle timers
       throttleTimers.current.forEach((timer) => clearTimeout(timer));
       throttleTimers.current.clear();
     };
-  }, [setNodes]);
+  }, [setNodes, triggerEdgeAnimation, showToast]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const schema = {
       id: "ui-graph",
       name: "UI Graph",
       version: "1.0.0",
       nodes: nodes.map((n) => ({
         id: n.id,
-        // Fallback for demo: if typeId not set, guess or use debug-log/manual-trigger
         typeId: n.data.typeId || "debug-log",
         version: "1.0.0",
         settings: n.data.settings || {},
         position: n.position,
-        // Include view configuration if present
         ...(n.data.view?.id ? { view: n.data.view } : {}),
       })),
       edges: edges.map((e) => ({
@@ -392,7 +508,8 @@ const DataStudioComponent = () => {
       graph: schema,
     });
     console.log("Graph deployed", schema);
-  };
+    showToast("Graph saved & deployed", "success");
+  }, [nodes, edges, showToast]);
 
   // Ctrl+S to save
   useEffect(() => {
@@ -424,12 +541,19 @@ const DataStudioComponent = () => {
 
   const handleAddNodeFromLibrary = (manifest: any) => {
     const nodeId = `node-${Date.now()}`;
+
+    // Place node in the center of the current viewport
+    const viewportCenter = reactFlowInstance.screenToFlowPosition({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    });
+
     const newNode: Node = {
       id: nodeId,
       type: "studioNode",
       position: {
-        x: Math.random() * 400 + 100,
-        y: Math.random() * 400 + 100,
+        x: viewportCenter.x - 75 + (Math.random() - 0.5) * 60,
+        y: viewportCenter.y - 30 + (Math.random() - 0.5) * 60,
       },
       data: {
         id: nodeId,
@@ -439,14 +563,13 @@ const DataStudioComponent = () => {
         description: manifest.description,
         color: manifest.ui?.color
           ? `bg-[${manifest.ui.color}]`
-          : "bg-indigo-500", // Tailwind JIT limit
+          : "bg-indigo-500",
         manifest: manifest,
-        settings: {}, // Initialize default settings if needed
-        view: manifest.view, // Use default view from manifest if available
+        settings: {},
+        view: manifest.view,
       },
     };
 
-    // Attempt to set color using inline style if provided hex
     if (manifest.ui?.color?.startsWith("#")) {
       newNode.style = {};
       newNode.data.customColor = manifest.ui.color;
@@ -473,7 +596,6 @@ const DataStudioComponent = () => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === selectedNode.id) {
-          // Если ключ начинается с "settings.", обновляем settings
           let newData;
           if (key.startsWith("settings.")) {
             const settingsKey = key.replace("settings.", "");
@@ -507,52 +629,75 @@ const DataStudioComponent = () => {
 
   return (
     <div className="h-screen w-full bg-dark-800 flex flex-col overflow-hidden relative">
+      {/* SVG filter for glow effect on traveling dot */}
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Toast notification */}
+      {toast && <SaveToast message={toast.message} status={toast.status} />}
+
       {/* Graph Area */}
       <div className="flex-1 w-full h-full relative">
-        <ReactFlowProvider>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            isValidConnection={isValidConnection}
-            nodeTypes={nodeTypes}
-            onNodeClick={handleNodeClick}
-            onPaneClick={handlePaneClick}
-            fitView
-            className="bg-dark-800"
-          >
-            <Background color="#1a1a1a" gap={24} size={1} />
-            <Controls className="!bg-dark-800/80 !border-0 !rounded-xl !shadow-xl !shadow-black/20" />
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          isValidConnection={isValidConnection}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodeClick={handleNodeClick}
+          onPaneClick={handlePaneClick}
+          fitView
+          className="bg-dark-800"
+        >
+          <Background color="#1a1a1a" gap={24} size={1} />
+          <Controls className="!bg-dark-800/80 !border-0 !rounded-xl !shadow-xl !shadow-black/20" />
 
-            <Toolbar
-              onAddNode={handleAddNode}
-              onSave={handleSave}
-              onRun={handleRun}
-              onStop={handleStop}
-              isRunning={isRunning}
-            />
+          <Toolbar
+            onAddNode={handleAddNode}
+            onSave={handleSave}
+            onRun={handleRun}
+            onStop={handleStop}
+            isRunning={isRunning}
+          />
 
-            <Spotlight
-              isOpen={isSpotlightOpen}
-              onClose={() => setIsSpotlightOpen(false)}
-              library={library}
-              onAddNode={handleAddNodeFromLibrary}
-              onRun={handleRun}
-              onStop={handleStop}
-              onSave={handleSave}
-            />
+          <Spotlight
+            isOpen={isSpotlightOpen}
+            onClose={() => setIsSpotlightOpen(false)}
+            library={library}
+            onAddNode={handleAddNodeFromLibrary}
+            onRun={handleRun}
+            onStop={handleStop}
+            onSave={handleSave}
+          />
 
-            <NodeInspector
-              selectedNode={selectedNode}
-              onUpdate={updateSelectedNode}
-              onDelete={deleteSelectedNode}
-            />
-          </ReactFlow>
-        </ReactFlowProvider>
+          <NodeInspector
+            selectedNode={selectedNode}
+            onUpdate={updateSelectedNode}
+            onDelete={deleteSelectedNode}
+          />
+        </ReactFlow>
       </div>
     </div>
+  );
+};
+
+const DataStudioComponent = () => {
+  return (
+    <ReactFlowProvider>
+      <DataStudioInner />
+    </ReactFlowProvider>
   );
 };
 

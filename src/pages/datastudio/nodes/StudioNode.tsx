@@ -1,6 +1,7 @@
-import { ErrorBoundary } from "@/ui/components";
+// import { ErrorBoundary } from "@/ui/components";
 import classNames from "classnames";
 import { AlertTriangle, BarChart3 } from "lucide-react";
+import { lazy } from "react";
 import { Handle, Position } from "reactflow";
 import { getRenderer } from "../renderers";
 import {
@@ -8,6 +9,10 @@ import {
   getTypeColor,
   getTypeShortName,
 } from "../utils/portTypes";
+
+const ErrorBoundary = lazy(() =>
+  import("@/ui/components").then((m) => ({ default: m.ErrorBoundary })),
+);
 
 // Fallback UI for crashed node renderers
 const NodeErrorFallback = ({ nodeLabel }: { nodeLabel?: string }) => (

@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wallet-taker-backend
+    env_file:
+      - .env
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 3001
+      DATABASE_PATH: /app/data/withdrawals.db
+    ports:
+      - "${BACKEND_HOST_PORT:-3001}:3001"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: wallet-taker-web
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_HOST_PORT:-3002}:80"
+    restart: unless-stopped

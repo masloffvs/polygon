@@ -34,13 +34,13 @@ impl Config {
         dotenvy::dotenv().ok();
         
         let min_spread = std::env::var("MIN_SPREAD_PERCENT")
-            .unwrap_or_else(|_| "0.1".to_string());
+            .unwrap_or_else(|_| "0.8".to_string());
         let max_spread = std::env::var("MAX_SPREAD_PERCENT")
             .unwrap_or_else(|_| "10.0".to_string());
         let cooldown = std::env::var("COOLDOWN_MS")
-            .unwrap_or_else(|_| "30000".to_string());
+            .unwrap_or_else(|_| "1000".to_string());
         let callback_url = std::env::var("CALLBACK_URL")
-            .unwrap_or_else(|_| "http://localhost:3000/api/arbitrage".to_string());
+            .unwrap_or_else(|_| "http://192.168.1.223:82/api/datastudio/trigger".to_string());
         
         let filter_pairs = std::env::var("FILTER_PAIRS")
             .unwrap_or_default()

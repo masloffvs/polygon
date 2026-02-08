@@ -1,3 +1,10 @@
+import { logger } from "@/server/utils/logger";
+import { Resvg } from "@resvg/resvg-js";
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { createElement } from "react";
+import satori from "satori";
 import { DataFlowNode, type ProcessingContext } from "../../../dataflow/Node";
 import {
   DataPacket,
@@ -6,16 +13,13 @@ import {
   type TypedImage,
   type UUID,
 } from "../../../dataflow/types";
-import { Resvg } from "@resvg/resvg-js";
-import { readdir } from "node:fs/promises";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
-import { createElement } from "react";
-import satori from "satori";
 import manifest from "./schema.json";
 
 const IMAGEN_SERVICE_URL = process.env.IMAGEN_URL?.trim() || null;
-const LOCAL_TEMPLATES_DIR = join(import.meta.dir, "../../../../imagen/templates");
+const LOCAL_TEMPLATES_DIR = join(
+  import.meta.dir,
+  "../../../../imagen/templates",
+);
 
 interface TemplateInfo {
   id: string;
@@ -204,7 +208,10 @@ export default class ImagenNode extends DataFlowNode {
     try {
       return await getLocalTemplateSchema(templateId);
     } catch (err) {
-      console.error(`Failed to get local template schema for ${templateId}:`, err);
+      console.error(
+        `Failed to get local template schema for ${templateId}:`,
+        err,
+      );
       return null;
     }
   }
@@ -215,6 +222,13 @@ export default class ImagenNode extends DataFlowNode {
   ): Promise<Record<string, DataPacket> | ErrorPacket> {
     const dataInput = inputs.data?.value;
     const templateId = this.config.template as string;
+    logger.info(
+      {
+        template: templateId,
+        method: IMAGEN_SERVICE_URL ? "remote" : "local",
+      },
+      "Starting image generation",
+    );
 
     if (!templateId) {
       return {
@@ -229,6 +243,17 @@ export default class ImagenNode extends DataFlowNode {
     // If no data input, use empty object (template defaults)
     const data = dataInput ?? {};
 
+    // info data about the generation process
+    const generationInfo = {
+      template: templateId,
+      method: IMAGEN_SERVICE_URL ? "remote" : "local",
+      timestamp: Date.now(),
+      data: dataInput,
+    };
+
+    // Log the generation info
+    logger.info(generationInfo, "Generating image");
+
     context.logger.info("Generating image", {
       template: templateId,
       hasData: !!dataInput,
@@ -238,13 +263,16 @@ export default class ImagenNode extends DataFlowNode {
 
     if (IMAGEN_SERVICE_URL) {
       try {
-        const response = await fetch(`${IMAGEN_SERVICE_URL}/generate/${templateId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `${IMAGEN_SERVICE_URL}/generate/${templateId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
           },
-          body: JSON.stringify(data),
-        });
+        );
 
         if (response.ok) {
           buffer = Buffer.from(await response.arrayBuffer());

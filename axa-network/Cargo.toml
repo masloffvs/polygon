@@ -1,0 +1,20 @@
+[package]
+name = "axa-network"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+scylla-store = ["dep:scylla"]
+
+[dependencies]
+axum = { version = "0.8", features = ["json"] }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+hex = "0.4"
+rand_core = { version = "0.6", features = ["getrandom"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+scylla = { version = "0.15", optional = true }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "sync"] }

@@ -82,6 +82,9 @@
         "@types/react": "^19",
         "@types/react-dom": "^19",
       },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
     },
   },
   "packages": {
