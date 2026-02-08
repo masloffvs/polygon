@@ -59,6 +59,7 @@ export default class RichStringNode extends DataFlowNode {
       let current: Record<string, unknown> = target;
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
+        if (!key) continue;
         const next = current[key];
         if (!next || typeof next !== "object" || Array.isArray(next)) {
           current[key] = {};
@@ -66,7 +67,9 @@ export default class RichStringNode extends DataFlowNode {
         current = current[key] as Record<string, unknown>;
       }
       const lastKey = keys[keys.length - 1];
-      current[lastKey] = value;
+      if (lastKey) {
+        current[lastKey] = value;
+      }
     };
 
     // String helpers
@@ -190,6 +193,117 @@ export default class RichStringNode extends DataFlowNode {
     Handlebars.registerHelper("percent", (num: unknown) => {
       const n = Number(num);
       return Number.isNaN(n) ? "0%" : `${(n * 100).toFixed(1)}%`;
+    });
+
+    // Math helpers
+    Handlebars.registerHelper("multiply", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      return Number.isNaN(numA) || Number.isNaN(numB) ? 0 : numA * numB;
+    });
+
+    Handlebars.registerHelper("add", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      return Number.isNaN(numA) || Number.isNaN(numB) ? 0 : numA + numB;
+    });
+
+    Handlebars.registerHelper("subtract", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      return Number.isNaN(numA) || Number.isNaN(numB) ? 0 : numA - numB;
+    });
+
+    Handlebars.registerHelper("divide", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      if (Number.isNaN(numA) || Number.isNaN(numB) || numB === 0) return 0;
+      return numA / numB;
+    });
+
+    Handlebars.registerHelper("abs", (num: unknown) => {
+      const n = Number(num);
+      return Number.isNaN(n) ? 0 : Math.abs(n);
+    });
+
+    Handlebars.registerHelper("min", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      if (Number.isNaN(numA)) return numB;
+      if (Number.isNaN(numB)) return numA;
+      return Math.min(numA, numB);
+    });
+
+    Handlebars.registerHelper("max", (a: unknown, b: unknown) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      if (Number.isNaN(numA)) return numB;
+      if (Number.isNaN(numB)) return numA;
+      return Math.max(numA, numB);
+    });
+
+    Handlebars.registerHelper("minusPercent", (num: unknown, percent: unknown) => {
+      const n = Number(num);
+      const p = Number(percent);
+      if (Number.isNaN(n) || Number.isNaN(p)) return 0;
+      return n * (1 - p / 100);
+    });
+
+    Handlebars.registerHelper("percentOf", (num: unknown, percent: unknown) => {
+      const n = Number(num);
+      const p = Number(percent);
+      if (Number.isNaN(n) || Number.isNaN(p)) return 0;
+      return (n * p) / 100;
+    });
+
+    Handlebars.registerHelper("smartRound", (num: unknown) => {
+      const n = Number(num);
+      if (Number.isNaN(n)) return "0";
+      
+      if (n >= 1) {
+        return n.toFixed(2);
+      }
+      if (n >= 0.001) {
+        return n.toFixed(4);
+      }
+      if (n >= 0.000001) {
+        return n.toFixed(8);
+      }
+      return n.toExponential(2);
+    });
+
+    Handlebars.registerHelper("formatNumber", (num: unknown, decimals: unknown = 2) => {
+      const n = Number(num);
+      const d = Number(decimals) || 2;
+      if (Number.isNaN(n)) return "0";
+      return n.toLocaleString("en-US", { 
+        minimumFractionDigits: d, 
+        maximumFractionDigits: d 
+      });
+    });
+
+    Handlebars.registerHelper("math", (expression: unknown, context: unknown) => {
+      if (typeof expression !== "string") return 0;
+      
+      try {
+        // Replace variables in expression with values from context
+        let expr = expression;
+        if (context && typeof context === "object") {
+          for (const [key, value] of Object.entries(context)) {
+            const numValue = Number(value);
+            if (!Number.isNaN(numValue)) {
+              expr = expr.replace(new RegExp(`\\b${key}\\b`, "g"), String(numValue));
+            }
+          }
+        }
+        
+        // Safe eval using Function constructor (only for numbers and basic operators)
+        // biome-ignore lint/security/noGlobalEval: controlled math expression evaluation
+        const result = new Function(`return ${expr}`)();
+        return Number.isNaN(Number(result)) ? 0 : result;
+      } catch {
+        return 0;
+      }
     });
 
     // Date helpers
