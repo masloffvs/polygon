@@ -127,7 +127,12 @@ export class StrictTypizerAgent extends ExportedAgent<
     const provider = settings.provider || "openrouter";
     const model = settings.model || this.agentConfig.model;
 
-    if (provider === "custom" && settings.apiUrl) {
+    if (provider === "custom") {
+      if (!settings.apiUrl) {
+        throw new Error(
+          "Custom provider selected but API Base URL is not set.",
+        );
+      }
       const customClient = createOpenAI({
         baseURL: settings.apiUrl,
         apiKey: settings.apiKey || "no-key",
@@ -135,12 +140,29 @@ export class StrictTypizerAgent extends ExportedAgent<
       return customClient.chat(model);
     }
 
-    if (!this.defaultOpenrouter) {
+    // OpenRouter: prefer apiKey from node settings, fall back to env
+    const orApiKey = settings.apiKey || process.env.OPENROUTER_API_KEY;
+    if (!orApiKey) {
       throw new Error(
-        "OPENROUTER_API_KEY is not set and no custom API configured",
+        "OpenRouter API key is not configured. Set OPENROUTER_API_KEY env or provide apiKey in node settings.",
       );
     }
-    return this.defaultOpenrouter.chat(model);
+
+    const openrouter = settings.apiKey
+      ? createOpenRouter({
+          apiKey: settings.apiKey,
+          headers: {
+            "HTTP-Referer": "https://polygon-bot.com",
+            "X-Title": "Polygon Bot - Strict Typizer",
+          },
+        })
+      : this.defaultOpenrouter;
+
+    if (!openrouter) {
+      throw new Error("OpenRouter client failed to initialize.");
+    }
+
+    return openrouter.chat(model);
   }
 
   private buildSystemPrompt(schema: string, instructions: string): string {

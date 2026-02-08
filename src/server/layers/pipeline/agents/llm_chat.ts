@@ -122,7 +122,12 @@ export class LLMChatAgent extends ExportedAgent<any, LLMChatOutput> {
     const provider = settings.provider || "openrouter";
     const model = settings.model || this.agentConfig.model;
 
-    if (provider === "custom" && settings.apiUrl) {
+    if (provider === "custom") {
+      if (!settings.apiUrl) {
+        throw new Error(
+          "Custom provider selected but API Base URL is not set. Configure apiUrl in node settings.",
+        );
+      }
       const customClient = createOpenAI({
         baseURL: settings.apiUrl,
         apiKey: settings.apiKey || "no-key",
@@ -130,13 +135,32 @@ export class LLMChatAgent extends ExportedAgent<any, LLMChatOutput> {
       return customClient.chat(model);
     }
 
-    // Default: OpenRouter
-    if (!this.defaultOpenrouter) {
+    // OpenRouter: prefer apiKey from node settings, fall back to env
+    const orApiKey = settings.apiKey || process.env.OPENROUTER_API_KEY;
+    if (!orApiKey) {
       throw new Error(
-        "OPENROUTER_API_KEY is not set and no custom API configured",
+        "OpenRouter API key is not configured. Set OPENROUTER_API_KEY env variable or provide apiKey in node settings.",
       );
     }
-    return this.defaultOpenrouter.chat(model);
+
+    // Always create fresh client with the resolved key (settings override env)
+    const openrouter = settings.apiKey
+      ? createOpenRouter({
+          apiKey: settings.apiKey,
+          headers: {
+            "HTTP-Referer": "https://polygon-bot.com",
+            "X-Title": "Polygon Bot - LLM Chat",
+          },
+        })
+      : this.defaultOpenrouter;
+
+    if (!openrouter) {
+      throw new Error(
+        "OpenRouter client failed to initialize. Check your OPENROUTER_API_KEY.",
+      );
+    }
+
+    return openrouter.chat(model);
   }
 
   public async run(
@@ -174,8 +198,17 @@ export class LLMChatAgent extends ExportedAgent<any, LLMChatOutput> {
         timestamp: Date.now(),
       };
     } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unknown LLM Chat error";
       logger.error({ err, agentId: this.agentManifest.id }, "LLM Chat failed");
-      return null;
+
+      // Return error info so the UI can display it
+      return {
+        text: "",
+        model,
+        error: message,
+        timestamp: Date.now(),
+      } as LLMChatOutput;
     }
   }
 }
