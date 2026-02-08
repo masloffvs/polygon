@@ -1,0 +1,32 @@
+{
+	"id": "obj-keys",
+	"version": "1.0.0",
+	"name": "Object Keys/Values",
+	"category": "Objects",
+	"description": "Extracts keys, values, or entries from an object",
+	"ui": { "color": "#8b5cf6", "icon": "list" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "object", "type": "object", "description": "Source object" }
+		],
+		"outputs": [
+			{ "name": "keys", "type": "array", "description": "Array of keys" },
+			{ "name": "values", "type": "array", "description": "Array of values" },
+			{ "name": "entries", "type": "array", "description": "Array of [key, value] pairs" },
+			{ "name": "count", "type": "number", "description": "Number of keys" }
+		]
+	},
+	"settings": [
+		{
+			"name": "depth",
+			"type": "select",
+			"label": "Depth",
+			"defaultValue": "shallow",
+			"options": [
+				{ "label": "Shallow (top level)", "value": "shallow" },
+				{ "label": "Deep (flat dot paths)", "value": "deep" }
+			]
+		}
+	]
+}

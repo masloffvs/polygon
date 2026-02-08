@@ -1,0 +1,40 @@
+{
+	"id": "obj-create",
+	"version": "1.0.0",
+	"name": "Object Create",
+	"category": "Objects",
+	"description": "Creates an object from key-value pairs",
+	"ui": { "color": "#8b5cf6", "icon": "braces" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "value1", "type": "any", "description": "Value for key 1" },
+			{ "name": "value2", "type": "any", "description": "Value for key 2", "optional": true },
+			{ "name": "value3", "type": "any", "description": "Value for key 3", "optional": true },
+			{ "name": "value4", "type": "any", "description": "Value for key 4", "optional": true },
+			{ "name": "value5", "type": "any", "description": "Value for key 5", "optional": true },
+			{ "name": "value6", "type": "any", "description": "Value for key 6", "optional": true }
+		],
+		"outputs": [
+			{ "name": "object", "type": "object", "description": "Created object" }
+		]
+	},
+	"settings": [
+		{ "name": "key1", "type": "text", "label": "Key 1", "defaultValue": "key1" },
+		{ "name": "key2", "type": "text", "label": "Key 2", "defaultValue": "" },
+		{ "name": "key3", "type": "text", "label": "Key 3", "defaultValue": "" },
+		{ "name": "key4", "type": "text", "label": "Key 4", "defaultValue": "" },
+		{ "name": "key5", "type": "text", "label": "Key 5", "defaultValue": "" },
+		{ "name": "key6", "type": "text", "label": "Key 6", "defaultValue": "" },
+		{
+			"name": "skipEmpty",
+			"type": "select",
+			"label": "Skip empty keys",
+			"defaultValue": "true",
+			"options": [
+				{ "label": "Yes", "value": "true" },
+				{ "label": "No", "value": "false" }
+			]
+		}
+	]
+}

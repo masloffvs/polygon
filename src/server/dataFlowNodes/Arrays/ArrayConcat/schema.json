@@ -1,0 +1,35 @@
+{
+	"id": "array-concat",
+	"version": "1.0.0",
+	"name": "Array Concat",
+	"category": "Arrays",
+	"description": "Merges multiple arrays into one",
+	"ui": { "color": "#3b82f6", "icon": "combine" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "a", "type": "array", "description": "First array" },
+			{ "name": "b", "type": "array", "description": "Second array" },
+			{ "name": "c", "type": "array", "description": "Third array (optional)", "required": false },
+			{ "name": "d", "type": "array", "description": "Fourth array (optional)", "required": false }
+		],
+		"outputs": [
+			{ "name": "result", "type": "array", "description": "Merged array" },
+			{ "name": "length", "type": "number", "description": "Total length" }
+		]
+	},
+	"settings": [
+		{
+			"name": "unique",
+			"type": "boolean",
+			"label": "Remove duplicates",
+			"defaultValue": false
+		},
+		{
+			"name": "flatten",
+			"type": "boolean",
+			"label": "Flatten nested arrays",
+			"defaultValue": false
+		}
+	]
+}

@@ -1,0 +1,35 @@
+{
+	"id": "array-find",
+	"version": "1.0.0",
+	"name": "Array Find",
+	"category": "Arrays",
+	"description": "Finds an element or its index in an array by value or condition",
+	"ui": { "color": "#3b82f6", "icon": "search" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "array", "type": "array", "description": "Array to search" },
+			{ "name": "value", "type": "any", "description": "Value to find (for equals mode)", "required": false }
+		],
+		"outputs": [
+			{ "name": "item", "type": "any", "description": "Found element (or null)" },
+			{ "name": "index", "type": "number", "description": "Index of found element (-1 if not found)" },
+			{ "name": "found", "type": "boolean", "description": "Whether element was found" }
+		]
+	},
+	"settings": [
+		{
+			"name": "mode",
+			"type": "select",
+			"label": "Search mode",
+			"defaultValue": "equals",
+			"options": [
+				{ "label": "Equals value", "value": "equals" },
+				{ "label": "Contains substring", "value": "contains" },
+				{ "label": "By key value (objects)", "value": "keyValue" }
+			]
+		},
+		{ "name": "searchKey", "type": "text", "label": "Key path (for keyValue mode)", "defaultValue": "" },
+		{ "name": "searchValue", "type": "text", "label": "Value to match (for keyValue mode)", "defaultValue": "" }
+	]
+}

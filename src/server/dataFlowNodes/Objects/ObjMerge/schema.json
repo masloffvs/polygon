@@ -1,0 +1,33 @@
+{
+	"id": "obj-merge",
+	"version": "1.0.0",
+	"name": "Object Merge",
+	"category": "Objects",
+	"description": "Deep merges multiple objects into one",
+	"ui": { "color": "#8b5cf6", "icon": "combine" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "obj1", "type": "object", "description": "Base object" },
+			{ "name": "obj2", "type": "object", "description": "Object to merge" },
+			{ "name": "obj3", "type": "object", "description": "Object to merge", "optional": true },
+			{ "name": "obj4", "type": "object", "description": "Object to merge", "optional": true }
+		],
+		"outputs": [
+			{ "name": "merged", "type": "object", "description": "Merged object" }
+		]
+	},
+	"settings": [
+		{
+			"name": "strategy",
+			"type": "select",
+			"label": "Merge strategy",
+			"defaultValue": "deep",
+			"options": [
+				{ "label": "Deep merge", "value": "deep" },
+				{ "label": "Shallow (Object.assign)", "value": "shallow" },
+				{ "label": "Deep — arrays concat", "value": "deepConcat" }
+			]
+		}
+	]
+}

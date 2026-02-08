@@ -1,0 +1,42 @@
+{
+	"id": "array-sort",
+	"version": "1.0.0",
+	"name": "Array Sort",
+	"category": "Arrays",
+	"description": "Sorts array elements by value or by a key in objects",
+	"ui": { "color": "#3b82f6", "icon": "arrow-down-up" },
+	"execution": { "timeoutMs": 5000, "recoverable": true },
+	"ports": {
+		"inputs": [
+			{ "name": "array", "type": "array", "description": "Array to sort" }
+		],
+		"outputs": [
+			{ "name": "result", "type": "array", "description": "Sorted array" }
+		]
+	},
+	"settings": [
+		{
+			"name": "direction",
+			"type": "select",
+			"label": "Direction",
+			"defaultValue": "asc",
+			"options": [
+				{ "label": "Ascending (A→Z, 0→9)", "value": "asc" },
+				{ "label": "Descending (Z→A, 9→0)", "value": "desc" }
+			]
+		},
+		{ "name": "sortKey", "type": "text", "label": "Sort by key (for array of objects, dot path)", "defaultValue": "" },
+		{
+			"name": "type",
+			"type": "select",
+			"label": "Compare as",
+			"defaultValue": "auto",
+			"options": [
+				{ "label": "Auto", "value": "auto" },
+				{ "label": "Number", "value": "number" },
+				{ "label": "String", "value": "string" },
+				{ "label": "Date", "value": "date" }
+			]
+		}
+	]
+}
