@@ -1,34 +1,49 @@
 {
-	"id": "array-slice",
-	"version": "1.0.0",
-	"name": "Array Slice",
-	"category": "Arrays",
-	"description": "Extracts a portion of an array — first N, last N, or custom range",
-	"ui": { "color": "#3b82f6", "icon": "scissors" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "array", "type": "array", "description": "Source array" }
-		],
-		"outputs": [
-			{ "name": "result", "type": "array", "description": "Sliced array" },
-			{ "name": "length", "type": "number", "description": "Result length" }
-		]
-	},
-	"settings": [
-		{
-			"name": "mode",
-			"type": "select",
-			"label": "Mode",
-			"defaultValue": "firstN",
-			"options": [
-				{ "label": "First N elements", "value": "firstN" },
-				{ "label": "Last N elements", "value": "lastN" },
-				{ "label": "Range (start..end)", "value": "range" }
-			]
-		},
-		{ "name": "count", "type": "number", "label": "N (count)", "defaultValue": 5 },
-		{ "name": "start", "type": "number", "label": "Start index (for range)", "defaultValue": 0 },
-		{ "name": "end", "type": "number", "label": "End index (for range)", "defaultValue": 10 }
-	]
+  "id": "array-slice",
+  "version": "1.0.0",
+  "name": "Array Slice",
+  "category": "Arrays",
+  "description": "Extracts a portion of an array — first N, last N, or custom range",
+  "ui": { "color": "#3b82f6", "icon": "scissors" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "array", "description": "Sliced array" },
+      { "name": "length", "type": "number", "description": "Result length" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "firstN",
+      "options": [
+        { "label": "First N elements", "value": "firstN" },
+        { "label": "Last N elements", "value": "lastN" },
+        { "label": "Range (start..end)", "value": "range" }
+      ]
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "label": "N (count)",
+      "defaultValue": 5
+    },
+    {
+      "name": "start",
+      "type": "number",
+      "label": "Start index (for range)",
+      "defaultValue": 0
+    },
+    {
+      "name": "end",
+      "type": "number",
+      "label": "End index (for range)",
+      "defaultValue": 10
+    }
+  ]
 }

@@ -1,31 +1,31 @@
 {
-	"id": "array-pop",
-	"version": "1.0.0",
-	"name": "Array Pop",
-	"category": "Arrays",
-	"description": "Removes and returns an element from the beginning or end of an array",
-	"ui": { "color": "#3b82f6", "icon": "minus" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "array", "type": "array", "description": "Source array" }
-		],
-		"outputs": [
-			{ "name": "item", "type": "any", "description": "Removed element" },
-			{ "name": "rest", "type": "array", "description": "Remaining array" },
-			{ "name": "length", "type": "number", "description": "Remaining length" }
-		]
-	},
-	"settings": [
-		{
-			"name": "position",
-			"type": "select",
-			"label": "Remove from",
-			"defaultValue": "end",
-			"options": [
-				{ "label": "End (pop)", "value": "end" },
-				{ "label": "Beginning (shift)", "value": "start" }
-			]
-		}
-	]
+  "id": "array-pop",
+  "version": "1.0.0",
+  "name": "Array Pop",
+  "category": "Arrays",
+  "description": "Removes and returns an element from the beginning or end of an array",
+  "ui": { "color": "#3b82f6", "icon": "minus" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" }
+    ],
+    "outputs": [
+      { "name": "item", "type": "any", "description": "Removed element" },
+      { "name": "rest", "type": "array", "description": "Remaining array" },
+      { "name": "length", "type": "number", "description": "Remaining length" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "position",
+      "type": "select",
+      "label": "Remove from",
+      "defaultValue": "end",
+      "options": [
+        { "label": "End (pop)", "value": "end" },
+        { "label": "Beginning (shift)", "value": "start" }
+      ]
+    }
+  ]
 }

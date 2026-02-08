@@ -1,31 +1,35 @@
 {
-	"id": "array-push",
-	"version": "1.0.0",
-	"name": "Array Push",
-	"category": "Arrays",
-	"description": "Adds an element to the beginning or end of an array",
-	"ui": { "color": "#3b82f6", "icon": "plus" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "array", "type": "array", "description": "Source array" },
-			{ "name": "item", "type": "any", "description": "Item to add" }
-		],
-		"outputs": [
-			{ "name": "result", "type": "array", "description": "Array with added element" },
-			{ "name": "length", "type": "number", "description": "New array length" }
-		]
-	},
-	"settings": [
-		{
-			"name": "position",
-			"type": "select",
-			"label": "Insert position",
-			"defaultValue": "end",
-			"options": [
-				{ "label": "End (push)", "value": "end" },
-				{ "label": "Beginning (unshift)", "value": "start" }
-			]
-		}
-	]
+  "id": "array-push",
+  "version": "1.0.0",
+  "name": "Array Push",
+  "category": "Arrays",
+  "description": "Adds an element to the beginning or end of an array",
+  "ui": { "color": "#3b82f6", "icon": "plus" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" },
+      { "name": "item", "type": "any", "description": "Item to add" }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "array",
+        "description": "Array with added element"
+      },
+      { "name": "length", "type": "number", "description": "New array length" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "position",
+      "type": "select",
+      "label": "Insert position",
+      "defaultValue": "end",
+      "options": [
+        { "label": "End (push)", "value": "end" },
+        { "label": "Beginning (unshift)", "value": "start" }
+      ]
+    }
+  ]
 }

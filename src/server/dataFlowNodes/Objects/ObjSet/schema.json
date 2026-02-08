@@ -1,31 +1,36 @@
 {
-	"id": "obj-set",
-	"version": "1.0.0",
-	"name": "Object Set",
-	"category": "Objects",
-	"description": "Sets or updates a property in an object by key or path",
-	"ui": { "color": "#8b5cf6", "icon": "pencil" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "object", "type": "object", "description": "Source object" },
-			{ "name": "value", "type": "any", "description": "Value to set" }
-		],
-		"outputs": [
-			{ "name": "object", "type": "object", "description": "Updated object" }
-		]
-	},
-	"settings": [
-		{ "name": "path", "type": "text", "label": "Key / path (dot notation)", "defaultValue": "" },
-		{
-			"name": "createPath",
-			"type": "select",
-			"label": "Create intermediate keys",
-			"defaultValue": "true",
-			"options": [
-				{ "label": "Yes", "value": "true" },
-				{ "label": "No", "value": "false" }
-			]
-		}
-	]
+  "id": "obj-set",
+  "version": "1.0.0",
+  "name": "Object Set",
+  "category": "Objects",
+  "description": "Sets or updates a property in an object by key or path",
+  "ui": { "color": "#8b5cf6", "icon": "pencil" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "object", "type": "object", "description": "Source object" },
+      { "name": "value", "type": "any", "description": "Value to set" }
+    ],
+    "outputs": [
+      { "name": "object", "type": "object", "description": "Updated object" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "path",
+      "type": "text",
+      "label": "Key / path (dot notation)",
+      "defaultValue": ""
+    },
+    {
+      "name": "createPath",
+      "type": "select",
+      "label": "Create intermediate keys",
+      "defaultValue": "true",
+      "options": [
+        { "label": "Yes", "value": "true" },
+        { "label": "No", "value": "false" }
+      ]
+    }
+  ]
 }

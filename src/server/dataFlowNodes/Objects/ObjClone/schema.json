@@ -1,31 +1,36 @@
 {
-	"id": "obj-clone",
-	"version": "1.0.0",
-	"name": "Object Clone",
-	"category": "Objects",
-	"description": "Deep clones an object with optional pick/omit of keys",
-	"ui": { "color": "#8b5cf6", "icon": "copy" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "object", "type": "object", "description": "Source object" }
-		],
-		"outputs": [
-			{ "name": "clone", "type": "object", "description": "Cloned object" }
-		]
-	},
-	"settings": [
-		{
-			"name": "mode",
-			"type": "select",
-			"label": "Mode",
-			"defaultValue": "full",
-			"options": [
-				{ "label": "Full clone", "value": "full" },
-				{ "label": "Pick keys only", "value": "pick" },
-				{ "label": "Omit keys", "value": "omit" }
-			]
-		},
-		{ "name": "keys", "type": "text", "label": "Keys (comma-separated, for pick/omit)", "defaultValue": "" }
-	]
+  "id": "obj-clone",
+  "version": "1.0.0",
+  "name": "Object Clone",
+  "category": "Objects",
+  "description": "Deep clones an object with optional pick/omit of keys",
+  "ui": { "color": "#8b5cf6", "icon": "copy" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "object", "type": "object", "description": "Source object" }
+    ],
+    "outputs": [
+      { "name": "clone", "type": "object", "description": "Cloned object" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "full",
+      "options": [
+        { "label": "Full clone", "value": "full" },
+        { "label": "Pick keys only", "value": "pick" },
+        { "label": "Omit keys", "value": "omit" }
+      ]
+    },
+    {
+      "name": "keys",
+      "type": "text",
+      "label": "Keys (comma-separated, for pick/omit)",
+      "defaultValue": ""
+    }
+  ]
 }

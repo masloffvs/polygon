@@ -1,0 +1,34 @@
+{
+  "id": "object-to-array",
+  "version": "1.0.0",
+  "name": "Object → Array",
+  "category": "Objects",
+  "description": "Converts object to array: values, entries, or key-value objects",
+  "ui": { "color": "#8b5cf6", "icon": "list" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "object", "type": "object", "description": "Source object" }
+    ],
+    "outputs": [
+      { "name": "array", "type": "array", "description": "Resulting array" },
+      { "name": "length", "type": "number", "description": "Number of items" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "values",
+      "options": [
+        { "label": "Values only", "value": "values" },
+        { "label": "Keys only", "value": "keys" },
+        { "label": "Entries [[key, value]]", "value": "entries" },
+        { "label": "Objects [{key, value}]", "value": "objects" }
+      ]
+    },
+    { "name": "keyName", "type": "text", "label": "Key name (for objects mode)", "defaultValue": "key" },
+    { "name": "valueName", "type": "text", "label": "Value name (for objects mode)", "defaultValue": "value" }
+  ]
+}

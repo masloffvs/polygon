@@ -1,52 +1,74 @@
 {
-	"id": "array-filter",
-	"version": "1.0.0",
-	"name": "Array Filter",
-	"category": "Arrays",
-	"description": "Filters array elements by condition — keeps only matching items",
-	"ui": { "color": "#3b82f6", "icon": "filter" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "array", "type": "array", "description": "Array to filter" }
-		],
-		"outputs": [
-			{ "name": "passed", "type": "array", "description": "Elements matching condition" },
-			{ "name": "rejected", "type": "array", "description": "Elements NOT matching condition" },
-			{ "name": "count", "type": "number", "description": "Number of passed elements" }
-		]
-	},
-	"settings": [
-		{
-			"name": "mode",
-			"type": "select",
-			"label": "Filter mode",
-			"defaultValue": "truthy",
-			"options": [
-				{ "label": "Truthy values", "value": "truthy" },
-				{ "label": "Not null/undefined", "value": "notNull" },
-				{ "label": "Contains substring", "value": "contains" },
-				{ "label": "Key equals value", "value": "keyEquals" },
-				{ "label": "Key greater than", "value": "keyGt" },
-				{ "label": "Key less than", "value": "keyLt" },
-				{ "label": "Unique only", "value": "unique" },
-				{ "label": "Type is", "value": "typeIs" }
-			]
-		},
-		{ "name": "filterKey", "type": "text", "label": "Key path (for key-based filters)", "defaultValue": "" },
-		{ "name": "filterValue", "type": "text", "label": "Filter value", "defaultValue": "" },
-		{
-			"name": "filterType",
-			"type": "select",
-			"label": "Type (for typeIs mode)",
-			"defaultValue": "string",
-			"options": [
-				{ "label": "String", "value": "string" },
-				{ "label": "Number", "value": "number" },
-				{ "label": "Boolean", "value": "boolean" },
-				{ "label": "Object", "value": "object" },
-				{ "label": "Array", "value": "array" }
-			]
-		}
-	]
+  "id": "array-filter",
+  "version": "1.0.0",
+  "name": "Array Filter",
+  "category": "Arrays",
+  "description": "Filters array elements by condition — keeps only matching items",
+  "ui": { "color": "#3b82f6", "icon": "filter" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Array to filter" }
+    ],
+    "outputs": [
+      {
+        "name": "passed",
+        "type": "array",
+        "description": "Elements matching condition"
+      },
+      {
+        "name": "rejected",
+        "type": "array",
+        "description": "Elements NOT matching condition"
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "description": "Number of passed elements"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Filter mode",
+      "defaultValue": "truthy",
+      "options": [
+        { "label": "Truthy values", "value": "truthy" },
+        { "label": "Not null/undefined", "value": "notNull" },
+        { "label": "Contains substring", "value": "contains" },
+        { "label": "Key equals value", "value": "keyEquals" },
+        { "label": "Key greater than", "value": "keyGt" },
+        { "label": "Key less than", "value": "keyLt" },
+        { "label": "Unique only", "value": "unique" },
+        { "label": "Type is", "value": "typeIs" }
+      ]
+    },
+    {
+      "name": "filterKey",
+      "type": "text",
+      "label": "Key path (for key-based filters)",
+      "defaultValue": ""
+    },
+    {
+      "name": "filterValue",
+      "type": "text",
+      "label": "Filter value",
+      "defaultValue": ""
+    },
+    {
+      "name": "filterType",
+      "type": "select",
+      "label": "Type (for typeIs mode)",
+      "defaultValue": "string",
+      "options": [
+        { "label": "String", "value": "string" },
+        { "label": "Number", "value": "number" },
+        { "label": "Boolean", "value": "boolean" },
+        { "label": "Object", "value": "object" },
+        { "label": "Array", "value": "array" }
+      ]
+    }
+  ]
 }

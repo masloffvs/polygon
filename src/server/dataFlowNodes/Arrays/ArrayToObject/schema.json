@@ -1,0 +1,32 @@
+{
+  "id": "array-to-object",
+  "version": "1.0.0",
+  "name": "Array → Object",
+  "category": "Arrays",
+  "description": "Converts array to object: entries [[k,v]], keyed objects [{id,val}], or index-based",
+  "ui": { "color": "#a855f7", "icon": "braces" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" }
+    ],
+    "outputs": [
+      { "name": "object", "type": "object", "description": "Resulting object" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "entries",
+      "options": [
+        { "label": "Entries [[key, value], ...]", "value": "entries" },
+        { "label": "Key from field (group)", "value": "keyFromField" },
+        { "label": "Index-based (0, 1, 2...)", "value": "indexed" }
+      ]
+    },
+    { "name": "keyField", "type": "text", "label": "Key field (for keyFromField mode)", "defaultValue": "id" },
+    { "name": "valueField", "type": "text", "label": "Value field (empty = whole object)", "defaultValue": "" }
+  ]
+}

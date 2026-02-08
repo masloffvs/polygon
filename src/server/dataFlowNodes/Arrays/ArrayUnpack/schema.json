@@ -1,0 +1,31 @@
+{
+  "id": "array-unpack",
+  "version": "1.0.0",
+  "name": "Array Unpack",
+  "category": "Arrays",
+  "description": "Unpacks array elements into separate outputs",
+  "ui": { "color": "#3b82f6", "icon": "ungroup" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Array to unpack" }
+    ],
+    "outputs": [
+      { "name": "item0", "type": "any", "description": "Element [0]" },
+      { "name": "item1", "type": "any", "description": "Element [1]" },
+      { "name": "item2", "type": "any", "description": "Element [2]" },
+      { "name": "item3", "type": "any", "description": "Element [3]" },
+      { "name": "item4", "type": "any", "description": "Element [4]" },
+      { "name": "rest", "type": "array", "description": "Remaining elements" },
+      { "name": "length", "type": "number", "description": "Array length" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "offset",
+      "type": "number",
+      "label": "Start offset",
+      "defaultValue": 0
+    }
+  ]
+}

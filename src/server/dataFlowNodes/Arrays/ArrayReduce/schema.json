@@ -1,38 +1,48 @@
 {
-	"id": "array-reduce",
-	"version": "1.0.0",
-	"name": "Array Reduce",
-	"category": "Arrays",
-	"description": "Reduces an array to a single value — sum, count, join, min, max, average",
-	"ui": { "color": "#3b82f6", "icon": "sigma" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "array", "type": "array", "description": "Array to reduce" }
-		],
-		"outputs": [
-			{ "name": "result", "type": "any", "description": "Reduced value" }
-		]
-	},
-	"settings": [
-		{
-			"name": "operation",
-			"type": "select",
-			"label": "Operation",
-			"defaultValue": "sum",
-			"options": [
-				{ "label": "Sum", "value": "sum" },
-				{ "label": "Average", "value": "avg" },
-				{ "label": "Min", "value": "min" },
-				{ "label": "Max", "value": "max" },
-				{ "label": "Count", "value": "count" },
-				{ "label": "Join to string", "value": "join" },
-				{ "label": "First", "value": "first" },
-				{ "label": "Last", "value": "last" },
-				{ "label": "Flatten", "value": "flatten" }
-			]
-		},
-		{ "name": "valueKey", "type": "text", "label": "Value key (for array of objects)", "defaultValue": "" },
-		{ "name": "separator", "type": "text", "label": "Separator (for join)", "defaultValue": ", " }
-	]
+  "id": "array-reduce",
+  "version": "1.0.0",
+  "name": "Array Reduce",
+  "category": "Arrays",
+  "description": "Reduces an array to a single value — sum, count, join, min, max, average",
+  "ui": { "color": "#3b82f6", "icon": "sigma" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Array to reduce" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "any", "description": "Reduced value" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "operation",
+      "type": "select",
+      "label": "Operation",
+      "defaultValue": "sum",
+      "options": [
+        { "label": "Sum", "value": "sum" },
+        { "label": "Average", "value": "avg" },
+        { "label": "Min", "value": "min" },
+        { "label": "Max", "value": "max" },
+        { "label": "Count", "value": "count" },
+        { "label": "Join to string", "value": "join" },
+        { "label": "First", "value": "first" },
+        { "label": "Last", "value": "last" },
+        { "label": "Flatten", "value": "flatten" }
+      ]
+    },
+    {
+      "name": "valueKey",
+      "type": "text",
+      "label": "Value key (for array of objects)",
+      "defaultValue": ""
+    },
+    {
+      "name": "separator",
+      "type": "text",
+      "label": "Separator (for join)",
+      "defaultValue": ", "
+    }
+  ]
 }

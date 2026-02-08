@@ -1,31 +1,40 @@
 {
-	"id": "obj-delete",
-	"version": "1.0.0",
-	"name": "Object Delete",
-	"category": "Objects",
-	"description": "Removes one or more keys from an object",
-	"ui": { "color": "#8b5cf6", "icon": "trash" },
-	"execution": { "timeoutMs": 5000, "recoverable": true },
-	"ports": {
-		"inputs": [
-			{ "name": "object", "type": "object", "description": "Source object" }
-		],
-		"outputs": [
-			{ "name": "object", "type": "object", "description": "Object without deleted keys" },
-			{ "name": "deleted", "type": "any", "description": "Deleted value(s)" }
-		]
-	},
-	"settings": [
-		{ "name": "keys", "type": "text", "label": "Keys to remove (comma-separated or dot paths)", "defaultValue": "" },
-		{
-			"name": "mode",
-			"type": "select",
-			"label": "Mode",
-			"defaultValue": "omit",
-			"options": [
-				{ "label": "Omit listed keys", "value": "omit" },
-				{ "label": "Pick listed keys (keep only)", "value": "pick" }
-			]
-		}
-	]
+  "id": "obj-delete",
+  "version": "1.0.0",
+  "name": "Object Delete",
+  "category": "Objects",
+  "description": "Removes one or more keys from an object",
+  "ui": { "color": "#8b5cf6", "icon": "trash" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "object", "type": "object", "description": "Source object" }
+    ],
+    "outputs": [
+      {
+        "name": "object",
+        "type": "object",
+        "description": "Object without deleted keys"
+      },
+      { "name": "deleted", "type": "any", "description": "Deleted value(s)" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "keys",
+      "type": "text",
+      "label": "Keys to remove (comma-separated or dot paths)",
+      "defaultValue": ""
+    },
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "omit",
+      "options": [
+        { "label": "Omit listed keys", "value": "omit" },
+        { "label": "Pick listed keys (keep only)", "value": "pick" }
+      ]
+    }
+  ]
 }

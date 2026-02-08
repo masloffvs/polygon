@@ -1,0 +1,37 @@
+{
+  "id": "array-pack",
+  "version": "1.0.0",
+  "name": "Array Pack",
+  "category": "Arrays",
+  "description": "Collects individual inputs into an array",
+  "ui": { "color": "#3b82f6", "icon": "group" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "item0", "type": "any", "description": "Element 0" },
+      { "name": "item1", "type": "any", "description": "Element 1", "optional": true },
+      { "name": "item2", "type": "any", "description": "Element 2", "optional": true },
+      { "name": "item3", "type": "any", "description": "Element 3", "optional": true },
+      { "name": "item4", "type": "any", "description": "Element 4", "optional": true },
+      { "name": "item5", "type": "any", "description": "Element 5", "optional": true },
+      { "name": "item6", "type": "any", "description": "Element 6", "optional": true },
+      { "name": "item7", "type": "any", "description": "Element 7", "optional": true }
+    ],
+    "outputs": [
+      { "name": "array", "type": "array", "description": "Packed array" },
+      { "name": "length", "type": "number", "description": "Array length" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "skipNull",
+      "type": "select",
+      "label": "Skip null/undefined inputs",
+      "defaultValue": "true",
+      "options": [
+        { "label": "Yes", "value": "true" },
+        { "label": "No (include nulls)", "value": "false" }
+      ]
+    }
+  ]
+}

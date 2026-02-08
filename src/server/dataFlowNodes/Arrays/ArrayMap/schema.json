@@ -1,0 +1,35 @@
+{
+  "id": "array-map",
+  "version": "1.0.0",
+  "name": "Array Map",
+  "category": "Arrays",
+  "description": "Transforms each element — extract key, wrap in object, or apply template",
+  "ui": { "color": "#3b82f6", "icon": "arrow-right-left" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "array", "description": "Mapped array" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "extractKey",
+      "options": [
+        { "label": "Extract key value", "value": "extractKey" },
+        { "label": "Wrap in object", "value": "wrap" },
+        { "label": "To string", "value": "toString" },
+        { "label": "Parse JSON strings", "value": "parseJson" },
+        { "label": "Flatten one level", "value": "flatten" },
+        { "label": "Index + value", "value": "indexed" }
+      ]
+    },
+    { "name": "key", "type": "text", "label": "Key / path (for extract or wrap)", "defaultValue": "" },
+    { "name": "wrapKey", "type": "text", "label": "Wrap key name (for wrap mode)", "defaultValue": "value" }
+  ]
+}

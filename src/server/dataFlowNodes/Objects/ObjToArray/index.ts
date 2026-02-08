@@ -7,7 +7,7 @@ import {
 } from "../../../dataflow/types";
 import manifest from "./schema.json";
 
-export default class ArraySliceNode extends DataFlowNode {
+export default class ObjToArrayNode extends DataFlowNode {
   public readonly manifest: NodeManifest = manifest as NodeManifest;
 
   constructor(id: UUID, config: Record<string, any> = {}) {
@@ -18,38 +18,44 @@ export default class ArraySliceNode extends DataFlowNode {
     inputs: Record<string, DataPacket>,
     _context: ProcessingContext,
   ): Promise<Record<string, DataPacket> | ErrorPacket> {
-    const arrayInput = inputs.array?.value;
-    if (!Array.isArray(arrayInput)) {
+    const source = inputs.object?.value;
+    if (typeof source !== "object" || source === null || Array.isArray(source)) {
       return {
-        result: new DataPacket([]),
+        array: new DataPacket([]),
         length: new DataPacket(0),
       };
     }
 
-    const mode = this.config.mode || "firstN";
-    const count = Number(this.config.count) || 5;
+    const mode = this.config.mode || "values";
+    const keyName = (this.config.keyName || "key").trim();
+    const valueName = (this.config.valueName || "value").trim();
 
     let result: unknown[];
 
     switch (mode) {
-      case "firstN":
-        result = arrayInput.slice(0, count);
+      case "keys":
+        result = Object.keys(source);
         break;
-      case "lastN":
-        result = arrayInput.slice(-count);
+
+      case "entries":
+        result = Object.entries(source);
         break;
-      case "range": {
-        const start = Number(this.config.start) || 0;
-        const end = Number(this.config.end) || 10;
-        result = arrayInput.slice(start, end);
+
+      case "objects":
+        result = Object.entries(source).map(([k, v]) => ({
+          [keyName]: k,
+          [valueName]: v,
+        }));
         break;
-      }
+
+      case "values":
       default:
-        result = arrayInput.slice(0, count);
+        result = Object.values(source);
+        break;
     }
 
     return {
-      result: new DataPacket(result),
+      array: new DataPacket(result),
       length: new DataPacket(result.length),
     };
   }
