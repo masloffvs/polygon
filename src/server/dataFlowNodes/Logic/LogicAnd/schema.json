@@ -1,0 +1,62 @@
+{
+	"id": "logic-and",
+	"version": "1.0.0",
+	"name": "Logic AND",
+	"category": "Logic",
+	"description": "Waits for all inputs to receive data, then passes through. Acts as AND gate for multiple conditions.",
+	"ui": {
+		"color": "#06b6d4",
+		"icon": "ampersand"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "input1",
+				"type": "any",
+				"description": "First input"
+			},
+			{
+				"name": "input2",
+				"type": "any",
+				"description": "Second input"
+			},
+			{
+				"name": "input3",
+				"type": "any",
+				"description": "Third input (optional)",
+				"required": false
+			},
+			{
+				"name": "input4",
+				"type": "any",
+				"description": "Fourth input (optional)",
+				"required": false
+			}
+		],
+		"outputs": [
+			{
+				"name": "result",
+				"type": "object",
+				"description": "Object containing all inputs"
+			},
+			{
+				"name": "first",
+				"type": "any",
+				"description": "First input value (passthrough)"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "requireAll",
+			"type": "boolean",
+			"label": "Require All Inputs",
+			"defaultValue": false,
+			"description": "Wait for all 4 inputs (true) or just required ones (false)"
+		}
+	]
+}

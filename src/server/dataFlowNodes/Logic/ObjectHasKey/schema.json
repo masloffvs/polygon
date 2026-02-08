@@ -1,0 +1,57 @@
+{
+	"id": "object-has-key",
+	"version": "1.0.0",
+	"name": "Object Has Key",
+	"category": "Logic",
+	"description": "Checks if object has specified key path. Routes to 'passed' if key exists, 'failed' if not.",
+	"ui": {
+		"color": "#f59e0b",
+		"icon": "key-round"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Object to check"
+			}
+		],
+		"outputs": [
+			{
+				"name": "passed",
+				"type": "any",
+				"description": "Original data if key exists"
+			},
+			{
+				"name": "failed",
+				"type": "any",
+				"description": "Original data if key doesn't exist"
+			},
+			{
+				"name": "value",
+				"type": "any",
+				"description": "Value at key path (if exists)"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "path",
+			"type": "string",
+			"label": "Key Path",
+			"defaultValue": "",
+			"description": "Path to check: 'name', 'user.email', 'items[0].id'"
+		},
+		{
+			"name": "checkNotNull",
+			"type": "boolean",
+			"label": "Check Not Null",
+			"defaultValue": false,
+			"description": "Also check that value is not null/undefined"
+		}
+	]
+}

@@ -1,0 +1,76 @@
+{
+	"id": "object-value-equals",
+	"version": "1.0.0",
+	"name": "Object Value Equals",
+	"category": "Logic",
+	"description": "Checks if object value at key path equals expected value. Supports string, number, and boolean comparison.",
+	"ui": {
+		"color": "#3b82f6",
+		"icon": "equal"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Object to check"
+			}
+		],
+		"outputs": [
+			{
+				"name": "passed",
+				"type": "any",
+				"description": "Original data if condition passed"
+			},
+			{
+				"name": "failed",
+				"type": "any",
+				"description": "Original data if condition failed"
+			},
+			{
+				"name": "value",
+				"type": "any",
+				"description": "Extracted value that was compared"
+			},
+			{
+				"name": "error",
+				"type": "object",
+				"description": "Error if path not found"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "path",
+			"type": "string",
+			"label": "Key Path",
+			"defaultValue": "",
+			"description": "Path to value: 'status', 'user.role', 'items[0].type'"
+		},
+		{
+			"name": "expectedValue",
+			"type": "string",
+			"label": "Expected Value",
+			"defaultValue": "",
+			"description": "Value to compare against"
+		},
+		{
+			"name": "compareType",
+			"type": "string",
+			"label": "Compare As",
+			"defaultValue": "string",
+			"description": "Type for comparison: string, number, boolean"
+		},
+		{
+			"name": "caseSensitive",
+			"type": "boolean",
+			"label": "Case Sensitive",
+			"defaultValue": true,
+			"description": "Case sensitive string comparison (only for strings)"
+		}
+	]
+}

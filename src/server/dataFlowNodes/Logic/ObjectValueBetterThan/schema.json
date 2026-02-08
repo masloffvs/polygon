@@ -1,0 +1,69 @@
+{
+	"id": "object-value-better-than",
+	"version": "1.0.0",
+	"name": "Object Value > Threshold",
+	"category": "Logic",
+	"description": "Checks if object value at key path is greater than threshold. Routes to 'passed' or 'failed' output.",
+	"ui": {
+		"color": "#10b981",
+		"icon": "chevron-up"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Object to check"
+			}
+		],
+		"outputs": [
+			{
+				"name": "passed",
+				"type": "any",
+				"description": "Original data if condition passed"
+			},
+			{
+				"name": "failed",
+				"type": "any",
+				"description": "Original data if condition failed"
+			},
+			{
+				"name": "value",
+				"type": "number",
+				"description": "Extracted value that was compared"
+			},
+			{
+				"name": "error",
+				"type": "object",
+				"description": "Error if path not found or value not a number"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "path",
+			"type": "string",
+			"label": "Key Path",
+			"defaultValue": "",
+			"description": "Path to value: 'price', 'user.balance', 'items[0].amount'"
+		},
+		{
+			"name": "threshold",
+			"type": "number",
+			"label": "Threshold",
+			"defaultValue": 0,
+			"description": "Value must be greater than this"
+		},
+		{
+			"name": "orEqual",
+			"type": "boolean",
+			"label": "Or Equal (>=)",
+			"defaultValue": false,
+			"description": "Allow equal values (>= instead of >)"
+		}
+	]
+}

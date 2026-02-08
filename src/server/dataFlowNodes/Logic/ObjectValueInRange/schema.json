@@ -1,0 +1,76 @@
+{
+	"id": "object-value-in-range",
+	"version": "1.0.0",
+	"name": "Object Value In Range",
+	"category": "Logic",
+	"description": "Checks if object value at key path is within specified range (min <= value <= max).",
+	"ui": {
+		"color": "#8b5cf6",
+		"icon": "between-horizontal-start"
+	},
+	"execution": {
+		"timeoutMs": 5000,
+		"recoverable": true
+	},
+	"ports": {
+		"inputs": [
+			{
+				"name": "data",
+				"type": "any",
+				"description": "Object to check"
+			}
+		],
+		"outputs": [
+			{
+				"name": "passed",
+				"type": "any",
+				"description": "Original data if value is in range"
+			},
+			{
+				"name": "failed",
+				"type": "any",
+				"description": "Original data if value is out of range"
+			},
+			{
+				"name": "value",
+				"type": "number",
+				"description": "Extracted value that was checked"
+			},
+			{
+				"name": "error",
+				"type": "object",
+				"description": "Error if path not found or value not a number"
+			}
+		]
+	},
+	"settings": [
+		{
+			"name": "path",
+			"type": "string",
+			"label": "Key Path",
+			"defaultValue": "",
+			"description": "Path to value: 'price', 'user.age', 'items[0].quantity'"
+		},
+		{
+			"name": "min",
+			"type": "number",
+			"label": "Minimum",
+			"defaultValue": 0,
+			"description": "Minimum value (inclusive)"
+		},
+		{
+			"name": "max",
+			"type": "number",
+			"label": "Maximum",
+			"defaultValue": 100,
+			"description": "Maximum value (inclusive)"
+		},
+		{
+			"name": "inclusive",
+			"type": "boolean",
+			"label": "Inclusive Bounds",
+			"defaultValue": true,
+			"description": "Include min/max values (true: <=, false: <)"
+		}
+	]
+}
