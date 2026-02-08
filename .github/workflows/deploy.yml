@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, terminal]
     timeout-minutes: 30
     environment: ${{ inputs.environment }}
 
