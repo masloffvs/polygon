@@ -9,6 +9,12 @@
 
 // Import agents - each one self-registers via registerExportedAgent()
 import "./any2text";
+import "./embedding_compare";
+import "./llm_chat";
+import "./replicate";
+import "./strict_typizer";
+import "./vector_search";
+import "./vector_store";
 
 // Re-export the registration function for use in application.ts
 export { registerAgentsToNodeRegistry } from "../exported_agent";

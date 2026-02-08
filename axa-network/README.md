@@ -29,9 +29,9 @@ cargo run
 - `POST /issue`
 - `POST /transfer`
 - `GET /metadata`
-- `GET /balance/:address`
-- `GET /tokens/:address`
-- `GET /owner/:token_id`
+- `GET /balance/{address}`
+- `GET /tokens/{address}`
+- `GET /owner/{token_id}`
 - `GET /chain`
 
 ## Быстрый сценарий (curl)
