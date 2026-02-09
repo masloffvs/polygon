@@ -27,6 +27,7 @@ export const NodeInspector = ({
             Settings
           </span>
           <button
+            type="button"
             onClick={onDelete}
             className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
@@ -100,6 +101,7 @@ export const NodeInspector = ({
                 "bg-rose-500",
               ].map((color) => (
                 <button
+                  type="button"
                   key={color}
                   onClick={() => onUpdate("color", color)}
                   className={classNames(
@@ -128,6 +130,7 @@ export const NodeInspector = ({
                   </label>
                   {schema.type === "boolean" ? (
                     <button
+                      type="button"
                       onClick={() =>
                         onUpdate(
                           `settings.${key}`,
@@ -249,6 +252,7 @@ export const NodeInspector = ({
             />
             {selectedNode.data.view?.id && (
               <button
+                type="button"
                 onClick={() => {
                   // Merge static args with dynamic node context
                   const viewArgs = {

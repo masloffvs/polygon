@@ -1,0 +1,58 @@
+{
+  "id": "collector-bucket",
+  "version": "1.0.0",
+  "name": "Collector Bucket",
+  "category": "Logic",
+  "description": "Collects processed results from Collector Init loop. When all items processed, emits the final transformed array.",
+  "ui": { "color": "#22c55e", "icon": "archive" },
+  "execution": { "timeoutMs": 120000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      {
+        "name": "result",
+        "type": "any",
+        "description": "Processed/transformed value for current item"
+      },
+      {
+        "name": "meta",
+        "type": "object",
+        "description": "Service signal from Collector Init"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ack",
+        "type": "any",
+        "description": "Feedback to Init — signals ready for next iteration"
+      },
+      {
+        "name": "collected",
+        "type": "array",
+        "description": "Final array (fires when ALL items collected)"
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "description": "Number of items collected"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "sessionId",
+      "type": "text",
+      "label": "Session ID (must match Init)",
+      "defaultValue": "default"
+    },
+    {
+      "name": "dropNull",
+      "type": "select",
+      "label": "Drop null/undefined results",
+      "defaultValue": "false",
+      "options": [
+        { "label": "No (keep all)", "value": "false" },
+        { "label": "Yes (filter out)", "value": "true" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "loop-foreach",
+  "version": "1.0.0",
+  "name": "ForEach",
+  "category": "Logic",
+  "description": "Iterates over an array and emits each element as a separate signal. Use with Accumulator or Collector to gather results.",
+  "ui": { "color": "#f97316", "icon": "repeat" },
+  "execution": { "timeoutMs": 60000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      {
+        "name": "array",
+        "type": "array",
+        "description": "Array to iterate over"
+      }
+    ],
+    "outputs": [
+      { "name": "item", "type": "any", "description": "Current element" },
+      {
+        "name": "index",
+        "type": "number",
+        "description": "Current index (0-based)"
+      },
+      {
+        "name": "isFirst",
+        "type": "boolean",
+        "description": "True for first element"
+      },
+      {
+        "name": "isLast",
+        "type": "boolean",
+        "description": "True for last element"
+      },
+      {
+        "name": "done",
+        "type": "object",
+        "description": "Fires once after all elements emitted, contains {count, array}"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "delayMs",
+      "type": "number",
+      "label": "Delay between emissions (ms)",
+      "defaultValue": 0
+    },
+    {
+      "name": "emitDone",
+      "type": "select",
+      "label": "Emit 'done' signal",
+      "defaultValue": "true",
+      "options": [
+        { "label": "Yes", "value": "true" },
+        { "label": "No", "value": "false" }
+      ]
+    }
+  ]
+}

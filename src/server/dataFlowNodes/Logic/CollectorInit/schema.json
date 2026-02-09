@@ -1,0 +1,40 @@
+{
+  "id": "collector-init",
+  "version": "1.0.0",
+  "name": "Collector Init",
+  "category": "Logic",
+  "description": "Starts a collect/map operation over an array. Emits elements one by one, waits for Collector Bucket feedback before next iteration.",
+  "ui": { "color": "#22c55e", "icon": "play" },
+  "execution": { "timeoutMs": 120000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Array to process" },
+      {
+        "name": "feedback",
+        "type": "any",
+        "description": "Feedback from Collector Bucket (connects to bucket.ack)"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "item",
+        "type": "any",
+        "description": "Current element to process"
+      },
+      { "name": "index", "type": "number", "description": "Current index" },
+      {
+        "name": "meta",
+        "type": "object",
+        "description": "Service signal — connect to Bucket.meta"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "sessionId",
+      "type": "text",
+      "label": "Session ID (link Init↔Bucket)",
+      "defaultValue": "default"
+    }
+  ]
+}
