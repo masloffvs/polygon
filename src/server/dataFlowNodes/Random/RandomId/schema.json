@@ -1,0 +1,33 @@
+{
+  "id": "random-uuid",
+  "version": "1.0.0",
+  "name": "Random ID",
+  "category": "Random",
+  "description": "Generates a random UUID, nanoid, or custom-length hex/alpha string.",
+  "ui": { "color": "#ec4899", "icon": "fingerprint" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "trigger", "type": "any", "description": "Any signal triggers generation", "optional": true }
+    ],
+    "outputs": [
+      { "name": "id", "type": "string", "description": "Generated ID" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Format",
+      "defaultValue": "uuid",
+      "options": [
+        { "label": "UUID v4", "value": "uuid" },
+        { "label": "Hex string", "value": "hex" },
+        { "label": "Alphanumeric", "value": "alphanum" },
+        { "label": "Numeric", "value": "numeric" }
+      ]
+    },
+    { "name": "length", "type": "number", "label": "Length (for hex/alphanum/numeric)", "defaultValue": 16 },
+    { "name": "prefix", "type": "text", "label": "Prefix", "defaultValue": "" }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "random-number",
+  "version": "1.0.0",
+  "name": "Random Number",
+  "category": "Random",
+  "description": "Generates a random number — float, integer, or from a distribution.",
+  "ui": { "color": "#ec4899", "icon": "hash" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "trigger", "type": "any", "description": "Any signal triggers generation", "optional": true }
+    ],
+    "outputs": [
+      { "name": "value", "type": "number", "description": "Generated random number" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "float",
+      "options": [
+        { "label": "Float (min–max)", "value": "float" },
+        { "label": "Integer (min–max)", "value": "int" },
+        { "label": "Boolean (0 or 1)", "value": "bool" },
+        { "label": "Gaussian (mean ± stddev)", "value": "gaussian" }
+      ]
+    },
+    { "name": "min", "type": "number", "label": "Min", "defaultValue": 0 },
+    { "name": "max", "type": "number", "label": "Max", "defaultValue": 1 },
+    { "name": "mean", "type": "number", "label": "Mean (for gaussian)", "defaultValue": 0 },
+    { "name": "stddev", "type": "number", "label": "Std dev (for gaussian)", "defaultValue": 1 }
+  ]
+}

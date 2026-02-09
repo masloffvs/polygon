@@ -1,0 +1,48 @@
+{
+  "id": "array-random",
+  "version": "1.0.0",
+  "name": "Array Random",
+  "category": "Arrays",
+  "description": "Pick N random elements from an array. Shuffle, sample, or pick one.",
+  "ui": { "color": "#ec4899", "icon": "dice-5" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "array", "type": "array", "description": "Source array" }
+    ],
+    "outputs": [
+      { "name": "picked", "type": "any", "description": "Picked element(s) — single item or array" },
+      { "name": "rest", "type": "array", "description": "Remaining elements (not picked)" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "mode",
+      "type": "select",
+      "label": "Mode",
+      "defaultValue": "pickOne",
+      "options": [
+        { "label": "Pick one random", "value": "pickOne" },
+        { "label": "Pick N random", "value": "pickN" },
+        { "label": "Shuffle (full array)", "value": "shuffle" },
+        { "label": "Random slice (contiguous)", "value": "randomSlice" }
+      ]
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "label": "N (for pickN / randomSlice)",
+      "defaultValue": 3
+    },
+    {
+      "name": "allowDuplicates",
+      "type": "select",
+      "label": "Allow duplicates",
+      "defaultValue": "false",
+      "options": [
+        { "label": "No (unique picks)", "value": "false" },
+        { "label": "Yes (with replacement)", "value": "true" }
+      ]
+    }
+  ]
+}

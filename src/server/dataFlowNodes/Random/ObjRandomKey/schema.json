@@ -1,0 +1,27 @@
+{
+  "id": "obj-random-key",
+  "version": "1.0.0",
+  "name": "Object Random Key",
+  "category": "Random",
+  "description": "Pick a random key (or N keys) from an object. Returns key + value.",
+  "ui": { "color": "#ec4899", "icon": "dice-3" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "object", "type": "object", "description": "Source object" }
+    ],
+    "outputs": [
+      { "name": "key", "type": "any", "description": "Picked key (string or array of strings)" },
+      { "name": "value", "type": "any", "description": "Picked value (or array of values)" },
+      { "name": "entry", "type": "any", "description": "Picked {key, value} pair(s)" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "count",
+      "type": "number",
+      "label": "How many keys to pick",
+      "defaultValue": 1
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import {
-  StatefulNode,
   type ProcessingContext,
   type StateAdapter,
+  StatefulNode,
 } from "../../../dataflow/Node";
 import {
   DataPacket,

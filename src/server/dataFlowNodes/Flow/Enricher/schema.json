@@ -8,12 +8,24 @@
   "execution": { "timeoutMs": 60000, "recoverable": true },
   "ports": {
     "inputs": [
-      { "name": "primary", "type": "any", "description": "Primary object (cached)" },
-      { "name": "enrichment", "type": "any", "description": "Enrichment object (triggers merge)" }
+      {
+        "name": "primary",
+        "type": "any",
+        "description": "Primary object (cached)"
+      },
+      {
+        "name": "enrichment",
+        "type": "any",
+        "description": "Enrichment object (triggers merge)"
+      }
     ],
     "outputs": [
       { "name": "merged", "type": "object", "description": "Merged result" },
-      { "name": "expired", "type": "any", "description": "Primary object that expired without a pair" }
+      {
+        "name": "expired",
+        "type": "any",
+        "description": "Primary object that expired without a pair"
+      }
     ]
   },
   "settings": [
