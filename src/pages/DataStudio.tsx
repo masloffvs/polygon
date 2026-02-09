@@ -187,6 +187,9 @@ const DataStudioInner = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const reactFlowInstance = useReactFlow();
 
+  // Clipboard State for copy/paste
+  const [clipboard, setClipboard] = useState<Node | null>(null);
+
   // Library State
   const [library, setLibrary] = useState<any[]>([]);
 
@@ -330,10 +333,42 @@ const DataStudioInner = () => {
       if (e.key === "Escape") {
         setIsSpotlightOpen(false);
       }
+      // Copy selected node (Ctrl+C / Cmd+C)
+      if (e.key === "c" && (e.ctrlKey || e.metaKey) && selectedNode) {
+        e.preventDefault();
+        setClipboard(structuredClone(selectedNode));
+        showToast("Node copied", "success");
+      }
+      // Paste node (Ctrl+V / Cmd+V)
+      if (e.key === "v" && (e.ctrlKey || e.metaKey) && clipboard) {
+        e.preventDefault();
+        const newNodeId = `node-${Date.now()}`;
+        const viewportCenter = reactFlowInstance.screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        });
+
+        const pastedNode: Node = {
+          ...clipboard,
+          id: newNodeId,
+          position: {
+            x: viewportCenter.x + (Math.random() - 0.5) * 100,
+            y: viewportCenter.y + (Math.random() - 0.5) * 100,
+          },
+          data: {
+            ...clipboard.data,
+            id: newNodeId,
+          },
+          selected: false,
+        };
+
+        setNodes((nds) => nds.concat(pastedNode));
+        showToast("Node pasted", "success");
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [selectedNode, clipboard, reactFlowInstance, setNodes, showToast]);
 
   const getPortType = useCallback(
     (nodeId: string, portName: string, isSource: boolean): DataType => {

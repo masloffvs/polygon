@@ -18,10 +18,16 @@ const TelegramAdsPublishRenderer: React.FC<NodeRendererProps> = ({
   const active = settings.active === "1";
   const targetType = settings.targetType || "channels";
   const channels = settings.channels || "";
-  const hasAuth = !!(settings.apiHash && settings.stelToken && settings.stelAdowner);
+  const hasAuth = !!(
+    settings.apiHash &&
+    settings.stelToken &&
+    settings.stelAdowner
+  );
 
   // Count target channels
-  const channelCount = channels ? channels.split(";").filter(Boolean).length : 0;
+  const channelCount = channels
+    ? channels.split(";").filter(Boolean).length
+    : 0;
 
   // Truncate text for preview
   const textPreview = text.length > 80 ? text.slice(0, 80) + "..." : text;

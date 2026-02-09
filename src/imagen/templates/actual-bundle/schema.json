@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "default": "Актуальная связка"
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Максимальный"
+    },
+    "percentage": {
+      "type": "string",
+      "default": "8.9 %"
+    },
+    "date": {
+      "type": "string",
+      "default": "12 февраля 2026 год"
+    },
+     "imageUrl": {
+      "type": "string",
+      "default": "https://raw.githubusercontent.com/masloffvs/polygon/refs/heads/master/src/imagen/assets/abstract_shape.png"
+    }
+  },
+  "required": ["title", "percentage"]
+}

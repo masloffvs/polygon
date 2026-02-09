@@ -1,7 +1,4 @@
-import {
-  DataFlowNode,
-  type ProcessingContext,
-} from "../../../dataflow/Node";
+import { DataFlowNode, type ProcessingContext } from "../../../dataflow/Node";
 import {
   DataPacket,
   type ErrorPacket,
@@ -37,7 +34,8 @@ export default class TelegramAdsPublishNode extends DataFlowNode {
         adId: new DataPacket(null),
         error: new DataPacket({
           code: "MISSING_AUTH",
-          message: "Missing required auth credentials (apiHash, stelToken, stelSsid, stelAdowner)",
+          message:
+            "Missing required auth credentials (apiHash, stelToken, stelSsid, stelAdowner)",
         }),
       };
     }
@@ -106,20 +104,24 @@ export default class TelegramAdsPublishNode extends DataFlowNode {
         "TelegramAdsPublish: Creating ad",
       );
 
-      const response = await fetch(`https://ads.telegram.org/api?hash=${apiHash}`, {
-        method: "POST",
-        headers: {
-          "accept": "application/json, text/javascript, */*; q=0.01",
-          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "cookie": cookies,
-          "origin": "https://ads.telegram.org",
-          "referer": "https://ads.telegram.org/account/ad/new",
-          "x-requested-with": "XMLHttpRequest",
-          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.7059.100 Safari/537.36",
+      const response = await fetch(
+        `https://ads.telegram.org/api?hash=${apiHash}`,
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json, text/javascript, */*; q=0.01",
+            "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            cookie: cookies,
+            origin: "https://ads.telegram.org",
+            referer: "https://ads.telegram.org/account/ad/new",
+            "x-requested-with": "XMLHttpRequest",
+            "user-agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.7059.100 Safari/537.36",
+          },
+          body: formData.toString(),
         },
-        body: formData.toString(),
-      });
+      );
 
       const responseText = await response.text();
       let data: any;
