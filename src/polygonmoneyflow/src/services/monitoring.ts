@@ -126,11 +126,28 @@ const createSolanaRealtimeMonitor = (
   commitment: Commitment,
   onActivity: (wallet: Wallet, slot: number) => void
 ): SolanaRealtimeMonitor => {
-  const endpoint = rpc.primary;
-  const connection = new Connection(endpoint, { commitment });
+  const endpoints = [rpc.primary, ...(rpc.fallbacks ?? [])]
+    .map((endpoint) => endpoint.trim())
+    .filter((endpoint) => endpoint.length > 0);
+  let endpointIndex = 0;
+  let connection = new Connection(endpoints[endpointIndex] ?? rpc.primary, { commitment });
+  let stopped = false;
+  let rotating = false;
   const walletById = new Map<string, Wallet>();
   const addressByWalletId = new Map<string, string>();
   const subscriptionByWalletId = new Map<string, number>();
+
+  const currentEndpoint = () => endpoints[endpointIndex] ?? rpc.primary;
+
+  const closeConnection = (conn: Connection) => {
+    const ws = (conn as unknown as { _rpcWebSocket?: { close?: () => void } })._rpcWebSocket;
+    if (!ws || typeof ws.close !== "function") return;
+    try {
+      ws.close();
+    } catch {
+      // noop
+    }
+  };
 
   const unsubscribe = async (walletId: string) => {
     const subscriptionId = subscriptionByWalletId.get(walletId);
@@ -146,7 +163,7 @@ const createSolanaRealtimeMonitor = (
     }
   };
 
-  const subscribe = async (wallet: Wallet) => {
+  const subscribe = async (wallet: Wallet, allowRotate = true): Promise<boolean> => {
     let pubkey: PublicKey;
     try {
       pubkey = new PublicKey(wallet.address);
@@ -155,7 +172,7 @@ const createSolanaRealtimeMonitor = (
         { chain: "solana", walletId: wallet.id, address: wallet.address, err },
         "monitor solana realtime skipped invalid address"
       );
-      return;
+      return false;
     }
 
     try {
@@ -169,21 +186,81 @@ const createSolanaRealtimeMonitor = (
         { commitment }
       );
       subscriptionByWalletId.set(wallet.id, subscriptionId);
+      return true;
     } catch (err) {
       logger.warn(
         {
           chain: "solana",
           walletId: wallet.id,
           address: wallet.address,
-          endpoint,
+          endpoint: currentEndpoint(),
           err
         },
         "monitor solana realtime subscription failed"
       );
+      if (allowRotate) {
+        const switched = await rotateEndpoint("subscription_failed", err);
+        if (switched) {
+          return subscriptionByWalletId.has(wallet.id);
+        }
+      }
+      return false;
+    }
+  };
+
+  const resubscribeAll = async () => {
+    let subscribed = 0;
+    let failed = 0;
+    for (const wallet of walletById.values()) {
+      const ok = await subscribe(wallet, false);
+      if (ok) subscribed += 1;
+      else failed += 1;
+    }
+    return { subscribed, failed };
+  };
+
+  const rotateEndpoint = async (reason: string, err?: unknown): Promise<boolean> => {
+    if (stopped || rotating || endpoints.length < 2) return false;
+    rotating = true;
+    const previousConnection = connection;
+    const previousEndpoint = currentEndpoint();
+    const previousSubscriptions = Array.from(subscriptionByWalletId.entries());
+
+    try {
+      endpointIndex = (endpointIndex + 1) % endpoints.length;
+      connection = new Connection(currentEndpoint(), { commitment });
+      subscriptionByWalletId.clear();
+
+      for (const [, subscriptionId] of previousSubscriptions) {
+        try {
+          await previousConnection.removeAccountChangeListener(subscriptionId);
+        } catch {
+          // ignore stale websocket cleanup failures
+        }
+      }
+
+      const result = await resubscribeAll();
+      logger.warn(
+        {
+          chain: "solana",
+          reason,
+          fromEndpoint: previousEndpoint,
+          toEndpoint: currentEndpoint(),
+          subscribed: result.subscribed,
+          failed: result.failed,
+          err
+        },
+        "monitor solana realtime endpoint rotated"
+      );
+      return true;
+    } finally {
+      closeConnection(previousConnection);
+      rotating = false;
     }
   };
 
   const sync = async (wallets: Wallet[]) => {
+    if (stopped) return;
     const activeWalletIds = new Set(wallets.map((wallet) => wallet.id));
 
     for (const walletId of Array.from(subscriptionByWalletId.keys())) {
@@ -208,18 +285,20 @@ const createSolanaRealtimeMonitor = (
       addressByWalletId.set(wallet.id, wallet.address);
 
       if (!subscriptionByWalletId.has(wallet.id)) {
-        await subscribe(wallet);
+        await subscribe(wallet, true);
       }
     }
   };
 
   const stop = async () => {
+    stopped = true;
     const walletIds = Array.from(subscriptionByWalletId.keys());
     for (const walletId of walletIds) {
       await unsubscribe(walletId);
     }
     walletById.clear();
     addressByWalletId.clear();
+    closeConnection(connection);
   };
 
   return { sync, stop };
