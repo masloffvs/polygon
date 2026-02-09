@@ -12,6 +12,7 @@ import "./ReplicateRenderer";
 import "./StrictTypizerRenderer";
 import "./StringTemplateRenderer";
 import "./TableVizRenderer";
+import "./TelegramAdsPublishRenderer";
 import "./TelegramDropRenderer";
 import "./TimedCollectorRenderer";
 import "./TriggeredDropRenderer";

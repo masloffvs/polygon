@@ -1,0 +1,195 @@
+{
+  "id": "telegram-ads-publish",
+  "version": "1.0.0",
+  "name": "Telegram Ads Publish",
+  "category": "Integrations",
+  "description": "Creates and publishes ads on Telegram Ads platform",
+  "ui": {
+    "color": "#0088cc",
+    "icon": "megaphone",
+    "width": 320,
+    "height": 400
+  },
+  "ports": {
+    "inputs": [
+      {
+        "name": "trigger",
+        "type": "any",
+        "required": false,
+        "description": "Trigger to create/update the ad"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": false,
+        "description": "Ad title override"
+      },
+      {
+        "name": "text",
+        "type": "string",
+        "required": false,
+        "description": "Ad text/copy override"
+      },
+      {
+        "name": "channels",
+        "type": "string",
+        "required": false,
+        "description": "Target channel IDs (semicolon-separated) override"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "result",
+        "type": "object",
+        "description": "API response with ad creation result"
+      },
+      {
+        "name": "adId",
+        "type": "string",
+        "description": "Created ad ID"
+      },
+      {
+        "name": "error",
+        "type": "object",
+        "description": "Error info if request failed"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "apiHash",
+      "type": "string",
+      "label": "API Hash",
+      "defaultValue": "",
+      "description": "Telegram Ads API hash (from URL params)"
+    },
+    {
+      "name": "stelToken",
+      "type": "string",
+      "label": "stel_token Cookie",
+      "defaultValue": "",
+      "description": "Authentication token from stel_token cookie"
+    },
+    {
+      "name": "stelSsid",
+      "type": "string",
+      "label": "stel_ssid Cookie",
+      "defaultValue": "",
+      "description": "Session ID from stel_ssid cookie"
+    },
+    {
+      "name": "stelAdowner",
+      "type": "string",
+      "label": "Owner ID",
+      "defaultValue": "",
+      "description": "Ad owner ID from stel_adowner cookie"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "label": "Ad Title",
+      "defaultValue": "",
+      "description": "Advertisement title"
+    },
+    {
+      "name": "text",
+      "type": "string",
+      "label": "Ad Text",
+      "defaultValue": "",
+      "description": "Advertisement copy/body text"
+    },
+    {
+      "name": "promoteUrl",
+      "type": "string",
+      "label": "Promote URL",
+      "defaultValue": "",
+      "description": "URL to promote (e.g., t.me/channel)"
+    },
+    {
+      "name": "websiteName",
+      "type": "string",
+      "label": "Website Name",
+      "defaultValue": "",
+      "description": "Optional website name"
+    },
+    {
+      "name": "websitePhoto",
+      "type": "string",
+      "label": "Website Photo",
+      "defaultValue": "",
+      "description": "Optional photo URL"
+    },
+    {
+      "name": "media",
+      "type": "string",
+      "label": "Media",
+      "defaultValue": "",
+      "description": "Optional media attachment"
+    },
+    {
+      "name": "cpm",
+      "type": "number",
+      "label": "CPM (€)",
+      "defaultValue": 0.1,
+      "description": "Cost per mille (thousand views)"
+    },
+    {
+      "name": "viewsPerUser",
+      "type": "number",
+      "label": "Views Per User",
+      "defaultValue": 1,
+      "description": "Max views per unique user"
+    },
+    {
+      "name": "budget",
+      "type": "number",
+      "label": "Budget (€)",
+      "defaultValue": 0.1,
+      "description": "Total ad budget"
+    },
+    {
+      "name": "dailyBudget",
+      "type": "number",
+      "label": "Daily Budget (€)",
+      "defaultValue": 0,
+      "description": "Daily spending limit (0 = no limit)"
+    },
+    {
+      "name": "active",
+      "type": "select",
+      "label": "Status",
+      "defaultValue": "0",
+      "options": ["0", "1"],
+      "description": "0 = Draft, 1 = Active"
+    },
+    {
+      "name": "targetType",
+      "type": "select",
+      "label": "Target Type",
+      "defaultValue": "channels",
+      "options": ["channels", "bots", "search"],
+      "description": "Targeting method"
+    },
+    {
+      "name": "channels",
+      "type": "string",
+      "label": "Target Channels",
+      "defaultValue": "",
+      "description": "Semicolon-separated channel IDs"
+    },
+    {
+      "name": "bots",
+      "type": "string",
+      "label": "Target Bots",
+      "defaultValue": "",
+      "description": "Semicolon-separated bot usernames"
+    },
+    {
+      "name": "searchQueries",
+      "type": "string",
+      "label": "Search Queries",
+      "defaultValue": "",
+      "description": "Semicolon-separated search queries"
+    }
+  ]
+}
