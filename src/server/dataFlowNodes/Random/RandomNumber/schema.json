@@ -8,10 +8,19 @@
   "execution": { "timeoutMs": 5000, "recoverable": true },
   "ports": {
     "inputs": [
-      { "name": "trigger", "type": "any", "description": "Any signal triggers generation", "optional": true }
+      {
+        "name": "trigger",
+        "type": "any",
+        "description": "Any signal triggers generation",
+        "optional": true
+      }
     ],
     "outputs": [
-      { "name": "value", "type": "number", "description": "Generated random number" }
+      {
+        "name": "value",
+        "type": "number",
+        "description": "Generated random number"
+      }
     ]
   },
   "settings": [
@@ -29,7 +38,17 @@
     },
     { "name": "min", "type": "number", "label": "Min", "defaultValue": 0 },
     { "name": "max", "type": "number", "label": "Max", "defaultValue": 1 },
-    { "name": "mean", "type": "number", "label": "Mean (for gaussian)", "defaultValue": 0 },
-    { "name": "stddev", "type": "number", "label": "Std dev (for gaussian)", "defaultValue": 1 }
+    {
+      "name": "mean",
+      "type": "number",
+      "label": "Mean (for gaussian)",
+      "defaultValue": 0
+    },
+    {
+      "name": "stddev",
+      "type": "number",
+      "label": "Std dev (for gaussian)",
+      "defaultValue": 1
+    }
   ]
 }

@@ -8,7 +8,12 @@
   "execution": { "timeoutMs": 5000, "recoverable": true },
   "ports": {
     "inputs": [
-      { "name": "trigger", "type": "any", "description": "Any signal triggers generation", "optional": true }
+      {
+        "name": "trigger",
+        "type": "any",
+        "description": "Any signal triggers generation",
+        "optional": true
+      }
     ],
     "outputs": [
       { "name": "id", "type": "string", "description": "Generated ID" }
@@ -27,7 +32,12 @@
         { "label": "Numeric", "value": "numeric" }
       ]
     },
-    { "name": "length", "type": "number", "label": "Length (for hex/alphanum/numeric)", "defaultValue": 16 },
+    {
+      "name": "length",
+      "type": "number",
+      "label": "Length (for hex/alphanum/numeric)",
+      "defaultValue": 16
+    },
     { "name": "prefix", "type": "text", "label": "Prefix", "defaultValue": "" }
   ]
 }

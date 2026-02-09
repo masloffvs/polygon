@@ -59,8 +59,9 @@ export default class ArrayRandomNode extends DataFlowNode {
       case "pickN": {
         if (allowDuplicates) {
           // With replacement
-          const picked = Array.from({ length: count }, () =>
-            arrayInput[Math.floor(Math.random() * arrayInput.length)],
+          const picked = Array.from(
+            { length: count },
+            () => arrayInput[Math.floor(Math.random() * arrayInput.length)],
           );
           return {
             picked: new DataPacket(picked),

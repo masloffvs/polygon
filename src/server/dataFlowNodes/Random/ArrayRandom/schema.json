@@ -11,8 +11,16 @@
       { "name": "array", "type": "array", "description": "Source array" }
     ],
     "outputs": [
-      { "name": "picked", "type": "any", "description": "Picked element(s) — single item or array" },
-      { "name": "rest", "type": "array", "description": "Remaining elements (not picked)" }
+      {
+        "name": "picked",
+        "type": "any",
+        "description": "Picked element(s) — single item or array"
+      },
+      {
+        "name": "rest",
+        "type": "array",
+        "description": "Remaining elements (not picked)"
+      }
     ]
   },
   "settings": [

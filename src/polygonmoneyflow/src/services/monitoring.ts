@@ -2,6 +2,7 @@ import { AppConfig } from "../infra/config";
 import { logger } from "../infra/logger";
 import { listWallets } from "../infra/wallet-registry";
 import { getCursor, recordIncomingTx, setCursor } from "../infra/txstore";
+import { Commitment, Connection, PublicKey } from "@solana/web3.js";
 import { listIncomingTransactions as listAdaIncoming } from "../../chains/ada";
 import { listIncomingTransactions as listAtomIncoming } from "../../chains/atom";
 import { listIncomingTransactions as listBitcoinIncoming } from "../../chains/bitcoin";
@@ -12,6 +13,7 @@ import { listIncomingTransactions as listSolanaIncoming } from "../../chains/sol
 import { listIncomingTransactions as listTrxIncoming } from "../../chains/trx";
 import { listIncomingTransactions as listXrpIncoming } from "../../chains/xrp";
 import { ChainId, IncomingTx, Wallet } from "../../chains/common/chain-adapter";
+import { ChainRpcConfig } from "../../chains/config";
 
 type MonitorOptions = {
   intervalMs: number;
@@ -22,6 +24,15 @@ type MonitorOptions = {
   rateLimitBackoffMaxMs: number;
   addressDegradeStepMs: number;
   addressDegradeMaxMultiplier: number;
+  solanaRealtimeEnabled: boolean;
+  solanaRealtimeDebounceMs: number;
+};
+
+const parseBoolean = (value: string | undefined, fallback: boolean): boolean => {
+  if (value === undefined) return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return fallback;
+  return !["0", "false", "off", "no"].includes(normalized);
 };
 
 const defaultOptions = (): MonitorOptions => ({
@@ -34,7 +45,9 @@ const defaultOptions = (): MonitorOptions => ({
   addressDegradeStepMs: Number(process.env.MONITOR_ADDRESS_DEGRADE_STEP_MS ?? "7200000"),
   addressDegradeMaxMultiplier: Number(
     process.env.MONITOR_ADDRESS_DEGRADE_MAX_MULTIPLIER ?? "64"
-  )
+  ),
+  solanaRealtimeEnabled: parseBoolean(process.env.MONITOR_SOLANA_REALTIME_ENABLED, true),
+  solanaRealtimeDebounceMs: Number(process.env.MONITOR_SOLANA_REALTIME_DEBOUNCE_MS ?? "250")
 });
 
 type ChainBackoffState = {
@@ -46,6 +59,11 @@ type AddressPollState = {
   lastIncomingAtMs: number;
   nextPollAtMs: number;
   lastMultiplier: number;
+};
+
+type SolanaRealtimeMonitor = {
+  sync(wallets: Wallet[]): Promise<void>;
+  stop(): Promise<void>;
 };
 
 const getErrorText = (err: unknown): string => {
@@ -101,6 +119,110 @@ const buildWalletOwnerMap = (wallets: Wallet[]) => {
     map.set(wallet.address.toLowerCase(), wallet.walletVirtualOwner);
   }
   return map;
+};
+
+const createSolanaRealtimeMonitor = (
+  rpc: ChainRpcConfig,
+  commitment: Commitment,
+  onActivity: (wallet: Wallet, slot: number) => void
+): SolanaRealtimeMonitor => {
+  const endpoint = rpc.primary;
+  const connection = new Connection(endpoint, { commitment });
+  const walletById = new Map<string, Wallet>();
+  const addressByWalletId = new Map<string, string>();
+  const subscriptionByWalletId = new Map<string, number>();
+
+  const unsubscribe = async (walletId: string) => {
+    const subscriptionId = subscriptionByWalletId.get(walletId);
+    if (subscriptionId === undefined) return;
+    subscriptionByWalletId.delete(walletId);
+    try {
+      await connection.removeAccountChangeListener(subscriptionId);
+    } catch (err) {
+      logger.warn(
+        { chain: "solana", walletId, err },
+        "monitor solana realtime unsubscribe failed"
+      );
+    }
+  };
+
+  const subscribe = async (wallet: Wallet) => {
+    let pubkey: PublicKey;
+    try {
+      pubkey = new PublicKey(wallet.address);
+    } catch (err) {
+      logger.warn(
+        { chain: "solana", walletId: wallet.id, address: wallet.address, err },
+        "monitor solana realtime skipped invalid address"
+      );
+      return;
+    }
+
+    try {
+      const subscriptionId = await connection.onAccountChange(
+        pubkey,
+        (_accountInfo, context) => {
+          const latest = walletById.get(wallet.id);
+          if (!latest) return;
+          onActivity(latest, context.slot);
+        },
+        { commitment }
+      );
+      subscriptionByWalletId.set(wallet.id, subscriptionId);
+    } catch (err) {
+      logger.warn(
+        {
+          chain: "solana",
+          walletId: wallet.id,
+          address: wallet.address,
+          endpoint,
+          err
+        },
+        "monitor solana realtime subscription failed"
+      );
+    }
+  };
+
+  const sync = async (wallets: Wallet[]) => {
+    const activeWalletIds = new Set(wallets.map((wallet) => wallet.id));
+
+    for (const walletId of Array.from(subscriptionByWalletId.keys())) {
+      if (activeWalletIds.has(walletId)) continue;
+      await unsubscribe(walletId);
+    }
+
+    for (const walletId of Array.from(walletById.keys())) {
+      if (!activeWalletIds.has(walletId)) walletById.delete(walletId);
+    }
+    for (const walletId of Array.from(addressByWalletId.keys())) {
+      if (!activeWalletIds.has(walletId)) addressByWalletId.delete(walletId);
+    }
+
+    for (const wallet of wallets) {
+      const previousAddress = addressByWalletId.get(wallet.id);
+      walletById.set(wallet.id, wallet);
+
+      if (previousAddress && previousAddress !== wallet.address) {
+        await unsubscribe(wallet.id);
+      }
+      addressByWalletId.set(wallet.id, wallet.address);
+
+      if (!subscriptionByWalletId.has(wallet.id)) {
+        await subscribe(wallet);
+      }
+    }
+  };
+
+  const stop = async () => {
+    const walletIds = Array.from(subscriptionByWalletId.keys());
+    for (const walletId of walletIds) {
+      await unsubscribe(walletId);
+    }
+    walletById.clear();
+    addressByWalletId.clear();
+  };
+
+  return { sync, stop };
 };
 
 const pollEvmChain = async (
@@ -241,7 +363,10 @@ const pollAddressChain = async (
 export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOptions>) => {
   const options = { ...defaultOptions(), ...override };
   let running = false;
+  let stopped = false;
   let timer: NodeJS.Timeout | null = null;
+  let fastPollTimer: NodeJS.Timeout | null = null;
+  let fastPollRequested = false;
   const backoffByChain = new Map<ChainId, ChainBackoffState>();
   const addressPollStateByChain = new Map<ChainId, Map<string, AddressPollState>>();
 
@@ -260,6 +385,42 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
     addressPollStateByChain.set(chain, state);
     return state;
   };
+  const solanaWalletPollState = addressPollState("solana");
+
+  const runFastPoll = () => {
+    if (stopped || running || !fastPollRequested) return;
+    fastPollRequested = false;
+    pollOnce("solana").catch((err) => logger.error({ err }, "monitor fast poll failed"));
+  };
+
+  const requestFastPoll = () => {
+    if (stopped) return;
+    fastPollRequested = true;
+    if (fastPollTimer) return;
+    const debounceMs = Math.max(25, options.solanaRealtimeDebounceMs);
+    fastPollTimer = setTimeout(() => {
+      fastPollTimer = null;
+      runFastPoll();
+    }, debounceMs);
+  };
+
+  const solanaRealtime =
+    options.solanaRealtimeEnabled
+      ? createSolanaRealtimeMonitor(config.chains.solana.rpc, "confirmed", (wallet, slot) => {
+          const now = Date.now();
+          const state =
+            solanaWalletPollState.get(wallet.id) ??
+            ({ lastIncomingAtMs: now, nextPollAtMs: 0, lastMultiplier: 1 } satisfies AddressPollState);
+          state.nextPollAtMs = 0;
+          state.lastMultiplier = 1;
+          solanaWalletPollState.set(wallet.id, state);
+          logger.debug(
+            { chain: "solana", walletId: wallet.id, address: wallet.address, slot },
+            "monitor solana account change received"
+          );
+          requestFastPoll();
+        })
+      : null;
 
   const runChainPoll = async (chain: ChainId, fn: () => Promise<void>) => {
     const now = Date.now();
@@ -297,16 +458,32 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
     }
   };
 
-  const pollOnce = async () => {
+  const pollOnce = async (mode: "all" | "solana" = "all") => {
     if (running) return;
     running = true;
     try {
       const wallets = await listWallets();
       if (!wallets.length) {
+        if (solanaRealtime) {
+          await solanaRealtime.sync([]);
+        }
         logger.debug("monitor: no wallets registered");
         return;
       }
       const grouped = groupByChain(wallets);
+      const solanaWallets = grouped.get("solana") ?? [];
+
+      if (solanaRealtime) {
+        await solanaRealtime.sync(solanaWallets);
+      }
+
+      await runChainPoll("solana", () =>
+        pollAddressChain("solana", solanaWallets, options, solanaWalletPollState, (wallet, limit) =>
+          listSolanaIncoming(config.chains.solana, wallet.address, limit)
+        )
+      );
+
+      if (mode === "solana") return;
 
       await runChainPoll("eth", () => pollEvmChain("eth", config, grouped.get("eth") ?? [], options));
       await runChainPoll("base", () =>
@@ -314,12 +491,6 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
       );
       await runChainPoll("polygon", () =>
         pollEvmChain("polygon", config, grouped.get("polygon") ?? [], options)
-      );
-
-      await runChainPoll("solana", () =>
-        pollAddressChain("solana", grouped.get("solana") ?? [], options, addressPollState("solana"), (wallet, limit) =>
-          listSolanaIncoming(config.chains.solana, wallet.address, limit)
-        )
       );
       await runChainPoll("trx", () =>
         pollAddressChain("trx", grouped.get("trx") ?? [], options, addressPollState("trx"), (wallet, limit) =>
@@ -373,19 +544,29 @@ export const startMonitoring = (config: AppConfig, override?: Partial<MonitorOpt
       logger.error({ err }, "monitor poll failed");
     } finally {
       running = false;
+      if (fastPollRequested) requestFastPoll();
     }
   };
 
   const start = () => {
-    pollOnce().catch((err) => logger.error({ err }, "monitor initial poll failed"));
+    pollOnce("all").catch((err) => logger.error({ err }, "monitor initial poll failed"));
     timer = setInterval(() => {
-      pollOnce().catch((err) => logger.error({ err }, "monitor poll failed"));
+      pollOnce("all").catch((err) => logger.error({ err }, "monitor poll failed"));
     }, options.intervalMs);
   };
 
   const stop = () => {
+    stopped = true;
     if (timer) clearInterval(timer);
     timer = null;
+    if (fastPollTimer) clearTimeout(fastPollTimer);
+    fastPollTimer = null;
+    fastPollRequested = false;
+    if (solanaRealtime) {
+      void solanaRealtime.stop().catch((err) =>
+        logger.warn({ chain: "solana", err }, "monitor solana realtime stop failed")
+      );
+    }
   };
 
   start();

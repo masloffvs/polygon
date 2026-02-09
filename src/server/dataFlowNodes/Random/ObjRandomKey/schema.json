@@ -11,9 +11,21 @@
       { "name": "object", "type": "object", "description": "Source object" }
     ],
     "outputs": [
-      { "name": "key", "type": "any", "description": "Picked key (string or array of strings)" },
-      { "name": "value", "type": "any", "description": "Picked value (or array of values)" },
-      { "name": "entry", "type": "any", "description": "Picked {key, value} pair(s)" }
+      {
+        "name": "key",
+        "type": "any",
+        "description": "Picked key (string or array of strings)"
+      },
+      {
+        "name": "value",
+        "type": "any",
+        "description": "Picked value (or array of values)"
+      },
+      {
+        "name": "entry",
+        "type": "any",
+        "description": "Picked {key, value} pair(s)"
+      }
     ]
   },
   "settings": [

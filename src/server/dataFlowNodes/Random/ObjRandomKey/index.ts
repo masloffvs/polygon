@@ -22,7 +22,11 @@ export default class ObjRandomKeyNode extends DataFlowNode {
     _context: ProcessingContext,
   ): Promise<Record<string, DataPacket> | ErrorPacket> {
     const source = inputs.object?.value;
-    if (typeof source !== "object" || source === null || Array.isArray(source)) {
+    if (
+      typeof source !== "object" ||
+      source === null ||
+      Array.isArray(source)
+    ) {
       return {
         key: new DataPacket(null),
         value: new DataPacket(null),
@@ -39,7 +43,10 @@ export default class ObjRandomKeyNode extends DataFlowNode {
       };
     }
 
-    const count = Math.max(1, Math.min(keys.length, Number(this.config.count ?? 1)));
+    const count = Math.max(
+      1,
+      Math.min(keys.length, Number(this.config.count ?? 1)),
+    );
     const obj = source as Record<string, unknown>;
 
     if (count === 1) {
