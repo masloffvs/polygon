@@ -136,11 +136,11 @@ const noiseTexture = generateNoiseTexture();
 
 export default function ActualBundleTemplate({
   label = "Максимальный",
-  value = "8.9 %",
+  percentage = "8.9 %",
   date = formatDate(),
 }: {
   label?: string;
-  value?: string;
+  percentage?: string;
   date?: string;
 }) {
   // Get random background on each render
@@ -265,7 +265,7 @@ export default function ActualBundleTemplate({
               lineHeight: 1,
             }}
           >
-            {value}
+            {percentage}
           </div>
         </div>
 
