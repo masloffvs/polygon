@@ -29,7 +29,17 @@
         { "label": "Index + value", "value": "indexed" }
       ]
     },
-    { "name": "key", "type": "text", "label": "Key / path (for extract or wrap)", "defaultValue": "" },
-    { "name": "wrapKey", "type": "text", "label": "Wrap key name (for wrap mode)", "defaultValue": "value" }
+    {
+      "name": "key",
+      "type": "text",
+      "label": "Key / path (for extract or wrap)",
+      "defaultValue": ""
+    },
+    {
+      "name": "wrapKey",
+      "type": "text",
+      "label": "Wrap key name (for wrap mode)",
+      "defaultValue": "value"
+    }
   ]
 }

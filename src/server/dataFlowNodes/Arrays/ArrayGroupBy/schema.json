@@ -11,13 +11,22 @@
       { "name": "array", "type": "array", "description": "Array to group" }
     ],
     "outputs": [
-      { "name": "groups", "type": "object", "description": "Object where keys are group values, values are arrays" },
+      {
+        "name": "groups",
+        "type": "object",
+        "description": "Object where keys are group values, values are arrays"
+      },
       { "name": "keys", "type": "array", "description": "Array of group keys" },
       { "name": "count", "type": "number", "description": "Number of groups" }
     ]
   },
   "settings": [
-    { "name": "groupKey", "type": "text", "label": "Group by key / path", "defaultValue": "" },
+    {
+      "name": "groupKey",
+      "type": "text",
+      "label": "Group by key / path",
+      "defaultValue": ""
+    },
     {
       "name": "transform",
       "type": "select",
@@ -29,6 +38,11 @@
         { "label": "Extract field", "value": "extractField" }
       ]
     },
-    { "name": "extractField", "type": "text", "label": "Field to extract (for extractField mode)", "defaultValue": "" }
+    {
+      "name": "extractField",
+      "type": "text",
+      "label": "Field to extract (for extractField mode)",
+      "defaultValue": ""
+    }
   ]
 }

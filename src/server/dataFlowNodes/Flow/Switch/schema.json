@@ -1,0 +1,31 @@
+{
+  "id": "flow-switch",
+  "version": "1.0.0",
+  "name": "Switch (Random)",
+  "category": "Flow",
+  "description": "Routes the signal to one random output channel.",
+  "ui": { "color": "#ef4444", "icon": "shuffle" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      { "name": "out1", "type": "any", "description": "Random output 1" },
+      { "name": "out2", "type": "any", "description": "Random output 2" },
+      { "name": "out3", "type": "any", "description": "Random output 3" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "outputs",
+      "type": "number",
+      "label": "Active outputs (2 or 3)",
+      "defaultValue": 2
+    },
+    {
+      "name": "weights",
+      "type": "text",
+      "label": "Weights (comma-separated, e.g. 50,30,20)",
+      "defaultValue": ""
+    }
+  ]
+}

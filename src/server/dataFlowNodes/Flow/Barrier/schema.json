@@ -1,0 +1,49 @@
+{
+  "id": "flow-barrier",
+  "version": "1.0.0",
+  "name": "Barrier (Wait All)",
+  "category": "Flow",
+  "description": "Waits for signals on ALL inputs before releasing them together. Buffers partial data.",
+  "ui": { "color": "#06b6d4", "icon": "lock" },
+  "execution": { "timeoutMs": 60000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "a", "type": "any", "description": "Channel A" },
+      { "name": "b", "type": "any", "description": "Channel B" },
+      {
+        "name": "c",
+        "type": "any",
+        "description": "Channel C (optional)",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      { "name": "a", "type": "any", "description": "Buffered value from A" },
+      { "name": "b", "type": "any", "description": "Buffered value from B" },
+      { "name": "c", "type": "any", "description": "Buffered value from C" },
+      {
+        "name": "all",
+        "type": "object",
+        "description": "All values as {a, b, c}"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "timeoutSec",
+      "type": "number",
+      "label": "Timeout (seconds, 0 = wait forever)",
+      "defaultValue": 30
+    },
+    {
+      "name": "onTimeout",
+      "type": "select",
+      "label": "On timeout",
+      "defaultValue": "release",
+      "options": [
+        { "label": "Release partial data", "value": "release" },
+        { "label": "Drop everything", "value": "drop" }
+      ]
+    }
+  ]
+}

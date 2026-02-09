@@ -8,7 +8,11 @@
   "execution": { "timeoutMs": 5000, "recoverable": true },
   "ports": {
     "inputs": [
-      { "name": "array", "type": "array", "description": "Array of objects to remap" }
+      {
+        "name": "array",
+        "type": "array",
+        "description": "Array of objects to remap"
+      }
     ],
     "outputs": [
       { "name": "result", "type": "array", "description": "Remapped array" }

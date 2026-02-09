@@ -30,7 +30,10 @@ export default class ArrayRemapNode extends DataFlowNode {
     const dropNull = this.config.dropNull === "true";
 
     const pickKeys = pickKeysRaw
-      ? pickKeysRaw.split(",").map((k: string) => k.trim()).filter(Boolean)
+      ? pickKeysRaw
+          .split(",")
+          .map((k: string) => k.trim())
+          .filter(Boolean)
       : [];
 
     // Parse rename map: "oldKey:newKey,oldKey2:newKey2"
@@ -58,8 +61,7 @@ export default class ArrayRemapNode extends DataFlowNode {
       const out: Record<string, unknown> = { ...defaults };
 
       // If pickKeys specified, only take those keys
-      const keysToProcess =
-        pickKeys.length > 0 ? pickKeys : Object.keys(src);
+      const keysToProcess = pickKeys.length > 0 ? pickKeys : Object.keys(src);
 
       for (const key of keysToProcess) {
         const value = _.get(src, key);
@@ -70,9 +72,7 @@ export default class ArrayRemapNode extends DataFlowNode {
         }
 
         // Use simple key name (last segment) if it was a dot path
-        const finalKey = outKey.includes(".")
-          ? outKey
-          : outKey;
+        const finalKey = outKey.includes(".") ? outKey : outKey;
         out[finalKey] = value;
       }
 

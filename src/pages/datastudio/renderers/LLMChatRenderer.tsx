@@ -18,7 +18,7 @@ const LLMChatRenderer: React.FC<NodeRendererProps> = ({ data, nodeData }) => {
     <div className="flex flex-col gap-2 p-2 w-full min-w-[220px]">
       {/* Provider & Model Tags */}
       <div className="flex flex-wrap gap-1.5">
-        <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded">
+        <span className="text-[9px] px-1.5 py-0.5 bg-lime-500/20 text-emerald-300 rounded">
           {provider === "custom" ? "Custom API" : "OpenRouter"}
         </span>
         <span className="text-[9px] px-1.5 py-0.5 bg-blue-500/20 text-blue-300 rounded truncate max-w-[120px]">

@@ -28,7 +28,17 @@
         { "label": "Objects [{key, value}]", "value": "objects" }
       ]
     },
-    { "name": "keyName", "type": "text", "label": "Key name (for objects mode)", "defaultValue": "key" },
-    { "name": "valueName", "type": "text", "label": "Value name (for objects mode)", "defaultValue": "value" }
+    {
+      "name": "keyName",
+      "type": "text",
+      "label": "Key name (for objects mode)",
+      "defaultValue": "key"
+    },
+    {
+      "name": "valueName",
+      "type": "text",
+      "label": "Value name (for objects mode)",
+      "defaultValue": "value"
+    }
   ]
 }

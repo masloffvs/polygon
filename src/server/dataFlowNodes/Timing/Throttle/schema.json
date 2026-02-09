@@ -1,0 +1,24 @@
+{
+  "id": "flow-throttle",
+  "version": "1.0.0",
+  "name": "Throttle",
+  "category": "Timing",
+  "description": "Passes at most 1 signal per interval. Extra signals within the window are dropped.",
+  "ui": { "color": "#8b5cf6", "icon": "gauge" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      { "name": "out", "type": "any", "description": "Throttled output" },
+      { "name": "dropped", "type": "any", "description": "Dropped signals" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "intervalMs",
+      "type": "number",
+      "label": "Interval (ms)",
+      "defaultValue": 1000
+    }
+  ]
+}

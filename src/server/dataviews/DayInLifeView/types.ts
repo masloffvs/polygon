@@ -57,7 +57,7 @@ export function formatDuration(ms: number): string {
 export function getModelColor(modelId: string): string {
   if (modelId.includes("gemini")) return "text-blue-400 bg-blue-500/20";
   if (modelId.includes("claude")) return "text-orange-400 bg-orange-500/20";
-  if (modelId.includes("gpt")) return "text-emerald-400 bg-emerald-500/20";
+  if (modelId.includes("gpt")) return "text-emerald-400 bg-lime-500/20";
   if (modelId.includes("llama")) return "text-purple-400 bg-purple-500/20";
   return "text-gray-400 bg-gray-500/20";
 }

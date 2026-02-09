@@ -1,0 +1,40 @@
+{
+  "id": "flow-accumulator",
+  "version": "1.0.0",
+  "name": "Accumulator",
+  "category": "Timing",
+  "description": "Collects N signals, then emits them as one batch array. Resets and starts over.",
+  "ui": { "color": "#8b5cf6", "icon": "archive" },
+  "execution": { "timeoutMs": 60000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      { "name": "batch", "type": "array", "description": "Accumulated batch" },
+      { "name": "count", "type": "number", "description": "Items in batch" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "batchSize",
+      "type": "number",
+      "label": "Batch size (N)",
+      "defaultValue": 10
+    },
+    {
+      "name": "flushOnTimeout",
+      "type": "select",
+      "label": "Auto-flush on timeout",
+      "defaultValue": "false",
+      "options": [
+        { "label": "No (strict N)", "value": "false" },
+        { "label": "Yes", "value": "true" }
+      ]
+    },
+    {
+      "name": "flushTimeoutMs",
+      "type": "number",
+      "label": "Auto-flush timeout (ms)",
+      "defaultValue": 10000
+    }
+  ]
+}

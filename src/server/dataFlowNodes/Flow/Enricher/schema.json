@@ -1,0 +1,47 @@
+{
+  "id": "flow-enricher",
+  "version": "1.0.0",
+  "name": "Enricher (TTL Merge)",
+  "category": "Flow",
+  "description": "Stores object #1 in memory for TTL seconds. If object #2 arrives within TTL, merges them and emits. Otherwise emits #1 alone or drops it.",
+  "ui": { "color": "#06b6d4", "icon": "combine" },
+  "execution": { "timeoutMs": 60000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      { "name": "primary", "type": "any", "description": "Primary object (cached)" },
+      { "name": "enrichment", "type": "any", "description": "Enrichment object (triggers merge)" }
+    ],
+    "outputs": [
+      { "name": "merged", "type": "object", "description": "Merged result" },
+      { "name": "expired", "type": "any", "description": "Primary object that expired without a pair" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "ttlMs",
+      "type": "number",
+      "label": "TTL (milliseconds)",
+      "defaultValue": 5000
+    },
+    {
+      "name": "mergeStrategy",
+      "type": "select",
+      "label": "Merge strategy",
+      "defaultValue": "shallow",
+      "options": [
+        { "label": "Shallow merge ({...a, ...b})", "value": "shallow" },
+        { "label": "Nest ({ primary, enrichment })", "value": "nest" }
+      ]
+    },
+    {
+      "name": "onExpire",
+      "type": "select",
+      "label": "On TTL expire",
+      "defaultValue": "emit",
+      "options": [
+        { "label": "Emit primary alone to 'expired'", "value": "emit" },
+        { "label": "Drop silently", "value": "drop" }
+      ]
+    }
+  ]
+}

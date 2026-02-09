@@ -26,7 +26,17 @@
         { "label": "Index-based (0, 1, 2...)", "value": "indexed" }
       ]
     },
-    { "name": "keyField", "type": "text", "label": "Key field (for keyFromField mode)", "defaultValue": "id" },
-    { "name": "valueField", "type": "text", "label": "Value field (empty = whole object)", "defaultValue": "" }
+    {
+      "name": "keyField",
+      "type": "text",
+      "label": "Key field (for keyFromField mode)",
+      "defaultValue": "id"
+    },
+    {
+      "name": "valueField",
+      "type": "text",
+      "label": "Value field (empty = whole object)",
+      "defaultValue": ""
+    }
   ]
 }

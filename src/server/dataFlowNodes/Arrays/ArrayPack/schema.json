@@ -9,13 +9,48 @@
   "ports": {
     "inputs": [
       { "name": "item0", "type": "any", "description": "Element 0" },
-      { "name": "item1", "type": "any", "description": "Element 1", "optional": true },
-      { "name": "item2", "type": "any", "description": "Element 2", "optional": true },
-      { "name": "item3", "type": "any", "description": "Element 3", "optional": true },
-      { "name": "item4", "type": "any", "description": "Element 4", "optional": true },
-      { "name": "item5", "type": "any", "description": "Element 5", "optional": true },
-      { "name": "item6", "type": "any", "description": "Element 6", "optional": true },
-      { "name": "item7", "type": "any", "description": "Element 7", "optional": true }
+      {
+        "name": "item1",
+        "type": "any",
+        "description": "Element 1",
+        "optional": true
+      },
+      {
+        "name": "item2",
+        "type": "any",
+        "description": "Element 2",
+        "optional": true
+      },
+      {
+        "name": "item3",
+        "type": "any",
+        "description": "Element 3",
+        "optional": true
+      },
+      {
+        "name": "item4",
+        "type": "any",
+        "description": "Element 4",
+        "optional": true
+      },
+      {
+        "name": "item5",
+        "type": "any",
+        "description": "Element 5",
+        "optional": true
+      },
+      {
+        "name": "item6",
+        "type": "any",
+        "description": "Element 6",
+        "optional": true
+      },
+      {
+        "name": "item7",
+        "type": "any",
+        "description": "Element 7",
+        "optional": true
+      }
     ],
     "outputs": [
       { "name": "array", "type": "array", "description": "Packed array" },

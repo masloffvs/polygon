@@ -1,0 +1,32 @@
+{
+  "id": "flow-gate",
+  "version": "1.0.0",
+  "name": "Gate (Chance)",
+  "category": "Flow",
+  "description": "Probabilistic gate — passes signal with X% chance, drops the rest.",
+  "ui": { "color": "#ef4444", "icon": "dice-3" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      {
+        "name": "passed",
+        "type": "any",
+        "description": "Signal that passed the gate"
+      },
+      {
+        "name": "dropped",
+        "type": "any",
+        "description": "Signal that was dropped"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "chance",
+      "type": "number",
+      "label": "Pass probability (0.0 – 1.0)",
+      "defaultValue": 0.5
+    }
+  ]
+}

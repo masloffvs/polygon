@@ -45,7 +45,7 @@ export default class ArrayGroupByNode extends DataFlowNode {
     for (const el of arrayInput) {
       const keyVal = String(
         typeof el === "object" && el !== null
-          ? _.get(el, groupKey) ?? "__undefined__"
+          ? (_.get(el, groupKey) ?? "__undefined__")
           : el,
       );
       if (!grouped[keyVal]) grouped[keyVal] = [];

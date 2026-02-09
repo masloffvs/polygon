@@ -19,7 +19,11 @@ export default class ObjToArrayNode extends DataFlowNode {
     _context: ProcessingContext,
   ): Promise<Record<string, DataPacket> | ErrorPacket> {
     const source = inputs.object?.value;
-    if (typeof source !== "object" || source === null || Array.isArray(source)) {
+    if (
+      typeof source !== "object" ||
+      source === null ||
+      Array.isArray(source)
+    ) {
       return {
         array: new DataPacket([]),
         length: new DataPacket(0),

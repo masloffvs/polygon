@@ -1,0 +1,52 @@
+{
+  "id": "flow-merge",
+  "version": "1.0.0",
+  "name": "Merge (3→1)",
+  "category": "Flow",
+  "description": "Three inputs, one output. Any incoming signal passes through immediately.",
+  "ui": { "color": "#f59e0b", "icon": "merge" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [
+      {
+        "name": "in1",
+        "type": "any",
+        "description": "Input channel 1",
+        "optional": true
+      },
+      {
+        "name": "in2",
+        "type": "any",
+        "description": "Input channel 2",
+        "optional": true
+      },
+      {
+        "name": "in3",
+        "type": "any",
+        "description": "Input channel 3",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      { "name": "out", "type": "any", "description": "Merged output" },
+      {
+        "name": "source",
+        "type": "string",
+        "description": "Which input channel fired (in1/in2/in3)"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "priority",
+      "type": "select",
+      "label": "Priority (if multiple arrive)",
+      "defaultValue": "first",
+      "options": [
+        { "label": "First available (in1 > in2 > in3)", "value": "first" },
+        { "label": "Last available", "value": "last" },
+        { "label": "All (array)", "value": "all" }
+      ]
+    }
+  ]
+}

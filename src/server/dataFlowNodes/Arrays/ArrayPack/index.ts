@@ -20,8 +20,14 @@ export default class ArrayPackNode extends DataFlowNode {
   ): Promise<Record<string, DataPacket> | ErrorPacket> {
     const skipNull = this.config.skipNull !== "false";
     const ports = [
-      "item0", "item1", "item2", "item3",
-      "item4", "item5", "item6", "item7",
+      "item0",
+      "item1",
+      "item2",
+      "item3",
+      "item4",
+      "item5",
+      "item6",
+      "item7",
     ];
 
     const result: unknown[] = [];

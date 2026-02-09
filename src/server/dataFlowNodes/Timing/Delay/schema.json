@@ -1,0 +1,29 @@
+{
+  "id": "flow-delay",
+  "version": "1.0.0",
+  "name": "Delay",
+  "category": "Timing",
+  "description": "Holds a signal for N milliseconds before passing it through.",
+  "ui": { "color": "#8b5cf6", "icon": "clock" },
+  "execution": { "timeoutMs": 120000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      { "name": "out", "type": "any", "description": "Delayed output" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "delayMs",
+      "type": "number",
+      "label": "Delay (ms)",
+      "defaultValue": 1000
+    },
+    {
+      "name": "jitter",
+      "type": "number",
+      "label": "Random jitter ± (ms, 0 = none)",
+      "defaultValue": 0
+    }
+  ]
+}

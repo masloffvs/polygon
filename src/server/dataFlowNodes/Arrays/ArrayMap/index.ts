@@ -65,9 +65,9 @@ export default class ArrayMapNode extends DataFlowNode {
         break;
 
       case "flatten":
-        result = arrayInput.map((el: unknown) =>
-          Array.isArray(el) ? el : [el],
-        ).flat();
+        result = arrayInput
+          .map((el: unknown) => (Array.isArray(el) ? el : [el]))
+          .flat();
         break;
 
       case "indexed":

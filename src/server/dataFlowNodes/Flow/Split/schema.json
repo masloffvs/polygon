@@ -1,0 +1,29 @@
+{
+  "id": "flow-split",
+  "version": "1.0.0",
+  "name": "Split (1→3)",
+  "category": "Flow",
+  "description": "One input, three outputs. Duplicates the signal to all branches simultaneously.",
+  "ui": { "color": "#f59e0b", "icon": "split" },
+  "execution": { "timeoutMs": 5000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      { "name": "out1", "type": "any", "description": "Output copy 1" },
+      { "name": "out2", "type": "any", "description": "Output copy 2" },
+      { "name": "out3", "type": "any", "description": "Output copy 3" }
+    ]
+  },
+  "settings": [
+    {
+      "name": "deepCopy",
+      "type": "select",
+      "label": "Deep copy objects",
+      "defaultValue": "true",
+      "options": [
+        { "label": "Yes (safe, independent copies)", "value": "true" },
+        { "label": "No (same reference, faster)", "value": "false" }
+      ]
+    }
+  ]
+}

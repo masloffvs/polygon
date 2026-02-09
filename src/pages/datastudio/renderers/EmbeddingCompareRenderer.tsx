@@ -13,7 +13,7 @@ const EmbeddingCompareRenderer: React.FC<NodeRendererProps> = ({
 
   const verdictColors: Record<string, string> = {
     identical: "text-green-300 bg-green-500/20",
-    very_similar: "text-emerald-300 bg-emerald-500/20",
+    very_similar: "text-emerald-300 bg-lime-500/20",
     similar: "text-blue-300 bg-blue-500/20",
     related: "text-yellow-300 bg-yellow-500/20",
     different: "text-orange-300 bg-orange-500/20",

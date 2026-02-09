@@ -1,0 +1,27 @@
+{
+  "id": "flow-debounce",
+  "version": "1.0.0",
+  "name": "Debounce",
+  "category": "Timing",
+  "description": "Waits for silence on the input. Emits only after no new signal arrives for X ms.",
+  "ui": { "color": "#8b5cf6", "icon": "timer" },
+  "execution": { "timeoutMs": 30000, "recoverable": true },
+  "ports": {
+    "inputs": [{ "name": "in", "type": "any", "description": "Input signal" }],
+    "outputs": [
+      {
+        "name": "out",
+        "type": "any",
+        "description": "Debounced output (last value)"
+      }
+    ]
+  },
+  "settings": [
+    {
+      "name": "waitMs",
+      "type": "number",
+      "label": "Quiet period (ms)",
+      "defaultValue": 500
+    }
+  ]
+}
